@@ -1,0 +1,82 @@
+# Supabase local development configuration
+# For detailed configuration reference documentation, visit:
+# https://supabase.com/docs/guides/local-development/cli/config
+
+project_id = "wealth"
+
+[api]
+enabled = false
+# Disable PostgREST API (using tRPC instead)
+
+[db]
+# Port to use for the local database URL.
+port = 5432
+# Port used by db diff command to initialize the shadow database.
+shadow_port = 54320
+# The database major version to use. This has to be the same as your remote database's. Run `SHOW
+# server_version;` on the remote database to check.
+major_version = 15
+
+[db.pooler]
+enabled = true
+# Port to use for the local connection pooler.
+port = 54322
+# Specifies when a server connection can be reused by other clients.
+# Configure one of the supported pooler modes: `transaction`, `session`.
+pool_mode = "transaction"
+# How many server connections to allow per user/database pair.
+default_pool_size = 20
+# Maximum number of client connections allowed.
+max_client_conn = 100
+
+[db.seed]
+# If enabled, seeds the database after migrations during a db reset.
+# Disabled because we use prisma/seed.ts instead
+enabled = false
+sql_paths = []
+
+[realtime]
+enabled = false
+# Disable Realtime (no real-time features in MVP)
+
+[studio]
+enabled = true
+# Port to use for Supabase Studio.
+port = 54323
+# External URL of the API server that frontend connects to.
+api_url = "http://127.0.0.1"
+
+[inbucket]
+enabled = true
+# Enable email testing server for local auth flows
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[storage]
+enabled = false
+# Disable Storage (no file storage in MVP)
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+double_confirm_changes = true
+max_frequency = "60s"
+
+[edge_runtime]
+enabled = false
+# Disable Edge Functions (using Next.js API routes)
+
+[analytics]
+enabled = false
+# Disable Analytics (not needed for local dev)
+
+# Experimental features may be deprecated any time
+[experimental]
+# Configures Postgres storage engine to use OrioleDB (S3)
+orioledb_version = ""

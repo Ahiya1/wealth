@@ -1,0 +1,23 @@
+project_name: "Wealth - Iteration 5: Integration Fixes & Missing Functionality"
+iteration: 5
+created_at: 2025-10-02
+focus: "Fix integration issues - wire up components to data, fix 404s, make dashboard fully functional"
+issue: "Dashboard is naked - StatCards not showing, Add Transaction 404, data not flowing"
+
+root_cause: "Iteration 4 built beautiful components but didn't integrate them with existing data flows and routes"
+
+objectives:
+  - Fix 404 errors (Add Transaction, other modals)
+  - Wire up StatCards to actual financial data on dashboard
+  - Ensure all CRUD modals/forms work
+  - Connect components to tRPC data
+  - Test full user journey end-to-end
+
+estimated_time: "2-3 hours"
+
+previous_iterations:
+  iteration_1: "Initial T3 stack setup"
+  iteration_2: "Supabase local integration + runtime error fixes"
+  iteration_3: "Database connection fix + Supabase Auth integration"
+  iteration_4: "Complete functionality + conscious money UI"
+  iteration_5: "Integration fixes (CURRENT)"

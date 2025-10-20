@@ -1,0 +1,100 @@
+
+> wealth@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.33
+  - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+./src/components/analytics/IncomeSourcesChart.tsx
+20:47  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/analytics/MonthOverMonthChart.tsx
+20:54  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+28:30  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/analytics/NetWorthChart.tsx
+20:47  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/analytics/SpendingByCategoryChart.tsx
+20:47  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/analytics/SpendingTrendsChart.tsx
+20:47  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/categories/CategoryBadge.tsx
+16:66  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/categories/CategoryForm.tsx
+170:91  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+179:81  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+236:76  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/categories/CategorySelect.tsx
+52:72  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+65:77  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/goals/GoalForm.tsx
+144:69  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/settings/ProfileSection.tsx
+60:36  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+125:69  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/jsonExport.ts
+8:13  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+9:17  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+10:12  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+11:10  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+12:15  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+17:34  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+17:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+26:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/server/services/__tests__/categorize.service.test.ts
+46:92  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+47:96  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+57:10  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+76:92  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+77:96  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+84:69  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+97:25  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+114:96  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+119:69  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+134:99  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+145:11  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+166:92  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+176:10  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+   Collecting page data ...
+PageNotFoundError: Cannot find module for page: /_not-found
+    at getPagePath (/home/ahiya/Ahiya/wealth/node_modules/next/dist/server/require.js:94:15)
+    at requirePage (/home/ahiya/Ahiya/wealth/node_modules/next/dist/server/require.js:99:22)
+    at /home/ahiya/Ahiya/wealth/node_modules/next/dist/server/load-components.js:103:84
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async loadComponentsImpl (/home/ahiya/Ahiya/wealth/node_modules/next/dist/server/load-components.js:103:26)
+    at async /home/ahiya/Ahiya/wealth/node_modules/next/dist/build/utils.js:1116:32
+    at async Span.traceAsyncFn (/home/ahiya/Ahiya/wealth/node_modules/next/dist/trace/trace.js:154:20) {
+  code: 'ENOENT'
+}
+PageNotFoundError: Cannot find module for page: /budgets/[month]
+    at getPagePath (/home/ahiya/Ahiya/wealth/node_modules/next/dist/server/require.js:94:15)
+    at requirePage (/home/ahiya/Ahiya/wealth/node_modules/next/dist/server/require.js:99:22)
+    at /home/ahiya/Ahiya/wealth/node_modules/next/dist/server/load-components.js:103:84
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async loadComponentsImpl (/home/ahiya/Ahiya/wealth/node_modules/next/dist/server/load-components.js:103:26)
+    at async /home/ahiya/Ahiya/wealth/node_modules/next/dist/build/utils.js:1116:32
+    at async Span.traceAsyncFn (/home/ahiya/Ahiya/wealth/node_modules/next/dist/trace/trace.js:154:20) {
+  code: 'ENOENT'
+}
+PageNotFoundError: Cannot find module for page: /budgets
+    at getPagePath (/home/ahiya/Ahiya/wealth/node_modules/next/dist/server/require.js:94:15)
+    at requirePage (/home/ahiya/Ahiya/wealth/node_modules/next/dist/server/require.js:99:22)
+    at /home/ahiya/Ahiya/wealth/node_modules/next/dist/server/load-components.js:103:84
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async loadComponentsImpl (/home/ahiya/Ahiya/wealth/node_modules/next/dist/server/load-components.js:103:26)
+    at async /home/ahiya/Ahiya/wealth/node_modules/next/dist/build/utils.js:1116:32

@@ -1,0 +1,194 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Sage Green Palette */
+    --sage-50: 140 10% 96%;
+    --sage-100: 140 10% 92%;
+    --sage-200: 140 11% 84%;
+    --sage-300: 140 12% 69%;
+    --sage-400: 140 13% 56%;
+    --sage-500: 140 13% 42%;
+    --sage-600: 140 14% 33%;
+    --sage-700: 140 15% 27%;
+    --sage-800: 140 16% 21%;
+    --sage-900: 140 18% 15%;
+
+    /* Warm Gray Palette */
+    --warm-gray-50: 24 6% 98%;
+    --warm-gray-100: 24 6% 96%;
+    --warm-gray-200: 24 6% 91%;
+    --warm-gray-300: 24 5% 84%;
+    --warm-gray-400: 24 4% 66%;
+    --warm-gray-500: 24 5% 46%;
+    --warm-gray-600: 24 6% 34%;
+    --warm-gray-700: 24 7% 27%;
+    --warm-gray-800: 24 9% 16%;
+    --warm-gray-900: 24 10% 11%;
+
+    /* Terracotta Palette (NEW) */
+    --terracotta-50: 30 30% 97%;
+    --terracotta-100: 30 30% 94%;
+    --terracotta-200: 30 35% 87%;
+    --terracotta-300: 30 40% 77%;
+    --terracotta-400: 25 50% 65%;
+    --terracotta-500: 20 55% 55%;
+    --terracotta-600: 15 60% 45%;
+    --terracotta-700: 12 65% 38%;
+    --terracotta-800: 10 70% 30%;
+    --terracotta-900: 8 75% 22%;
+
+    /* Dusty Blue Palette (NEW) */
+    --dusty-blue-50: 215 20% 97%;
+    --dusty-blue-100: 215 20% 93%;
+    --dusty-blue-200: 215 22% 85%;
+    --dusty-blue-300: 215 24% 73%;
+    --dusty-blue-400: 215 26% 58%;
+    --dusty-blue-500: 215 28% 45%;
+    --dusty-blue-600: 215 30% 36%;
+    --dusty-blue-700: 215 32% 29%;
+    --dusty-blue-800: 215 35% 22%;
+    --dusty-blue-900: 215 40% 16%;
+
+    /* Muted Gold Palette (UPDATED) */
+    --gold-50: 45 40% 96%;
+    --gold-100: 45 40% 92%;
+    --gold-200: 45 42% 85%;
+    --gold-300: 45 45% 73%;
+    --gold-400: 45 50% 60%;
+    --gold-500: 45 55% 50%;
+    --gold-600: 45 60% 42%;
+    --gold-700: 45 65% 35%;
+    --gold-800: 45 70% 28%;
+    --gold-900: 45 75% 22%;
+
+    /* Legacy Accent Colors */
+    --gold: 45 55% 50%; /* For backward compatibility */
+    --coral: 0 100% 71%;
+    --sky: 204 52% 67%;
+    --lavender: 255 85% 85%;
+
+    /* Semantic Tokens */
+    --background: var(--warm-gray-50);
+    --foreground: var(--warm-gray-900);
+
+    --card: 0 0% 100%;
+    --card-foreground: var(--warm-gray-900);
+
+    --popover: 0 0% 100%;
+    --popover-foreground: var(--warm-gray-900);
+
+    --primary: var(--sage-600);
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: var(--warm-gray-100);
+    --secondary-foreground: var(--warm-gray-900);
+
+    --muted: var(--warm-gray-100);
+    --muted-foreground: var(--warm-gray-500);
+
+    --accent: var(--sage-100);
+    --accent-foreground: var(--sage-900);
+
+    --border: var(--warm-gray-200);
+    --input: var(--warm-gray-200);
+    --ring: var(--sage-500);
+
+    --destructive: var(--coral);
+    --destructive-foreground: 0 0% 100%;
+
+    --radius: 0.5rem;
+
+    /* NEW: Semantic tokens for affirmative/analytical contexts */
+    --affirmative: var(--terracotta-500);
+    --affirmative-foreground: 0 0% 100%;
+    --analytical: var(--dusty-blue-500);
+    --analytical-foreground: 0 0% 100%;
+    --gentle-warning: var(--gold-400);
+    --gentle-warning-foreground: var(--warm-gray-900);
+  }
+
+  /* Dark mode palette */
+  .dark {
+    --background: 24 10% 11%;            /* Dark warm-gray */
+    --foreground: 24 6% 96%;             /* Light warm-gray */
+
+    --card: 24 9% 16%;                   /* Elevated surface */
+    --card-foreground: 24 6% 96%;
+
+    --popover: 24 9% 16%;
+    --popover-foreground: 24 6% 96%;
+
+    --primary: 140 12% 69%;              /* Lighter sage for contrast */
+    --primary-foreground: 140 18% 15%;   /* Dark sage */
+
+    --secondary: 24 9% 16%;
+    --secondary-foreground: 24 6% 96%;
+
+    --muted: 24 9% 16%;
+    --muted-foreground: 24 4% 66%;       /* Medium warm-gray */
+
+    --accent: 140 10% 92%;               /* Light sage accent */
+    --accent-foreground: 140 15% 27%;
+
+    --border: 24 7% 27%;                 /* Subtle borders */
+    --input: 24 7% 27%;
+    --ring: 140 12% 69%;                 /* Focus ring matches primary */
+
+    --destructive: 0 62% 50%;            /* Slightly darker red */
+    --destructive-foreground: 0 0% 98%;
+
+    /* NEW: Dark mode for new tokens (lighter shades for contrast) */
+    --affirmative: var(--terracotta-400);
+    --analytical: var(--dusty-blue-400);
+    --gentle-warning: var(--gold-300);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    line-height: 1.6;  /* Increased from default 1.5 for readability */
+  }
+
+  /* Warm typography: serif headings for emotional warmth */
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+  }
+
+  /* Tabular numbers for financial data */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Accessibility: Respect prefers-reduced-motion (CRITICAL) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Supabase Auth UI Theming */
+.supabase-auth-ui_ui-container {
+  --auth-border-color: hsl(var(--sage-200));
+  --auth-border-focus: hsl(var(--sage-500));
+  --auth-input-background: hsl(var(--warm-gray-50));
+  --auth-button-background: hsl(var(--sage-600));
+  --auth-button-background-hover: hsl(var(--sage-700));
+  font-family: var(--font-sans);
+}
+
+.supabase-auth-ui_ui-button {
+  @apply rounded-lg transition-all hover:shadow-md;
+}

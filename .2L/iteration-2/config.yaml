@@ -1,0 +1,5 @@
+project_name: "Wealth - Iteration 2: Supabase Integration & Runtime Error Fixes"
+iteration: 2
+created_at: 2025-10-01
+requirements: "See ITERATION_2_REQUIREMENTS.md"
+focus: "Supabase local development integration and runtime error fixes"

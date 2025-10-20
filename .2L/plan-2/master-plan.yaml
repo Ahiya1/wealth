@@ -1,0 +1,231 @@
+plan_id: plan-2
+created_at: 2025-10-03T01:18:00Z
+status: PLANNED
+total_iterations: 2
+
+# Strategy synthesized from master exploration reports
+strategy: |
+  Two-phase approach to harden the Wealth app for production readiness:
+
+  PHASE 1 (Iteration 11): Production-Ready Foundation
+  - Fix dark mode across all 94 components (CRITICAL production blocker)
+  - Complete visual warmth rollout (soft shadows, rounded corners)
+  - Add button loading states (essential performance feedback)
+  - Risk: MEDIUM-HIGH (large scale, critical path)
+  - Duration: 8-12 hours
+
+  PHASE 2 (Iteration 12): Performance & Polish
+  - Performance optimization (optimistic updates, query deduplication)
+  - Error boundaries and empty states
+  - Form validation improvements
+  - Risk: MEDIUM (enhancements, non-blocking)
+  - Duration: 4-6 hours
+
+  Total estimated: 12-18 hours + testing/QA = 14-20 hours realistic
+
+  Key insight: All 4 workstreams (dark mode, visual warmth, performance, polish) are
+  largely independent and can run in parallel within each iteration. However, splitting
+  into 2 iterations allows validation checkpoint after critical dark mode work before
+  adding performance optimizations.
+
+  Critical success factor: Systematic component-by-component approach with visual QA
+  testing in both light and dark themes after each component group.
+
+# Complexity assessment from both explorers
+complexity: COMPLEX
+risk_level: MEDIUM-HIGH
+estimated_total_hours: 14-20
+
+# Iteration breakdown
+iterations:
+  - iteration_id: 1
+    global_iteration: 11
+    name: "Production-Ready Foundation"
+    vision: "Fix critical dark mode bug and complete visual warmth system - make app production-deployable"
+    scope: |
+      Critical fixes to unblock production deployment:
+
+      DARK MODE IMPLEMENTATION (CRITICAL):
+      - Add dark: variants to all 94 React components
+      - Pattern: bg-X text-Y border-Z → bg-X dark:bg-X' text-Y dark:text-Y' border-Z dark:border-Z'
+      - Priority 1: UI Primitives (button, card, input, select, dialog, etc.)
+      - Priority 1: Dashboard components (sidebar, affirmation, health indicator, stats)
+      - Priority 2: Auth pages (signin, signup, reset-password)
+      - Priority 2: Feature pages (accounts, transactions, budgets, goals, settings, admin)
+      - Ensure semantic tokens used where possible (bg-background, text-foreground)
+      - Custom palettes (terracotta, dusty-blue, gold) need dark variants
+      - SVG stroke colors need dark variants
+      - Gradient backgrounds need dark mode alternatives
+
+      VISUAL WARMTH COMPLETION (HIGH PRIORITY):
+      - Apply shadow-soft (or -md/-lg/-xl) to all 94 components
+      - Replace hard borders with soft shadows
+      - Use rounded-warmth (0.75rem) on elevated surfaces (cards, dialogs, popovers)
+      - Ensure rounded-lg on form inputs consistently
+      - Complete warmth treatment on auth pages
+      - Verify shadow visibility in dark mode (adjust to dark:shadow-none dark:border if needed)
+
+      BUTTON LOADING STATES (ESSENTIAL PERFORMANCE):
+      - Extend Button component with loading prop
+      - Add spinner + disable state during async operations
+      - Apply to all form submissions (transaction, account, budget, goal forms)
+      - Apply to all mutation buttons throughout app
+      - Instant visual feedback on click
+
+      TESTING & VALIDATION:
+      - Component-by-component visual QA in light mode
+      - Component-by-component visual QA in dark mode
+      - TypeScript compilation (0 errors)
+      - Build process (successful)
+      - Manual testing: toggle theme switch 10 times
+      - Verify no white flashes or hydration mismatches
+      - Test all pages in both themes
+      - Verify all buttons show loading states
+
+    dependencies: []
+
+    status: COMPLETED
+
+    acceptance_criteria:
+      - Dark mode works perfectly - all components legible in both themes
+      - Zero components with missing dark: variants
+      - Light mode still works (no regressions)
+      - Theme switching is instant and smooth (no flashes)
+      - All 94 components use soft shadows or appropriate elevation
+      - Elevated surfaces use rounded-warmth consistently
+      - Form inputs use rounded-lg consistently
+      - All auth pages have full warmth treatment
+      - All buttons show loading state during async operations
+      - TypeScript compiles with 0 errors
+      - Build succeeds
+      - No console errors or warnings related to theming
+
+    estimated_hours: 8-12
+    risk_level: MEDIUM-HIGH
+    risk_factors:
+      - Large scale (94 components) increases chance of missing dark: variants
+      - Hydration mismatches possible (SSR vs client rendering with themes)
+      - Shadow/border interactions in dark mode (shadows invisible on dark backgrounds)
+      - Regression risk to light mode while adding dark mode
+      - Testing thoroughness required (both themes × all components)
+    risk_mitigation:
+      - UI Primitives first strategy (prevents cascade failures)
+      - Systematic component-by-component approach with checklist
+      - Incremental commits after each component group for rollback safety
+      - suppressHydrationWarning for theme-dependent rendering
+      - Prefer semantic tokens over custom colors (automatic theme adaptation)
+      - Shadow adjustment pattern: shadow-soft dark:shadow-none dark:border
+
+  - iteration_id: 2
+    global_iteration: 12
+    name: "Performance & Polish"
+    vision: "Optimize performance and add production polish - error handling, empty states, optimizations"
+    scope: |
+      Performance optimizations and production polish:
+
+      PERFORMANCE OPTIMIZATION:
+      - Optimistic updates for common mutations:
+        * Transaction create/update/delete
+        * Account create/update/delete
+        * Budget create/update/delete
+        * Goal create/update/delete
+      - Query deduplication:
+        * Move trpc.users.me to layout level (context provider)
+        * Remove redundant useQuery calls in sidebar
+        * Cache user data in React context
+      - Loading skeleton improvements:
+        * Replace spinners with skeleton components
+        * Smooth fade-in transitions when data loads
+        * Use existing Skeleton component consistently
+
+      POLISH & EDGE CASES:
+      - Error boundaries:
+        * Add to each route segment (dashboard, accounts, transactions, budgets, goals, settings, admin, analytics)
+        * Friendly error UI with retry button
+        * Log errors to console for debugging
+      - Empty states:
+        * Improve "no data" states across all list pages
+        * Add helpful CTAs ("Create your first transaction", etc.)
+        * Use supportive language (aligned with warmth theme)
+      - Form validation improvements:
+        * Show inline validation errors
+        * Use terracotta for error states (not harsh red)
+        * Clear, supportive error messages
+        * Accessible error announcements
+
+      TESTING & VALIDATION:
+      - Performance testing (button responsiveness)
+      - Verify optimistic updates work correctly
+      - Test error boundaries (intentional errors)
+      - Verify all empty states show correctly
+      - TypeScript compilation (0 errors)
+      - Build process (successful)
+      - Regression test: all features still work
+
+    dependencies:
+      - Requires: Dark mode and visual warmth from Iteration 1
+      - Requires: Button loading states from Iteration 1 (for optimistic update patterns)
+
+    status: PENDING
+
+    acceptance_criteria:
+      - All buttons feel instantly responsive (visual feedback immediate)
+      - Common mutations use optimistic updates
+      - User data query deduplicated (no redundant fetches)
+      - Error boundaries on all routes
+      - All empty states have helpful CTAs
+      - Form validation errors shown inline with supportive language
+      - Loading skeletons used instead of spinners
+      - Smooth transitions when data loads
+      - TypeScript compiles with 0 errors
+      - Build succeeds
+      - No new console errors or warnings
+      - All iteration 1 features still work (no regressions)
+
+    estimated_hours: 4-6
+    risk_level: MEDIUM
+    risk_factors:
+      - Optimistic updates could introduce race conditions
+      - Query deduplication might break existing patterns
+      - Error boundaries might catch too much or too little
+      - Context provider adds complexity to state management
+    risk_mitigation:
+      - Test optimistic updates with slow 3G throttling
+      - Implement rollback logic for failed optimistic updates
+      - Start with conservative error boundary scope
+      - Use React Query's built-in optimistic update patterns
+      - Comprehensive manual testing before marking complete
+
+# Critical path (must complete in order)
+critical_path:
+  - UI Primitives dark mode (Iteration 1)
+  - Dashboard components dark mode (Iteration 1)
+  - Remaining components dark mode (Iteration 1)
+  - Visual warmth rollout (Iteration 1)
+  - Button loading states (Iteration 1)
+  - Validation checkpoint before Iteration 2
+
+# Parallel opportunities
+parallel_opportunities:
+  - Within Iteration 1: Dark mode, visual warmth, and button loading states can proceed in parallel
+  - Different component groups can be worked on concurrently
+  - Within Iteration 2: Performance work and polish work are independent
+
+# Open questions to resolve during execution
+open_questions:
+  - Should we use suppressHydrationWarning for all theme-dependent content? Recommend: YES, selectively
+  - Should error boundaries show full stack traces in dev mode? Recommend: YES
+  - Should empty states include illustrations? Recommend: DEFER to future iteration
+  - Should we implement dark mode toggle in footer as well as settings? Recommend: YES if time allows
+  - Shadow visibility in dark mode: use border or adjust shadow color? Recommend: BOTH (shadow-soft dark:shadow-none dark:border)
+
+# Success metrics
+success_metrics:
+  - Dark mode legibility: 100% of components legible in both themes
+  - Theme switching: <100ms visual transition (instant)
+  - Button responsiveness: <50ms from click to visual feedback
+  - Zero hydration mismatches
+  - Zero TypeScript errors
+  - Zero build errors
+  - Zero console warnings related to theming
+  - User testing: "App feels polished and professional"

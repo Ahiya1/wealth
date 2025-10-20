@@ -1,0 +1,16 @@
+project_name: "User Management & Data Exports"
+iteration: 7
+created_at: "2025-10-02"
+description: |
+  Add comprehensive user management and data export capabilities:
+  - CSV/JSON exports for all data types (transactions, budgets, goals, accounts)
+  - Account settings page with profile management
+  - Theme switcher (light/dark/system)
+  - Secure account deletion with confirmation safeguards
+mcp_servers:
+  - playwright
+  - chrome-devtools
+  - supabase-local
+  - github
+  - screenshot
+status: in_progress

@@ -1,0 +1,45 @@
+project_name: "Wealth - Iteration 6: Onboarding Experience & User Separation"
+iteration: 6
+created_at: 2025-10-02
+focus: "Create welcoming onboarding flow, separate real user from demo user with rich test data"
+
+philosophy: "First impressions matter. The onboarding should embody 'conscious money' - welcoming, educational, not overwhelming."
+
+objectives:
+  - Create beautiful onboarding flow (multi-step, skippable)
+  - Separate real user (ahiya) from demo user (test@wealth.com)
+  - Clean all fake data from ahiya.butman@gmail.com
+  - Create rich demo dataset for test@wealth.com
+  - Mark users with onboarding status
+  - Add "replay onboarding" feature for demos
+
+deliverables:
+  - Onboarding wizard (3-5 steps)
+  - User onboarding status tracking
+  - Data cleanup script for real user
+  - Enhanced seed script for demo user
+  - Test user credentials and setup
+
+estimated_time: "3-4 hours"
+
+user_separation:
+  real_user:
+    email: "ahiya.butman@gmail.com"
+    status: "needs_onboarding"
+    data: "clean slate (remove all seed data)"
+    purpose: "Actual personal finance tracking"
+
+  demo_user:
+    email: "test@wealth.com"
+    password: "demo1234"
+    status: "onboarded (can replay)"
+    data: "rich demo data (6 months history)"
+    purpose: "Show to others, explain features"
+
+previous_iterations:
+  iteration_1: "Initial T3 stack setup"
+  iteration_2: "Supabase local integration + runtime error fixes"
+  iteration_3: "Database connection fix + Supabase Auth integration"
+  iteration_4: "Complete functionality + conscious money UI"
+  iteration_5: "Integration fixes + navigation"
+  iteration_6: "Onboarding + user separation (CURRENT)"

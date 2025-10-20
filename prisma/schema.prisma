@@ -1,0 +1,329 @@
+// prisma/schema.prisma
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum SubscriptionTier {
+  FREE
+  PREMIUM
+}
+
+// ============================================================================
+// USER & AUTH
+// ============================================================================
+
+model User {
+  id             String   @id @default(cuid())
+  supabaseAuthId String?  @unique // Links to Supabase Auth user.id (nullable for migration)
+  email          String   @unique
+  passwordHash   String? // Keep temporarily for safety during migration
+  name           String?
+  image          String?
+  currency       String   @default("USD")
+  timezone       String   @default("America/New_York")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Onboarding tracking
+  onboardingCompletedAt DateTime? // null = not completed
+  onboardingSkipped     Boolean   @default(false) // true = user clicked skip
+  isDemoUser            Boolean   @default(false) // true for test@wealth.com
+
+  // Role & subscription fields
+  role                  UserRole         @default(USER)
+  subscriptionTier      SubscriptionTier @default(FREE)
+  subscriptionStartedAt DateTime?
+  subscriptionExpiresAt DateTime?
+
+  oauthAccounts          OAuthAccount[] // Keep temporarily during migration
+  passwordResetTokens    PasswordResetToken[] // Keep temporarily during migration
+  categories             Category[]
+  accounts               Account[]
+  transactions           Transaction[]
+  budgets                Budget[]
+  goals                  Goal[]
+  currencyConversionLogs CurrencyConversionLog[]
+
+  @@index([supabaseAuthId])
+  @@index([email])
+  @@index([role])
+  @@index([subscriptionTier])
+  @@index([createdAt])
+}
+
+model OAuthAccount {
+  id                String  @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+// ============================================================================
+// CATEGORIES - Builder-2
+// ============================================================================
+
+model Category {
+  id        String   @id @default(cuid())
+  userId    String? // null for default categories
+  name      String
+  icon      String? // Lucide icon name
+  color     String? // Hex color
+  parentId  String? // For hierarchical categories
+  isDefault Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user                  User?                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent                Category?               @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children              Category[]              @relation("CategoryHierarchy")
+  transactions          Transaction[]
+  budgets               Budget[]
+  merchantCategoryCache MerchantCategoryCache[]
+
+  @@index([userId])
+  @@index([parentId])
+  @@index([name])
+}
+
+// ============================================================================
+// ACCOUNTS - Builder-3
+// ============================================================================
+
+model Account {
+  id               String      @id @default(cuid())
+  userId           String
+  type             AccountType
+  name             String
+  institution      String
+  balance          Decimal     @db.Decimal(15, 2)
+  currency         String      @default("USD")
+  originalCurrency String? // For Plaid accounts: original currency before user currency conversion
+  plaidAccountId   String?     @unique
+  plaidAccessToken String?     @db.Text
+  isManual         Boolean     @default(true)
+  isActive         Boolean     @default(true)
+  lastSynced       DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  goals        Goal[]
+
+  @@index([userId])
+  @@index([plaidAccountId])
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  CREDIT
+  INVESTMENT
+  CASH
+}
+
+// ============================================================================
+// TRANSACTIONS - Builder-5A
+// ============================================================================
+
+model Transaction {
+  id                 String   @id @default(cuid())
+  userId             String
+  accountId          String
+  date               DateTime
+  amount             Decimal  @db.Decimal(15, 2)
+  payee              String
+  categoryId         String
+  notes              String?  @db.Text
+  tags               String[]
+  plaidTransactionId String?  @unique
+  isManual           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account  Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([userId])
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([date])
+  @@index([plaidTransactionId])
+  @@index([userId, date(sort: Desc)])
+}
+
+// ============================================================================
+// BUDGETS - Builder-6
+// ============================================================================
+
+model Budget {
+  id         String   @id @default(cuid())
+  userId     String
+  categoryId String
+  amount     Decimal  @db.Decimal(15, 2)
+  month      String // Format: "2025-01"
+  rollover   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category      @relation(fields: [categoryId], references: [id])
+  alerts   BudgetAlert[]
+
+  @@unique([userId, categoryId, month])
+  @@index([userId])
+  @@index([categoryId])
+  @@index([month])
+}
+
+model BudgetAlert {
+  id        String    @id @default(cuid())
+  budgetId  String
+  threshold Int // 75, 90, 100
+  sent      Boolean   @default(false)
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  budget Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  @@index([budgetId])
+}
+
+// ============================================================================
+// MERCHANT CATEGORY CACHE - Builder-5C
+// ============================================================================
+
+model MerchantCategoryCache {
+  id         String   @id @default(cuid())
+  merchant   String   @unique // Normalized merchant name (lowercase, trimmed)
+  categoryId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([merchant])
+  @@index([categoryId])
+}
+
+// ============================================================================
+// GOALS - Builder-8
+// ============================================================================
+
+model Goal {
+  id              String    @id @default(cuid())
+  userId          String
+  name            String
+  targetAmount    Decimal   @db.Decimal(15, 2)
+  currentAmount   Decimal   @default(0) @db.Decimal(15, 2)
+  targetDate      DateTime
+  linkedAccountId String?
+  type            GoalType  @default(SAVINGS)
+  isCompleted     Boolean   @default(false)
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  linkedAccount Account? @relation(fields: [linkedAccountId], references: [id])
+
+  @@index([userId])
+  @@index([linkedAccountId])
+}
+
+enum GoalType {
+  SAVINGS
+  DEBT_PAYOFF
+  INVESTMENT
+}
+
+enum ConversionStatus {
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  ROLLED_BACK
+}
+
+// ============================================================================
+// CURRENCY CONVERSION - Iteration 9
+// ============================================================================
+
+model ExchangeRate {
+  id           String   @id @default(cuid())
+  date         DateTime @db.Date
+  fromCurrency String
+  toCurrency   String
+  rate         Decimal  @db.Decimal(18, 8)
+  source       String   @default("exchangerate-api.com")
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+
+  @@unique([date, fromCurrency, toCurrency])
+  @@index([fromCurrency, toCurrency, date])
+  @@index([expiresAt])
+}
+
+model CurrencyConversionLog {
+  id               String           @id @default(cuid())
+  userId           String
+  fromCurrency     String
+  toCurrency       String
+  exchangeRate     Decimal          @db.Decimal(18, 8)
+  status           ConversionStatus
+  errorMessage     String?          @db.Text
+  transactionCount Int              @default(0)
+  accountCount     Int              @default(0)
+  budgetCount      Int              @default(0)
+  goalCount        Int              @default(0)
+  startedAt        DateTime         @default(now())
+  completedAt      DateTime?
+  durationMs       Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startedAt])
+  @@index([status])
+}

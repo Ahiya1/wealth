@@ -1,0 +1,307 @@
+plan_id: plan-1
+created_at: 2025-10-02T22:52:00Z
+status: COMPLETED
+completed_at: 2025-10-02T23:47:00Z
+total_iterations: 3
+
+# Strategy synthesized from master exploration reports
+strategy: |
+  Three-phase approach to transform Wealth app into embodiment of "conscious money relationship":
+
+  PHASE 1 (Iteration 8): Foundation & Infrastructure
+  - Build solid backend foundation with admin roles, settings restructure, and preparation for currency system
+  - Establish role-based access control and navigation structure that other features depend on
+  - Risk: MEDIUM-HIGH (database migrations, auth security)
+  - Duration: 6-8 hours
+
+  PHASE 2 (Iteration 9): Currency Switching System
+  - Implement complete currency conversion feature with transactional data integrity
+  - Isolated iteration due to HIGH risk (data corruption potential)
+  - Requires external API integration with robust error handling
+  - Duration: 7-9 hours
+
+  PHASE 3 (Iteration 10): Dashboard UX & Visual Polish
+  - Transform dashboard to lead with emotional support (affirmation-first)
+  - Apply visual warmth system-wide (rounded corners, soft shadows, gentle colors)
+  - Risk: LOW-MEDIUM (subjective UX, performance considerations)
+  - Duration: 5-7 hours
+
+  Total estimated: 18-24 hours + 15% contingency = 21-28 hours realistic
+
+  Key insight: Iterations 2 and 3 have no interdependencies (both depend only on Iteration 1).
+  Could parallelize if resources allow, but recommend sequential for solo developer.
+
+# Complexity assessment from both explorers
+complexity: COMPLEX
+risk_level: HIGH
+estimated_total_hours: 21-28
+
+# Iteration breakdown
+iterations:
+  - iteration_id: 1
+    global_iteration: 8
+    name: "Foundation & Infrastructure"
+    vision: "Establish role-based access control, admin capabilities, and navigation structure that enables currency conversion and UX enhancements"
+    scope: |
+      Backend-heavy foundational changes:
+
+      DATABASE:
+      - Add `role` enum to User model (USER, ADMIN)
+      - Add `subscriptionTier` enum to User model (FREE, PREMIUM)
+      - Migration script to set ahiya.butman@gmail.com as ADMIN
+      - Add `subscriptionStartedAt` and `subscriptionExpiresAt` DateTime fields
+
+      MIDDLEWARE & AUTH:
+      - Extend middleware.ts with admin role checking
+      - Server-side protection for /admin routes (not just client-side)
+      - Test unauthorized access prevention
+
+      TRPC ROUTERS:
+      - Create admin.router.ts with system metrics procedures
+      - Update users.router.ts to include role/tier in queries
+      - Admin user list query with search/filter capability
+
+      NAVIGATION RESTRUCTURE:
+      - Create /settings overview page (replaces direct jump to /settings/categories)
+      - Create /settings/currency placeholder page (built out in Iteration 2)
+      - Create /settings/appearance page
+      - Create /settings/data page
+      - Create /account section with subsections:
+        * /account (overview)
+        * /account/profile
+        * /account/membership (tier display, billing placeholder)
+        * /account/security
+        * /account/preferences
+      - Update DashboardSidebar: Settings link → /settings (not /settings/categories)
+      - Add avatar dropdown in top-right with Account menu
+      - Breadcrumb navigation on all settings/account pages
+
+      ADMIN PAGES:
+      - /admin dashboard with system-wide metrics (total users, transactions, active users)
+      - /admin/users page with user list, email, role, tier, search/filter
+
+      TESTING:
+      - Regression test all existing features
+      - Security test admin route protection
+      - Test navigation flow (Settings vs Account clarity)
+
+    dependencies: []
+
+    status: COMPLETED
+
+    acceptance_criteria:
+      - Admin user (ahiya.butman@gmail.com) can access /admin routes
+      - Non-admin users are redirected from /admin with appropriate message
+      - Settings and Account sections are clearly separated and navigable
+      - Subscription tier badge displays in Account section (even if always FREE)
+      - All existing features continue working (accounts, transactions, budgets, goals, analytics)
+      - Database migration succeeds without data loss
+      - Server-side middleware correctly enforces role-based access
+
+    estimated_hours: 6-8
+    risk_level: MEDIUM-HIGH
+    risk_factors:
+      - Database migration could fail (mitigation: test on local DB, rollback script ready)
+      - Admin auth security critical (mitigation: server-side checks, audit logging)
+      - Navigation changes could confuse users (mitigation: clear labeling, breadcrumbs)
+
+  - iteration_id: 2
+    global_iteration: 9
+    name: "Currency Switching System"
+    vision: "Enable safe, reliable system-wide currency conversion with complete data integrity and excellent user experience"
+    scope: |
+      Complete currency conversion feature (HIGH risk, needs isolation):
+
+      DATABASE:
+      - Create ExchangeRate model (date, fromCurrency, toCurrency, rate)
+      - Create CurrencyConversionLog model (userId, fromCurrency, toCurrency, status, transactionCount)
+      - Index on merchant field for fast lookups
+
+      BACKEND SERVICE:
+      - Exchange rate API integration (exchangerate-api.com or similar)
+      - Currency conversion service with:
+        * Historical exchange rate fetching for transaction dates
+        * Rate caching in ExchangeRate table (24-hour TTL)
+        * Transactional conversion (Prisma $transaction for atomicity)
+        * Convert ALL: transactions, accounts, budgets, goals in single atomic operation
+        * Rollback logic on any failure (no partial conversions)
+        * Retry logic for API calls (3 attempts, exponential backoff)
+
+      TRPC ROUTER:
+      - Create currency.router.ts with procedures:
+        * getCurrencies (list of supported currencies)
+        * getExchangeRate (fetch rate for currency pair)
+        * convertCurrency (main conversion procedure with transaction)
+        * getConversionHistory (audit log for user)
+
+      UI COMPONENTS:
+      - /settings/currency page with:
+        * Current currency display
+        * Currency selector (major currencies: USD, EUR, GBP, CAD, AUD, JPY, etc.)
+        * "Change Currency" button
+        * Confirmation dialog with clear warning about conversion
+        * Progress indicator during conversion (handle 1000+ transactions)
+        * Success/error feedback with summary
+
+      EDGE CASES:
+      - API timeout/failure: Use cached rates, warn if stale (>7 days)
+      - Conversion in progress: Lock mechanism prevents concurrent conversions
+      - Mid-conversion navigation: Persistent notification "Conversion in progress..."
+      - Exchange rate unavailable: Show error, allow manual retry
+
+      TESTING:
+      - Test with 10, 100, 1000, 10000 transaction datasets
+      - Test rollback on mid-conversion failure
+      - Test API failure scenarios
+      - Performance test: <30 seconds for 1000 transactions
+      - Test all amounts update throughout app after conversion
+
+    dependencies:
+      - Requires: Settings structure from Iteration 1 (/settings/currency page location)
+      - Requires: User model with currency field (already exists)
+
+    status: COMPLETED
+
+    acceptance_criteria:
+      - User can successfully change currency from settings
+      - All transactions, accounts, budgets, goals convert to new currency
+      - Conversion completes in <30 seconds for 1000 transactions
+      - Failed conversions roll back completely (no partial state)
+      - All amounts display in new currency throughout entire app
+      - Exchange rates cached to minimize API calls
+      - Confirmation dialog warns user before conversion
+      - Progress indicator shows during conversion
+      - Success message confirms completion with summary
+      - Audit log records all conversion attempts
+
+    estimated_hours: 7-9
+    risk_level: HIGH
+    risk_factors:
+      - Data integrity risk: Currency conversion must be atomic (mitigation: Prisma transactions)
+      - External API risk: Rate API could be down/slow (mitigation: caching, retry logic, fallbacks)
+      - Performance risk: Large datasets slow to convert (mitigation: progress UI, background job consideration)
+      - Rollback risk: Must undo conversion if fails (mitigation: transaction wrapper, comprehensive testing)
+
+  - iteration_id: 3
+    global_iteration: 10
+    name: "Dashboard UX & Visual Polish"
+    vision: "Transform app to feel warm, gentle, and emotionally supportive - embodying 'conscious money relationship' through every interaction"
+    scope: |
+      Dashboard transformation and app-wide visual polish:
+
+      DASHBOARD REORDERING:
+      - Affirmation card redesign:
+        * Increase size 1.5x (larger, more prominent)
+        * Center-align content
+        * Softer background (subtle gradient or paper texture)
+        * Daily rotation logic (one affirmation per day, not random)
+      - New hierarchy (top to bottom):
+        1. Affirmation card (FIRST visible, largest)
+        2. Personalized greeting (below affirmation)
+        3. Financial health indicator (NEW component)
+        4. Recent transactions
+        5. Stats cards (moved lower, optional detail)
+      - Page fade-in animation (500ms smooth entrance, "breath before data")
+      - Financial health indicator component:
+        * Gentle progress circle or gauge (no red/green, use sage tones)
+        * Supportive language ("Looking good", "Needs attention", never "Failed")
+        * Shows overall budget status for current month
+
+      VISUAL WARMTH SYSTEM-WIDE:
+      - Tailwind config expansion:
+        * Add terracotta/clay color for positive actions (soft-terracotta-500, etc.)
+        * Add dusty blue for analytical sections (dusty-blue-500, etc.)
+        * Mute gold accent (gold-600 → gold-500, less bright)
+        * Add paper texture utility (optional bg texture)
+      - Typography refinement:
+        * Use serif font for headings (warmth, already have font-serif)
+        * Reduce size of large numbers (less aggressive)
+        * Increase line-height for readability (from 1.5 to 1.6)
+      - Rounded corners everywhere:
+        * Update button components (all variants)
+        * Update card components
+        * Update input components
+        * Consistent border-radius: lg (0.5rem) as baseline
+      - Softer shadows:
+        * Replace hard borders with gentle box-shadows
+        * Use warm-gray with opacity for shadow color
+        * Multi-layer shadows for depth without harshness
+      - Micro-interactions:
+        * Gentle hover states (scale: 1.02, not color flash)
+        * Smooth transitions everywhere (200-300ms ease-in-out)
+        * Loading states as gentle pulse/fade (not harsh spinners)
+      - PageTransition consistency:
+        * Apply to all dashboard routes
+        * Ensure smooth, calming page changes
+
+      COMPONENT UPDATES:
+      - Update DashboardStats component (moved lower, refined styling)
+      - Update RecentTransactionsCard (maintain prominence, soften styling)
+      - Update all 84 components gradually:
+        * Priority: Dashboard, Settings, Account pages first
+        * Then: Accounts, Transactions, Budgets, Goals, Analytics
+        * Finally: Auth pages, modals, dialogs
+      - Subscription tier badge in sidebar user info (soft styling)
+
+      TESTING:
+      - Visual regression testing (before/after screenshots)
+      - Performance testing (animations on mobile devices)
+      - Test with prefers-reduced-motion media query
+      - Ensure no functionality breaks from styling changes
+
+    dependencies:
+      - Requires: User model with subscriptionTier (from Iteration 1) for badge display
+      - Requires: Existing dashboard components (DashboardStats, RecentTransactionsCard, AffirmationCard)
+      - Uses: Settings/Account navigation from Iteration 1
+
+    status: COMPLETED
+
+    acceptance_criteria:
+      - Dashboard loads with affirmation FIRST (most prominent content)
+      - Greeting appears below affirmation (not above stats)
+      - Financial health indicator displays with supportive language
+      - All sharp borders replaced with rounded corners and soft shadows
+      - Smooth transitions on all interactive elements (200-300ms)
+      - Typography feels warm (serif headings, comfortable line-height)
+      - Color palette expanded (terracotta, dusty blue) but cohesive
+      - App feels noticeably warmer/gentler than before (subjective but critical)
+      - No performance degradation (test on mid-range mobile devices)
+      - No visual regressions (all components remain functional)
+      - Consistent PageTransition usage across all routes
+
+    estimated_hours: 5-7
+    risk_level: LOW-MEDIUM
+    risk_factors:
+      - Subjective warmth assessment (mitigation: user feedback, A/B testing if possible)
+      - Consistency risk across 84 components (mitigation: systematic rollout, checklist)
+      - Performance risk from animations (mitigation: GPU-accelerated CSS, reduced-motion support)
+
+# Critical path (must complete in order)
+critical_path:
+  - Database schema changes (Iteration 1)
+  - Admin middleware (Iteration 1)
+  - Settings/Account navigation (Iteration 1)
+  - Currency conversion service (Iteration 2)
+
+# Parallel opportunities
+parallel_opportunities:
+  - After Iteration 1 completes, Iterations 2 and 3 can theoretically run in parallel
+  - They have no interdependencies (both only depend on Iteration 1)
+  - However, recommend sequential for solo developer to maintain focus and quality
+
+# Open questions to resolve during execution
+open_questions:
+  - Should currency conversion be reversible (store original amounts for 30 days)? Recommend: YES
+  - Should we send confirmation email after currency change? Recommend: YES
+  - Financial health indicator: simple (on/off track) or granular? Recommend: SIMPLE for MVP
+  - Affirmations: daily rotation or time-based (morning/evening)? Recommend: DAILY for MVP
+  - Exchange rate API provider? Recommend: exchangerate-api.com (free tier, 1500/month)
+
+# Success metrics
+success_metrics:
+  - Currency conversion completes in <30 seconds for 1000 transactions
+  - Admin dashboard loads in <2 seconds
+  - Dashboard affirmation visible within 500ms of page load
+  - Zero security vulnerabilities in admin route protection
+  - Zero data corruption incidents from currency conversion
+  - Subjective: App feels noticeably warmer (user validation)
