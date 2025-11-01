@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Info, ChevronRight, Palette, DollarSign, Database, Tags } from 'lucide-react'
+import { Info, ChevronRight, Palette, Database, Tags } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
@@ -17,12 +17,6 @@ export default function SettingsPage() {
       description: 'Manage income and expense categories',
       href: '/settings/categories',
       icon: Tags,
-    },
-    {
-      title: 'Currency',
-      description: 'Configure currency conversion settings',
-      href: '/settings/currency',
-      icon: DollarSign,
     },
     {
       title: 'Appearance',

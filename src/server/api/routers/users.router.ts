@@ -55,7 +55,7 @@ export const usersRouter = router({
     .input(
       z.object({
         name: z.string().min(1, 'Name is required').max(100).optional(),
-        currency: z.enum(['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY']).optional(),
+        // Currency removed - always NIS, immutable after user creation
         timezone: z.string().optional(),
       })
     )
@@ -64,7 +64,7 @@ export const usersRouter = router({
         where: { id: ctx.user.id },
         data: {
           ...(input.name !== undefined && { name: input.name }),
-          ...(input.currency !== undefined && { currency: input.currency }),
+          // Currency not updatable - NIS only
           ...(input.timezone !== undefined && { timezone: input.timezone }),
         },
       })

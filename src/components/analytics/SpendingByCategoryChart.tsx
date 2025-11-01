@@ -7,6 +7,14 @@ interface SpendingByCategoryChartProps {
   data: { category: string; amount: number; color?: string }[]
 }
 
+interface TooltipProps {
+  active?: boolean
+  payload?: Array<{
+    name: string
+    value: number
+  }>
+}
+
 export function SpendingByCategoryChart({ data }: SpendingByCategoryChartProps) {
   if (!data || data.length === 0) {
     return (
@@ -17,19 +25,22 @@ export function SpendingByCategoryChart({ data }: SpendingByCategoryChartProps) 
   }
 
   // Custom tooltip
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: TooltipProps) => {
     if (!active || !payload?.length) return null
+
+    const entry = payload[0]!
+    const formatted = Number(entry.value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
     return (
       <div className="rounded-lg border bg-card p-3 shadow-lg">
         <p className="text-sm font-medium text-warm-gray-700">
-          {payload[0].name}
+          {entry.name}
         </p>
         <p className="text-lg font-bold text-sage-600 tabular-nums">
-          ${Number(payload[0].value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {formatted} ₪
         </p>
         <p className="text-xs text-warm-gray-500">
-          {((payload[0].value / data.reduce((sum, item) => sum + item.amount, 0)) * 100).toFixed(1)}%
+          {((entry.value / data.reduce((sum, item) => sum + item.amount, 0)) * 100).toFixed(1)}%
         </p>
       </div>
     )

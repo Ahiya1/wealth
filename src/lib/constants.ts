@@ -24,18 +24,12 @@ export const DEFAULT_CATEGORIES = [
 
 export type DefaultCategory = typeof DEFAULT_CATEGORIES[number]
 
-// Supported currencies for currency conversion (Iteration 9)
-export const SUPPORTED_CURRENCIES = [
-  { code: 'USD', symbol: '$', name: 'US Dollar' },
-  { code: 'EUR', symbol: '€', name: 'Euro' },
-  { code: 'GBP', symbol: '£', name: 'British Pound' },
-  { code: 'CAD', symbol: 'CA$', name: 'Canadian Dollar' },
-  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
-  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
-  { code: 'CHF', symbol: 'CHF', name: 'Swiss Franc' },
-  { code: 'CNY', symbol: '¥', name: 'Chinese Yuan' },
-  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
-  { code: 'BRL', symbol: 'R$', name: 'Brazilian Real' },
-] as const
+// ============================================================================
+// CURRENCY - NIS ONLY
+// ============================================================================
+// Wealth uses NIS (Israeli Shekel) exclusively for production MVP
+// All amounts are stored and displayed in NIS (₪)
 
-export type SupportedCurrencyCode = typeof SUPPORTED_CURRENCIES[number]['code']
+export const CURRENCY_CODE = 'NIS' as const
+export const CURRENCY_SYMBOL = '₪' as const
+export const CURRENCY_NAME = 'Israeli Shekel' as const

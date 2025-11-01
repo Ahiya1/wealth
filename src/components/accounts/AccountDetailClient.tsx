@@ -10,8 +10,17 @@ import Link from 'next/link'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { AccountForm } from '@/components/accounts/AccountForm'
 
+import type { Account } from '@prisma/client'
+
+type SerializedAccount = Omit<Account, 'balance' | 'createdAt' | 'updatedAt' | 'lastSynced'> & {
+  balance: string
+  createdAt: string
+  updatedAt: string
+  lastSynced: string | null
+}
+
 interface AccountDetailClientProps {
-  account: any
+  account: SerializedAccount
 }
 
 export function AccountDetailClient({ account }: AccountDetailClientProps) {
@@ -73,7 +82,7 @@ export function AccountDetailClient({ account }: AccountDetailClientProps) {
                     : 'text-warm-gray-700 dark:text-warm-gray-300'
                 }`}
               >
-                {formatCurrency(Math.abs(Number(account.balance)), account.currency)}
+                {formatCurrency(Math.abs(Number(account.balance)))}
               </div>
             </CardContent>
           </Card>

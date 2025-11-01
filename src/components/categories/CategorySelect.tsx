@@ -49,7 +49,7 @@ export function CategorySelect({
         {parentCategories.map((parent) => {
           const children = childCategories.filter((c) => c.parentId === parent.id)
           const Icon = parent.icon
-            ? (LucideIcons[parent.icon as keyof typeof LucideIcons] as any)
+            ? (LucideIcons[parent.icon as keyof typeof LucideIcons] as React.ComponentType<{ size?: number; style?: React.CSSProperties }>)
             : null
 
           return (
@@ -62,7 +62,7 @@ export function CategorySelect({
               </SelectItem>
               {children.map((child) => {
                 const ChildIcon = child.icon
-                  ? (LucideIcons[child.icon as keyof typeof LucideIcons] as any)
+                  ? (LucideIcons[child.icon as keyof typeof LucideIcons] as React.ComponentType<{ size?: number; style?: React.CSSProperties }>)
                   : null
 
                 return (

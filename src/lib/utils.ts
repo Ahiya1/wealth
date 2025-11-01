@@ -5,40 +5,23 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatCurrency(amount: number, currency: string = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency,
+/**
+ * Format amount as NIS currency
+ * @param amount - The amount to format
+ * @returns Formatted currency string (e.g., "1,234.56 ₪")
+ */
+export function formatCurrency(amount: number): string {
+  const formatted = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount)
+  return `${formatted} ₪`
 }
 
-// Get currency symbol only
-export function getCurrencySymbol(currency: string = 'USD'): string {
-  const parts = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency,
-  }).formatToParts(0)
-
-  const symbolPart = parts.find((part) => part.type === 'currency')
-  return symbolPart?.value || currency
-}
-
-// Get currency name
-export function getCurrencyName(code: string): string {
-  const names: Record<string, string> = {
-    USD: 'US Dollar',
-    EUR: 'Euro',
-    GBP: 'British Pound',
-    CAD: 'Canadian Dollar',
-    AUD: 'Australian Dollar',
-    JPY: 'Japanese Yen',
-    CHF: 'Swiss Franc',
-    CNY: 'Chinese Yuan',
-    INR: 'Indian Rupee',
-    BRL: 'Brazilian Real',
-  }
-
-  return names[code] || code
+/**
+ * Get NIS currency symbol
+ * @returns "₪"
+ */
+export function getCurrencySymbol(): string {
+  return '₪'
 }

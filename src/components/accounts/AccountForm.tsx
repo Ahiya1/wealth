@@ -23,13 +23,20 @@ const accountSchema = z.object({
   name: z.string().min(1, 'Account name is required'),
   institution: z.string().min(1, 'Institution name is required'),
   balance: z.number().default(0),
-  currency: z.string().default('USD'),
+  currency: z.string().default('NIS'),
 })
 
 type AccountFormData = z.infer<typeof accountSchema>
 
+type SerializedAccount = Omit<Account, 'balance' | 'createdAt' | 'updatedAt' | 'lastSynced'> & {
+  balance: string
+  createdAt: string
+  updatedAt: string
+  lastSynced: string | null
+}
+
 interface AccountFormProps {
-  account?: Account
+  account?: Account | SerializedAccount
   onSuccess?: () => void
 }
 
@@ -88,7 +95,7 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
         }
       : {
           balance: 0,
-          currency: 'USD',
+          currency: 'NIS',
         },
   })
 
@@ -174,13 +181,13 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
         <Label htmlFor="currency">Currency</Label>
         <Input
           id="currency"
-          {...register('currency')}
-          placeholder="USD"
-          disabled={isLoading}
+          value="NIS (₪)"
+          disabled
+          className="bg-muted"
         />
-        {errors.currency && (
-          <p className="mt-1 text-sm text-red-600">{errors.currency.message}</p>
-        )}
+        <p className="mt-1 text-sm text-muted-foreground">
+          All accounts use NIS (Israeli Shekel)
+        </p>
       </div>
 
       <Button type="submit" loading={isLoading} className="w-full">

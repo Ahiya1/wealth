@@ -13,7 +13,7 @@ interface CategoryBadgeProps {
 
 export function CategoryBadge({ category, size = 'md', showIcon = true }: CategoryBadgeProps) {
   const Icon = category.icon
-    ? (LucideIcons[category.icon as keyof typeof LucideIcons] as any)
+    ? (LucideIcons[category.icon as keyof typeof LucideIcons] as React.ComponentType<{ size?: number }>)
     : LucideIcons.MoreHorizontal
 
   const sizeClasses = {

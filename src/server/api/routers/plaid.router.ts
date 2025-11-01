@@ -60,7 +60,7 @@ export const plaidRouter = router({
               name: acc.name,
               institution: input.institutionName,
               balance: acc.balances.current || 0,
-              currency: acc.balances.iso_currency_code || 'USD',
+              currency: acc.balances.iso_currency_code || 'NIS',
               plaidAccountId: acc.account_id,
               plaidAccessToken: encryptedToken,
               isManual: false,

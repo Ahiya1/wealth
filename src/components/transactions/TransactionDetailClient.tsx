@@ -8,9 +8,31 @@ import { format } from 'date-fns'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
+import type { Transaction, Category, Account } from '@prisma/client'
+
+type SerializedCategory = Omit<Category, 'createdAt' | 'updatedAt'> & {
+  createdAt: string
+  updatedAt: string
+}
+
+type SerializedAccount = Omit<Account, 'balance' | 'createdAt' | 'updatedAt' | 'lastSynced'> & {
+  balance: string
+  createdAt: string
+  updatedAt: string
+  lastSynced: string | null
+}
+
+type SerializedTransaction = Omit<Transaction, 'amount' | 'date' | 'createdAt' | 'updatedAt'> & {
+  amount: string
+  date: string
+  createdAt: string
+  updatedAt: string
+  category: SerializedCategory | null
+  account: SerializedAccount
+}
 
 interface TransactionDetailClientProps {
-  transaction: any
+  transaction: SerializedTransaction
 }
 
 export function TransactionDetailClient({ transaction }: TransactionDetailClientProps) {
@@ -39,7 +61,7 @@ export function TransactionDetailClient({ transaction }: TransactionDetailClient
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Amount</span>
               <span className={`text-2xl font-bold tabular-nums ${isExpense ? 'text-warm-gray-700 dark:text-warm-gray-300' : 'text-sage-600 dark:text-sage-400'}`}>
-                {isExpense ? '-' : '+'}{formatCurrency(absAmount, transaction.account.currency)}
+                {isExpense ? '-' : '+'}{formatCurrency(absAmount)}
               </span>
             </div>
             <div className="flex justify-between">

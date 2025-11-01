@@ -1,5 +1,5 @@
-import { PrismaClient, AccountType, GoalType } from '@prisma/client'
-import { subMonths, startOfMonth, getDaysInMonth } from 'date-fns'
+import { PrismaClient, AccountType, GoalType, RecurrenceFrequency, RecurringTransactionStatus } from '@prisma/client'
+import { subMonths, startOfMonth, getDaysInMonth, addMonths } from 'date-fns'
 
 const prisma = new PrismaClient()
 
@@ -383,12 +383,128 @@ async function seedDemoData({ userId, monthsOfHistory = 6 }: SeedOptions) {
   })
   console.log('  ✓ Created 4 goals\n')
 
+  // Create recurring transactions
+  console.log('Step 6: Creating recurring transactions...')
+  const recurringTransactions = [
+    {
+      userId,
+      accountId: checking.id,
+      amount: -14.99,
+      payee: 'Netflix',
+      categoryId: categoryMap['Subscriptions'] || categoryMap['Entertainment'] || '',
+      notes: 'Monthly streaming subscription',
+      tags: ['subscription', 'entertainment'],
+      frequency: RecurrenceFrequency.MONTHLY,
+      interval: 1,
+      startDate: subMonths(today, 3), // Started 3 months ago
+      dayOfMonth: 15,
+      status: RecurringTransactionStatus.ACTIVE,
+      nextScheduledDate: new Date(today.getFullYear(), today.getMonth() + 1, 15),
+    },
+    {
+      userId,
+      accountId: credit.id,
+      amount: -9.99,
+      payee: 'Spotify',
+      categoryId: categoryMap['Subscriptions'] || categoryMap['Entertainment'] || '',
+      notes: 'Music streaming',
+      tags: ['subscription', 'music'],
+      frequency: RecurrenceFrequency.MONTHLY,
+      interval: 1,
+      startDate: subMonths(today, 5),
+      dayOfMonth: 1,
+      status: RecurringTransactionStatus.ACTIVE,
+      nextScheduledDate: addMonths(startOfMonth(today), 1),
+    },
+    {
+      userId,
+      accountId: checking.id,
+      amount: -89.99,
+      payee: 'Comcast Internet',
+      categoryId: categoryMap['Utilities'] || categoryMap['Housing'] || '',
+      notes: 'Internet service',
+      tags: ['utility', 'internet'],
+      frequency: RecurrenceFrequency.MONTHLY,
+      interval: 1,
+      startDate: subMonths(today, monthsOfHistory),
+      dayOfMonth: 5,
+      status: RecurringTransactionStatus.ACTIVE,
+      nextScheduledDate: new Date(today.getFullYear(), today.getMonth() + 1, 5),
+    },
+    {
+      userId,
+      accountId: checking.id,
+      amount: -75.00,
+      payee: 'T-Mobile',
+      categoryId: categoryMap['Utilities'] || categoryMap['Miscellaneous'] || '',
+      notes: 'Phone bill',
+      tags: ['utility', 'phone'],
+      frequency: RecurrenceFrequency.MONTHLY,
+      interval: 1,
+      startDate: subMonths(today, monthsOfHistory),
+      dayOfMonth: 10,
+      status: RecurringTransactionStatus.ACTIVE,
+      nextScheduledDate: new Date(today.getFullYear(), today.getMonth() + 1, 10),
+    },
+    {
+      userId,
+      accountId: credit.id,
+      amount: -49.99,
+      payee: 'Planet Fitness',
+      categoryId: categoryMap['Health'] || categoryMap['Miscellaneous'] || '',
+      notes: 'Gym membership',
+      tags: ['subscription', 'fitness'],
+      frequency: RecurrenceFrequency.MONTHLY,
+      interval: 1,
+      startDate: subMonths(today, 4),
+      dayOfMonth: 1,
+      status: RecurringTransactionStatus.ACTIVE,
+      nextScheduledDate: addMonths(startOfMonth(today), 1),
+    },
+    {
+      userId,
+      accountId: checking.id,
+      amount: -125.00,
+      payee: 'Progressive Insurance',
+      categoryId: categoryMap['Transportation'] || categoryMap['Miscellaneous'] || '',
+      notes: 'Car insurance',
+      tags: ['insurance', 'car'],
+      frequency: RecurrenceFrequency.MONTHLY,
+      interval: 1,
+      startDate: subMonths(today, monthsOfHistory),
+      dayOfMonth: 20,
+      status: RecurringTransactionStatus.ACTIVE,
+      nextScheduledDate: new Date(today.getFullYear(), today.getMonth() + 1, 20),
+    },
+    {
+      userId,
+      accountId: checking.id,
+      amount: -1200.00,
+      payee: 'Oakwood Apartments',
+      categoryId: categoryMap['Housing'] || '',
+      notes: 'Monthly rent',
+      tags: ['rent', 'housing'],
+      frequency: RecurrenceFrequency.MONTHLY,
+      interval: 1,
+      startDate: subMonths(today, monthsOfHistory),
+      dayOfMonth: 1,
+      status: RecurringTransactionStatus.ACTIVE,
+      nextScheduledDate: addMonths(startOfMonth(today), 1),
+    },
+  ]
+
+  for (const recurring of recurringTransactions) {
+    await prisma.recurringTransaction.create({ data: recurring })
+  }
+  console.log(`  ✓ Created ${recurringTransactions.length} recurring transactions\n`)
+
   // Validation
   const validation = {
     accounts: await prisma.account.count({ where: { userId } }),
     transactions: await prisma.transaction.count({ where: { userId } }),
     budgets: await prisma.budget.count({ where: { userId } }),
     goals: await prisma.goal.count({ where: { userId } }),
+    recurring: await prisma.recurringTransaction.count({ where: { userId } }),
   }
 
   console.log('═══════════════════════════════════════')
@@ -398,6 +514,7 @@ async function seedDemoData({ userId, monthsOfHistory = 6 }: SeedOptions) {
   console.log(`   Transactions: ${validation.transactions}`)
   console.log(`   Budgets:      ${validation.budgets}`)
   console.log(`   Goals:        ${validation.goals}`)
+  console.log(`   Recurring:    ${validation.recurring}`)
   console.log('═══════════════════════════════════════\n')
 }
 

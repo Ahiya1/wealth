@@ -5,12 +5,14 @@
 project_id = "wealth"
 
 [api]
-enabled = false
-# Disable PostgREST API (using tRPC instead)
+enabled = true
+# Port to use for the API URL (Kong Gateway)
+port = 54421
+# Using custom port to avoid conflicts with other projects
 
 [db]
 # Port to use for the local database URL.
-port = 5432
+port = 54432
 # Port used by db diff command to initialize the shadow database.
 shadow_port = 54320
 # The database major version to use. This has to be the same as your remote database's. Run `SHOW
@@ -20,7 +22,7 @@ major_version = 15
 [db.pooler]
 enabled = true
 # Port to use for the local connection pooler.
-port = 54322
+port = 54422
 # Specifies when a server connection can be reused by other clients.
 # Configure one of the supported pooler modes: `transaction`, `session`.
 pool_mode = "transaction"
@@ -42,16 +44,16 @@ enabled = false
 [studio]
 enabled = true
 # Port to use for Supabase Studio.
-port = 54323
+port = 54423
 # External URL of the API server that frontend connects to.
 api_url = "http://127.0.0.1"
 
 [inbucket]
 enabled = true
 # Enable email testing server for local auth flows
-port = 54324
-smtp_port = 54325
-pop3_port = 54326
+port = 54424
+smtp_port = 54425
+pop3_port = 54426
 
 [storage]
 enabled = false

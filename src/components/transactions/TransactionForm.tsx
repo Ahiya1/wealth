@@ -104,6 +104,9 @@ export function TransactionForm({ transaction, onSuccess }: TransactionFormProps
         },
   })
 
+  const amount = watch('amount')
+  const isIncome = amount > 0
+
   const onSubmit = (data: TransactionFormData) => {
     const tags = data.tags
       ? data.tags
@@ -185,8 +188,14 @@ export function TransactionForm({ transaction, onSuccess }: TransactionFormProps
       </div>
 
       <div>
-        <Label htmlFor="payee">Payee/Description</Label>
-        <Input id="payee" {...register('payee')} placeholder="e.g., Whole Foods, Coffee Shop" />
+        <Label htmlFor="payee">
+          {isIncome ? 'Source' : 'Payee/Description'}
+        </Label>
+        <Input
+          id="payee"
+          {...register('payee')}
+          placeholder={isIncome ? 'e.g., Salary, Freelance Client' : 'e.g., Whole Foods, Coffee Shop'}
+        />
         {errors.payee && <p className="mt-1 text-sm text-red-600">{errors.payee.message}</p>}
       </div>
 

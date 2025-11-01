@@ -21,8 +21,13 @@ export function decrypt(encrypted: string): string {
     throw new Error('ENCRYPTION_KEY environment variable is not set')
   }
 
-  const [ivHex, authTagHex, encryptedHex] = encrypted.split(':')
-  if (!ivHex || !authTagHex || !encryptedHex) {
+  const parts = encrypted.split(':')
+  if (parts.length !== 3) {
+    throw new Error('Invalid encrypted string format')
+  }
+
+  const [ivHex, authTagHex, encryptedHex] = parts
+  if (!ivHex || !authTagHex || encryptedHex === undefined) {
     throw new Error('Invalid encrypted string format')
   }
 

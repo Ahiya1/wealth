@@ -2,7 +2,6 @@
 import { type PrismaClient } from '@prisma/client'
 import { decrypt } from '@/lib/encryption'
 import { syncTransactions } from './plaid.service'
-import { fetchExchangeRate } from './currency.service'
 import { Decimal } from '@prisma/client/runtime/library'
 
 /**
@@ -54,27 +53,8 @@ export async function syncTransactionsFromPlaid(
     throw new Error('Miscellaneous category not found. Please run seed script.')
   }
 
-  // Get user to check for currency conversion
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { currency: true },
-  })
-
-  if (!user) {
-    throw new Error('User not found')
-  }
-
-  // Determine if currency conversion is needed
-  let conversionRate: Decimal | null = null
-  if (account.originalCurrency && account.originalCurrency !== user.currency) {
-    // Fetch conversion rate for Plaid transactions
-    conversionRate = await fetchExchangeRate(
-      account.originalCurrency,
-      user.currency,
-      undefined,
-      prisma
-    )
-  }
+  // Note: Plaid amounts are converted to NIS
+  // Plaid primarily supports US-based accounts (CountryCode.Us)
 
   // Iterate through all pages of transactions
   while (hasMore) {
@@ -82,12 +62,8 @@ export async function syncTransactionsFromPlaid(
 
     // Handle added transactions
     for (const txn of response.added) {
-      // Convert amount if needed
-      let transactionAmount = new Decimal(-txn.amount) // Plaid uses positive for debits
-
-      if (conversionRate) {
-        transactionAmount = transactionAmount.mul(conversionRate)
-      }
+      // Plaid uses positive for debits, we use negative for expenses
+      const transactionAmount = new Decimal(-txn.amount)
 
       await prisma.transaction.upsert({
         where: { plaidTransactionId: txn.transaction_id },
@@ -120,12 +96,7 @@ export async function syncTransactionsFromPlaid(
       })
 
       if (existing) {
-        // Convert amount if needed
-        let transactionAmount = new Decimal(-txn.amount)
-
-        if (conversionRate) {
-          transactionAmount = transactionAmount.mul(conversionRate)
-        }
+        const transactionAmount = new Decimal(-txn.amount)
 
         await prisma.transaction.update({
           where: { plaidTransactionId: txn.transaction_id },

@@ -35,7 +35,7 @@ model User {
   passwordHash   String? // Keep temporarily for safety during migration
   name           String?
   image          String?
-  currency       String   @default("USD")
+  currency       String   @default("NIS")
   timezone       String   @default("America/New_York")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -51,14 +51,14 @@ model User {
   subscriptionStartedAt DateTime?
   subscriptionExpiresAt DateTime?
 
-  oauthAccounts          OAuthAccount[] // Keep temporarily during migration
-  passwordResetTokens    PasswordResetToken[] // Keep temporarily during migration
-  categories             Category[]
-  accounts               Account[]
-  transactions           Transaction[]
-  budgets                Budget[]
-  goals                  Goal[]
-  currencyConversionLogs CurrencyConversionLog[]
+  oauthAccounts         OAuthAccount[] // Keep temporarily during migration
+  passwordResetTokens   PasswordResetToken[] // Keep temporarily during migration
+  categories            Category[]
+  accounts              Account[]
+  transactions          Transaction[]
+  recurringTransactions RecurringTransaction[]
+  budgets               Budget[]
+  goals                 Goal[]
 
   @@index([supabaseAuthId])
   @@index([email])
@@ -119,6 +119,7 @@ model Category {
   parent                Category?               @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children              Category[]              @relation("CategoryHierarchy")
   transactions          Transaction[]
+  recurringTransactions RecurringTransaction[]
   budgets               Budget[]
   merchantCategoryCache MerchantCategoryCache[]
 
@@ -137,10 +138,9 @@ model Account {
   type             AccountType
   name             String
   institution      String
-  balance          Decimal     @db.Decimal(15, 2)
-  currency         String      @default("USD")
-  originalCurrency String? // For Plaid accounts: original currency before user currency conversion
-  plaidAccountId   String?     @unique
+  balance        Decimal  @db.Decimal(15, 2)
+  currency       String   @default("NIS") // Always NIS - multi-currency not supported
+  plaidAccountId String?  @unique
   plaidAccessToken String?     @db.Text
   isManual         Boolean     @default(true)
   isActive         Boolean     @default(true)
@@ -148,9 +148,10 @@ model Account {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
-  goals        Goal[]
+  user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions          Transaction[]
+  recurringTransactions RecurringTransaction[]
+  goals                 Goal[]
 
   @@index([userId])
   @@index([plaidAccountId])
@@ -169,30 +170,90 @@ enum AccountType {
 // ============================================================================
 
 model Transaction {
-  id                 String   @id @default(cuid())
-  userId             String
-  accountId          String
-  date               DateTime
-  amount             Decimal  @db.Decimal(15, 2)
-  payee              String
-  categoryId         String
-  notes              String?  @db.Text
-  tags               String[]
-  plaidTransactionId String?  @unique
-  isManual           Boolean  @default(true)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id                     String   @id @default(cuid())
+  userId                 String
+  accountId              String
+  date                   DateTime
+  amount                 Decimal  @db.Decimal(15, 2)
+  payee                  String
+  categoryId             String
+  notes                  String?  @db.Text
+  tags                   String[]
+  plaidTransactionId     String?  @unique
+  recurringTransactionId String? // Link to recurring transaction template
+  isManual               Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  account  Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  category Category @relation(fields: [categoryId], references: [id])
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account              Account                @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category             Category               @relation(fields: [categoryId], references: [id])
+  recurringTransaction RecurringTransaction? @relation("RecurringTransactionSource", fields: [recurringTransactionId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([accountId])
   @@index([categoryId])
   @@index([date])
   @@index([plaidTransactionId])
+  @@index([recurringTransactionId])
   @@index([userId, date(sort: Desc)])
+}
+
+// ============================================================================
+// RECURRING TRANSACTIONS
+// ============================================================================
+
+enum RecurrenceFrequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum RecurringTransactionStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+model RecurringTransaction {
+  id                  String                     @id @default(cuid())
+  userId              String
+  accountId           String
+  amount              Decimal                    @db.Decimal(15, 2)
+  payee               String
+  categoryId          String
+  notes               String?                    @db.Text
+  tags                String[]
+
+  // Recurrence settings
+  frequency           RecurrenceFrequency
+  interval            Int                        @default(1) // e.g., every 2 weeks = interval 2
+  startDate           DateTime
+  endDate             DateTime? // null = no end date
+  dayOfMonth          Int? // For monthly: 1-31, or -1 for last day
+  dayOfWeek           Int? // For weekly: 0=Sun, 1=Mon, etc.
+
+  // Status & tracking
+  status              RecurringTransactionStatus @default(ACTIVE)
+  lastGeneratedDate   DateTime?
+  nextScheduledDate   DateTime
+
+  createdAt           DateTime                   @default(now())
+  updatedAt           DateTime                   @updatedAt
+
+  user                    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account                 Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category                Category      @relation(fields: [categoryId], references: [id])
+  generatedTransactions   Transaction[] @relation("RecurringTransactionSource")
+
+  @@index([userId])
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([nextScheduledDate])
 }
 
 // ============================================================================
@@ -200,14 +261,15 @@ model Transaction {
 // ============================================================================
 
 model Budget {
-  id         String   @id @default(cuid())
-  userId     String
-  categoryId String
-  amount     Decimal  @db.Decimal(15, 2)
-  month      String // Format: "2025-01"
-  rollover   Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String   @id @default(cuid())
+  userId      String
+  categoryId  String
+  amount      Decimal  @db.Decimal(15, 2)
+  month       String // Format: "2025-01"
+  rollover    Boolean  @default(false)
+  isRecurring Boolean  @default(false) // If true, automatically applies to future months
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   category Category      @relation(fields: [categoryId], references: [id])
@@ -280,50 +342,9 @@ enum GoalType {
   INVESTMENT
 }
 
-enum ConversionStatus {
-  IN_PROGRESS
-  COMPLETED
-  FAILED
-  ROLLED_BACK
-}
-
 // ============================================================================
-// CURRENCY CONVERSION - Iteration 9
+// CURRENCY - NIS ONLY
 // ============================================================================
-
-model ExchangeRate {
-  id           String   @id @default(cuid())
-  date         DateTime @db.Date
-  fromCurrency String
-  toCurrency   String
-  rate         Decimal  @db.Decimal(18, 8)
-  source       String   @default("exchangerate-api.com")
-  createdAt    DateTime @default(now())
-  expiresAt    DateTime
-
-  @@unique([date, fromCurrency, toCurrency])
-  @@index([fromCurrency, toCurrency, date])
-  @@index([expiresAt])
-}
-
-model CurrencyConversionLog {
-  id               String           @id @default(cuid())
-  userId           String
-  fromCurrency     String
-  toCurrency       String
-  exchangeRate     Decimal          @db.Decimal(18, 8)
-  status           ConversionStatus
-  errorMessage     String?          @db.Text
-  transactionCount Int              @default(0)
-  accountCount     Int              @default(0)
-  budgetCount      Int              @default(0)
-  goalCount        Int              @default(0)
-  startedAt        DateTime         @default(now())
-  completedAt      DateTime?
-  durationMs       Int?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, startedAt])
-  @@index([status])
-}
+// Multi-currency support removed for production MVP
+// All amounts are stored and displayed in NIS (₪)
+// Currency fields kept in schema for potential future expansion

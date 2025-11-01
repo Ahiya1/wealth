@@ -18,20 +18,13 @@ import { trpc } from '@/lib/trpc'
 
 const profileSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
-  currency: z.enum(['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY']),
+  // Currency removed - always NIS, not user-configurable
   timezone: z.string(),
 })
 
 type ProfileFormData = z.infer<typeof profileSchema>
 
-const COMMON_CURRENCIES = [
-  { value: 'USD', label: 'USD ($)' },
-  { value: 'EUR', label: 'EUR (€)' },
-  { value: 'GBP', label: 'GBP (£)' },
-  { value: 'CAD', label: 'CAD ($)' },
-  { value: 'AUD', label: 'AUD ($)' },
-  { value: 'JPY', label: 'JPY (¥)' },
-]
+// Currency is hardcoded to NIS - no user selection needed
 
 const COMMON_TIMEZONES = [
   { value: 'America/New_York', label: 'Eastern Time (ET)' },
@@ -57,7 +50,7 @@ export function ProfileSection() {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: user?.name || '',
-      currency: (user?.currency as any) || 'USD',
+      // Currency removed - always NIS
       timezone: user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
     },
   })
@@ -121,26 +114,14 @@ export function ProfileSection() {
 
         <div className="space-y-2">
           <Label htmlFor="currency">Currency</Label>
-          <Select
-            onValueChange={(value) => setValue('currency', value as any, { shouldDirty: true })}
-            defaultValue={user?.currency}
-          >
-            <SelectTrigger id="currency">
-              <SelectValue placeholder="Select currency" />
-            </SelectTrigger>
-            <SelectContent>
-              {COMMON_CURRENCIES.map((curr) => (
-                <SelectItem key={curr.value} value={curr.value}>
-                  {curr.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.currency && (
-            <p className="text-sm text-terracotta-700">{errors.currency.message}</p>
-          )}
+          <Input
+            id="currency"
+            value="NIS (₪)"
+            disabled
+            className="bg-muted"
+          />
           <p className="text-xs text-muted-foreground">
-            This is a display preference only. Existing amounts are not converted.
+            Currency is set to NIS (Israeli Shekel) and cannot be changed.
           </p>
         </div>
 

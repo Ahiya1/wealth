@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Wallet,
   Receipt,
+  Calendar,
   PieChart,
   Target,
   BarChart3,
@@ -62,6 +63,11 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
       title: 'Transactions',
       href: '/transactions',
       icon: Receipt,
+    },
+    {
+      title: 'Recurring',
+      href: '/recurring',
+      icon: Calendar,
     },
     {
       title: 'Budgets',

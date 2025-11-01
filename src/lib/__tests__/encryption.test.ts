@@ -1,18 +1,10 @@
 // src/lib/__tests__/encryption.test.ts
 import { encrypt, decrypt } from '../encryption'
+import { describe, it, expect } from 'vitest'
 
-// Mock environment variable for testing
-const originalEnv = process.env.ENCRYPTION_KEY
-const testKey = 'a'.repeat(64) // 32 bytes as hex (64 hex characters)
+// ENCRYPTION_KEY is set in vitest.setup.ts before modules load
 
 describe('Encryption utilities', () => {
-  beforeAll(() => {
-    process.env.ENCRYPTION_KEY = testKey
-  })
-
-  afterAll(() => {
-    process.env.ENCRYPTION_KEY = originalEnv
-  })
 
   describe('encrypt', () => {
     it('should encrypt a string', () => {
