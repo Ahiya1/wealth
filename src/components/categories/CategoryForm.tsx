@@ -167,7 +167,7 @@ export function CategoryForm({ categoryId, onSuccess }: CategoryFormProps) {
               <div className="flex items-center gap-2">
                 {selectedIcon &&
                   (() => {
-                    const Icon = LucideIcons[selectedIcon as keyof typeof LucideIcons] as any
+                    const Icon = LucideIcons[selectedIcon as keyof typeof LucideIcons] as React.ComponentType<{ size?: number }>
                     return Icon ? <Icon size={16} /> : null
                   })()}
                 <span>{selectedIcon || 'Select icon'}</span>
@@ -176,7 +176,7 @@ export function CategoryForm({ categoryId, onSuccess }: CategoryFormProps) {
           </SelectTrigger>
           <SelectContent>
             {POPULAR_ICONS.map((iconName) => {
-              const Icon = LucideIcons[iconName as keyof typeof LucideIcons] as any
+              const Icon = LucideIcons[iconName as keyof typeof LucideIcons] as React.ComponentType<{ size?: number }>
               return (
                 <SelectItem key={iconName} value={iconName}>
                   <div className="flex items-center gap-2">
@@ -233,7 +233,7 @@ export function CategoryForm({ categoryId, onSuccess }: CategoryFormProps) {
             <SelectItem value="__none__">None (top-level category)</SelectItem>
             {parentCategories.map((parent) => {
               const Icon = parent.icon
-                ? (LucideIcons[parent.icon as keyof typeof LucideIcons] as any)
+                ? (LucideIcons[parent.icon as keyof typeof LucideIcons] as React.ComponentType<{ size?: number; style?: React.CSSProperties }>)
                 : null
               return (
                 <SelectItem key={parent.id} value={parent.id}>

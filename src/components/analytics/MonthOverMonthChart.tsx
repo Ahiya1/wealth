@@ -7,6 +7,16 @@ interface MonthOverMonthChartProps {
   data: { month: string; income: number; expenses: number }[]
 }
 
+interface TooltipProps {
+  active?: boolean
+  payload?: Array<{
+    name: string
+    value: number
+    dataKey: string
+  }>
+  label?: string
+}
+
 export function MonthOverMonthChart({ data }: MonthOverMonthChartProps) {
   if (!data || data.length === 0) {
     return (
@@ -17,7 +27,7 @@ export function MonthOverMonthChart({ data }: MonthOverMonthChartProps) {
   }
 
   // Custom tooltip
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (!active || !payload?.length) return null
 
     return (
@@ -25,14 +35,17 @@ export function MonthOverMonthChart({ data }: MonthOverMonthChartProps) {
         <p className="text-sm font-medium text-warm-gray-700 mb-2">
           {label}
         </p>
-        {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center justify-between gap-4">
-            <span className="text-sm text-warm-gray-600">{entry.name}:</span>
-            <span className="text-sm font-bold text-sage-600 tabular-nums">
-              ${Number(entry.value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </div>
-        ))}
+        {payload.map((entry, index) => {
+          const formatted = Number(entry.value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          return (
+            <div key={index} className="flex items-center justify-between gap-4">
+              <span className="text-sm text-warm-gray-600">{entry.name}:</span>
+              <span className="text-sm font-bold text-sage-600 tabular-nums">
+                {formatted} ₪
+              </span>
+            </div>
+          )
+        })}
       </div>
     )
   }
@@ -49,7 +62,7 @@ export function MonthOverMonthChart({ data }: MonthOverMonthChartProps) {
 
         <YAxis
           {...CHART_CONFIG.yAxis}
-          tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+          tickFormatter={(value) => `${(value / 1000).toFixed(0)}K ₪`}
         />
 
         <Tooltip content={<CustomTooltip />} />

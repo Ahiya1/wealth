@@ -141,7 +141,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
 
       <div>
         <Label htmlFor="type">Goal Type</Label>
-        <Select onValueChange={(value) => setValue('type', value as any)} defaultValue={goalType}>
+        <Select onValueChange={(value) => setValue('type', value as 'SAVINGS' | 'DEBT_PAYOFF')} defaultValue={goalType}>
           <SelectTrigger>
             <SelectValue placeholder="Select goal type" />
           </SelectTrigger>

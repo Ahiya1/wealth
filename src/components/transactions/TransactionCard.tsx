@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/utils'
 import { format } from 'date-fns'
-import { Edit, Trash2 } from 'lucide-react'
+import { Edit, Trash2, Repeat } from 'lucide-react'
 import type { Transaction, Category, Account } from '@prisma/client'
 import { cardHoverSubtle } from '@/lib/animations'
 
@@ -22,6 +22,7 @@ interface TransactionCardProps {
 export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCardProps) {
   const isExpense = Number(transaction.amount) < 0
   const absAmount = Math.abs(Number(transaction.amount))
+  const isRecurring = !!transaction.recurringTransactionId
 
   return (
     <motion.div {...cardHoverSubtle}>
@@ -30,7 +31,12 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-base truncate">{transaction.payee}</h3>
+              <h3 className="font-semibold text-base truncate flex items-center gap-1.5">
+                {transaction.payee}
+                {isRecurring && (
+                  <Repeat className="h-4 w-4 text-sage-600 dark:text-sage-400 flex-shrink-0" aria-label="Recurring transaction" />
+                )}
+              </h3>
               {transaction.tags.length > 0 && (
                 <div className="flex gap-1">
                   {transaction.tags.map((tag) => (
@@ -79,7 +85,7 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
                 {formatCurrency(absAmount)}
               </p>
               <p className="text-xs text-muted-foreground">
-                {transaction.isManual ? 'Manual' : 'Imported'}
+                {isRecurring ? 'Recurring' : transaction.isManual ? 'Manual' : 'Imported'}
               </p>
             </div>
 

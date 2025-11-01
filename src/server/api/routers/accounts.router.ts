@@ -48,7 +48,7 @@ export const accountsRouter = router({
         name: z.string().min(1, 'Account name is required'),
         institution: z.string().min(1, 'Institution name is required'),
         balance: z.number().default(0),
-        currency: z.string().default('USD'),
+        currency: z.string().default('NIS'),
       })
     )
     .mutation(async ({ ctx, input }) => {

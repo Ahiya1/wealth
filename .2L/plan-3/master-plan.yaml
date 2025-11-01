@@ -1,0 +1,232 @@
+plan_id: plan-3
+created_at: 2025-11-01T21:36:45Z
+status: PLANNED
+total_iterations: 2
+
+strategy: |
+  This plan transforms the Wealth app from USD to NIS currency and deploys it to production
+  on Vercel with Supabase backend. The approach is structured into 2 focused iterations:
+
+  ITERATION 1 (Global #12): Currency Migration + Core Production Setup
+  - Complete systematic USD → NIS migration across all 70+ files
+  - Configure and deploy to Vercel production environment
+  - Setup production Supabase with database migrations
+  - Integrate GitHub for automatic deployments
+  - Configure all environment variables securely
+
+  ITERATION 2 (Global #13): Email Branding + Admin Access
+  - Design and implement custom branded email templates (HTML)
+  - Configure Supabase Auth with email verification enforcement
+  - Create pre-verified admin user for immediate access
+  - End-to-end production validation and smoke testing
+
+  This 2-iteration approach balances focus with momentum:
+  - Iteration 1 establishes the foundation (currency + infrastructure) - can be locally tested
+  - Iteration 2 adds polish and access (email branding + admin) - requires production setup
+
+  Rationale for split:
+  - Currency migration is mechanical but widespread (225 occurrences, 70 files)
+  - Production deployment has many configuration dependencies that benefit from isolation
+  - Email templates require design work that can happen after core deployment is proven
+  - Admin user creation requires production database to exist
+
+  Risk mitigation:
+  - Iteration 1 uses Vercel preview deployments for risk-free testing before production
+  - Systematic grep-based currency migration reduces risk of missing USD references
+  - Email templates tested locally in parallel with Iteration 1 work
+  - Admin user has 3 creation methods (dashboard, SQL, API) for fallback resilience
+
+iterations:
+  - iteration_id: 1
+    global_iteration: 12
+    name: "Currency Migration + Production Deployment"
+    vision: "Transform app to NIS currency and deploy to production Vercel with Supabase"
+    scope: |
+      FEATURES INCLUDED:
+      1. Complete USD to NIS Currency Migration
+         - Update currency constants (USD → NIS) in /src/lib/constants.ts
+         - Modify formatCurrency() in /src/lib/utils.ts for NIS formatting (symbol after amount)
+         - Update all 17 component files using formatCurrency()
+         - Update database schema defaults (Prisma) from USD to NIS
+         - Update all form components to display ₪ symbol
+         - Update chart components (7 files) with NIS formatting on axes
+         - Update CSV and JSON export utilities with NIS metadata
+         - Update test files with expected NIS values
+         - Systematic grep search for ALL "USD", "$", "dollar" references
+         - Visual QA across all pages (Dashboard, Transactions, Analytics, Settings)
+
+      2. Production Supabase Configuration
+         - Run database migrations on production instance (npylfibbutxioxjtcbvy.supabase.co)
+         - Verify Row Level Security (RLS) policies are enabled
+         - Test database connectivity from local environment
+         - Document connection pooling configuration (PgBouncer)
+
+      3. GitHub Integration
+         - Commit all currency migration changes
+         - Push to main branch (git@github.com:Ahiya1/wealth.git)
+         - Verify repository is up to date and build-ready
+         - Tag commit for deployment tracking
+
+      4. Vercel Production Deployment
+         - Create Vercel project (or link existing)
+         - Connect to GitHub repository (Ahiya1/wealth)
+         - Configure environment variables in Vercel dashboard:
+           * DATABASE_URL (pooled connection string)
+           * DIRECT_URL (direct connection for migrations)
+           * NEXT_PUBLIC_SUPABASE_URL
+           * NEXT_PUBLIC_SUPABASE_ANON_KEY
+           * SUPABASE_SERVICE_ROLE_KEY (server-side only)
+           * CRON_SECRET
+           * ENCRYPTION_KEY
+         - Enable automatic deployments on push to main
+         - Enable preview deployments for branches
+         - Configure vercel.json for cron jobs (2 AM daily recurring)
+         - Trigger initial production deployment
+         - Verify HTTPS enabled and production URL accessible
+
+      5. Environment Configuration
+         - Update .env.example with all required variables
+         - Document secure credential management
+         - Test build locally before production deployment
+         - Verify all environment variables are correctly mapped
+
+      SUCCESS CRITERIA:
+      - All currency displays show "X,XXX.XX ₪" format (symbol after amount)
+      - Production deployment accessible via Vercel URL with HTTPS
+      - All CRUD operations work against production Supabase
+      - GitHub push to main triggers automatic Vercel deployment
+      - Build succeeds on Vercel (no TypeScript, lint, or build errors)
+      - Dashboard, Transactions, Analytics, Settings all render with NIS
+      - Test transaction created successfully in production
+
+      OUT OF SCOPE (Deferred to Iteration 2):
+      - Email verification and custom templates
+      - Admin user creation
+
+    status: PENDING
+    dependencies: []
+    complexity: MEDIUM
+    estimated_hours: 6-8
+
+  - iteration_id: 2
+    global_iteration: 13
+    name: "Email Branding + Admin Access"
+    vision: "Add custom branded email templates and create pre-verified admin user"
+    scope: |
+      FEATURES INCLUDED:
+      6. Email Verification with Custom Branded Templates
+         - Design responsive HTML email templates with inline CSS
+         - Create confirmation.html (signup email verification)
+         - Create reset_password.html (password reset email)
+         - Create magic_link.html (magic link authentication, optional)
+         - Apply brand colors (sage green #059669, warm grays)
+         - Include app logo (hosted on CDN or base64 embedded)
+         - Ensure mobile-friendly responsive design
+         - Test rendering in Gmail, Outlook, Apple Mail
+         - Upload templates to Supabase production instance
+         - Update auth.email settings in Supabase dashboard:
+           * enable_signup = true
+           * enable_confirmations = true
+           * template_confirmation = "./templates/confirmation.html"
+           * template_recovery = "./templates/reset_password.html"
+         - Enable email verification enforcement in auth settings
+         - Send test signup email to verify rendering
+         - Verify email verification flow blocks access until verified
+
+      7. Admin User Creation
+         - Create admin user via Supabase dashboard:
+           * Email: ahiya.butman@gmail.com
+           * Password: wealth_generator
+           * Auto-confirm email: ENABLED (bypass email verification)
+         - Alternative methods documented:
+           * Method 1: Supabase Dashboard (Users → Add user)
+           * Method 2: SQL INSERT into auth.users with crypt()
+           * Method 3: Seed script using supabase.auth.admin.createUser()
+         - Verify admin user can login immediately without email verification
+         - Test full app functionality with admin account
+         - Document credentials securely
+
+      VALIDATION & TESTING:
+      - End-to-end production smoke test:
+        * Admin login works immediately
+        * Create transaction shows "150.50 ₪"
+        * Dashboard totals display in NIS
+        * Analytics charts show ₪ on axes
+        * Export CSV/JSON includes NIS metadata
+      - New user signup flow (non-admin):
+        * Signup triggers styled email verification
+        * Email renders correctly in major clients
+        * Verification link works
+        * Access blocked until email verified
+      - GitHub auto-deployment:
+        * Push change to main branch
+        * Vercel deploys automatically within 2-3 minutes
+        * Build status visible in GitHub
+
+      SUCCESS CRITERIA:
+      - Admin user logs in successfully with ahiya.butman@gmail.com / wealth_generator
+      - Admin account is pre-verified (no email verification blocker)
+      - Styled email templates render professionally in Gmail, Outlook, Apple Mail
+      - New user signup sends branded verification email
+      - Email verification enforced (users can't access app until verified)
+      - All production features working end-to-end
+
+      COMPLETION CHECKLIST:
+      - [ ] Email templates created and tested locally
+      - [ ] Templates uploaded to Supabase production
+      - [ ] Email verification enabled in auth settings
+      - [ ] Test signup email sent and rendered correctly
+      - [ ] Admin user created via dashboard/SQL/API
+      - [ ] Admin login tested successfully
+      - [ ] Production smoke test passed (all features working)
+      - [ ] Documentation updated with admin credentials
+
+    status: PENDING
+    dependencies:
+      - iteration_1_complete
+    complexity: LOW-MEDIUM
+    estimated_hours: 3-4
+
+master_exploration_summary: |
+  EXPLORER 1 (Architecture & Complexity):
+  - Complexity: MEDIUM
+  - 225 currency occurrences across 70 files (systematic but manageable)
+  - Well-architected Next.js 14 + tRPC + Prisma + Supabase codebase
+  - Recommended 2 iterations: Currency+Deployment, Email+Admin
+
+  EXPLORER 2 (Dependencies & Risk):
+  - Complexity: COMPLEX (multiple external services)
+  - Critical dependencies: GitHub ✅, Vercel (ready), Supabase Production ✅
+  - 7 environment variables required (3 HIGH SECURITY)
+  - Risk mitigation: Vercel preview deployments, systematic grep, pre-flight checklist
+  - Recommended 3 iterations (conservative) but acknowledged 2 is feasible
+
+  EXPLORER 3 (UX & Integration):
+  - Complexity: MEDIUM
+  - 71+ files affected by currency display transformation
+  - Email template quality gate: Test in 3 major email clients
+  - Admin user has 3 creation methods for resilience
+  - Recommended 2 iterations: Currency+Email, Deployment+Admin
+
+  EXPLORER 4 (Scalability & Performance):
+  - Complexity: MEDIUM
+  - Database connection pooling already configured correctly (PgBouncer)
+  - 57 test files provide good coverage
+  - Vercel free tier MORE than sufficient for single user (97% headroom)
+  - Build optimization: Add output: 'standalone' to next.config.js
+  - Recommended 1 iteration (all deployment/config tasks)
+
+  CONSENSUS DECISION: 2 ITERATIONS
+  - Balances focus (Explorer 1, 3) with feasibility (Explorer 2)
+  - Provides logical separation: Foundation (Iter 1) + Polish (Iter 2)
+  - Enables parallel work (email templates during Iter 1)
+  - Reduces deployment risk via Vercel preview testing
+
+notes: |
+  - Total estimated time: 9-12 hours (6-8h Iter 1 + 3-4h Iter 2)
+  - Global iteration range: #12-13
+  - Fresh production deployment (no data migration needed)
+  - Plaid integration explicitly excluded from MVP (US-centric, not suitable for NIS)
+  - Connection pooling critical: Use pooled connection string with ?pgbouncer=true
+  - Cron job verification: Manually trigger post-deployment to confirm execution
+  - Email SMTP: Assume Supabase built-in email enabled (verify in dashboard)

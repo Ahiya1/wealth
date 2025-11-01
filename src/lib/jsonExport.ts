@@ -5,27 +5,27 @@ interface ExportData {
     currency: string
     timezone: string
   }
-  accounts: any[]
-  transactions: any[]
-  budgets: any[]
-  goals: any[]
-  categories: any[]
+  accounts: unknown[]
+  transactions: unknown[]
+  budgets: unknown[]
+  goals: unknown[]
+  categories: unknown[]
 }
 
 export function generateCompleteDataJSON(data: ExportData): string {
   // Convert Prisma Decimal to number for JSON serialization
-  const sanitizeDecimals = (obj: any): any => {
+  const sanitizeDecimals = (obj: unknown): unknown => {
     if (obj === null || obj === undefined) return obj
     if (typeof obj === 'object' && 'toNumber' in obj) {
-      return obj.toNumber()
+      return (obj as { toNumber: () => number }).toNumber()
     }
     if (Array.isArray(obj)) {
       return obj.map(sanitizeDecimals)
     }
     if (typeof obj === 'object') {
-      const result: any = {}
+      const result: Record<string, unknown> = {}
       for (const key in obj) {
-        result[key] = sanitizeDecimals(obj[key])
+        result[key] = sanitizeDecimals((obj as Record<string, unknown>)[key])
       }
       return result
     }

@@ -7,6 +7,14 @@ interface NetWorthChartProps {
   data: { date: string; value: number }[]
 }
 
+interface TooltipProps {
+  active?: boolean
+  payload?: Array<{
+    value: number
+    payload: { date: string; value: number }
+  }>
+}
+
 export function NetWorthChart({ data }: NetWorthChartProps) {
   if (!data || data.length === 0) {
     return (
@@ -17,16 +25,19 @@ export function NetWorthChart({ data }: NetWorthChartProps) {
   }
 
   // Custom tooltip
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: TooltipProps) => {
     if (!active || !payload?.length) return null
+
+    const entry = payload[0]!
+    const formatted = Number(entry.value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
     return (
       <div className="rounded-lg border bg-card p-3 shadow-lg">
         <p className="text-sm font-medium text-warm-gray-700">
-          {payload[0].payload.date}
+          {entry.payload.date}
         </p>
         <p className="text-lg font-bold text-sage-600 tabular-nums">
-          ${Number(payload[0].value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {formatted} ₪
         </p>
       </div>
     )
@@ -44,7 +55,7 @@ export function NetWorthChart({ data }: NetWorthChartProps) {
 
         <YAxis
           {...CHART_CONFIG.yAxis}
-          tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+          tickFormatter={(value) => `${(value / 1000).toFixed(0)}K ₪`}
         />
 
         <Tooltip content={<CustomTooltip />} />

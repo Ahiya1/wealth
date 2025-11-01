@@ -9,19 +9,15 @@ import {
   getCategorizationStats,
 } from '../categorize.service'
 
-// Mock Anthropic SDK
+// Create a mock function that we can control in tests
+const mockClaudeCreate = vi.fn()
+
+// Mock Anthropic SDK with a factory that references the mock
 vi.mock('@anthropic-ai/sdk', () => {
   return {
-    default: vi.fn().mockImplementation(() => ({
+    default: vi.fn(() => ({
       messages: {
-        create: vi.fn().mockResolvedValue({
-          content: [
-            {
-              type: 'text',
-              text: '[{"number": 1, "category": "Groceries"}, {"number": 2, "category": "Gas"}]',
-            },
-          ],
-        }),
+        create: (...args: any[]) => mockClaudeCreate(...args),
       },
     })),
   }
@@ -33,6 +29,16 @@ const prismaMock = mockDeep<PrismaClient>() as unknown as DeepMockProxy<PrismaCl
 describe('categorizeTransactions', () => {
   beforeEach(() => {
     mockReset(prismaMock)
+    // Reset and set default Claude API response
+    mockClaudeCreate.mockReset()
+    mockClaudeCreate.mockResolvedValue({
+      content: [
+        {
+          type: 'text',
+          text: '[{"number": 1, "category": "Groceries"}, {"number": 2, "category": "Gas"}]',
+        },
+      ],
+    })
   })
 
   it('should return cached results when merchant is in cache', async () => {
@@ -137,12 +143,8 @@ describe('categorizeTransactions', () => {
     // Mock cache miss
     prismaMock.merchantCategoryCache.findUnique.mockResolvedValue(null)
 
-    // Mock Claude API error by importing and mocking it to throw
-    const Anthropic = (await import('@anthropic-ai/sdk')).default
-    const mockCreate = vi.fn().mockRejectedValue(new Error('API Error'))
-    vi.mocked(Anthropic).mockImplementation(() => ({
-      messages: { create: mockCreate },
-    }) as any)
+    // Mock Claude API to throw an error
+    mockClaudeCreate.mockRejectedValueOnce(new Error('API Error'))
 
     const results = await categorizeTransactions(userId, transactions, prismaMock)
 

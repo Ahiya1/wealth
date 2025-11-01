@@ -4,11 +4,11 @@ created_at: 2025-10-01
 requirements: "See WEALTH_REQUIREMENTS.md for complete specification"
 
 # Global iteration counter (tracks iterations across all plans)
-global_iteration_counter: 11
+global_iteration_counter: 12
 
 # Current active plan
-current_plan: plan-2
-current_phase: iteration_complete
+current_plan: plan-3
+current_phase: exploration
 
 # Plans (managed by /2l-vision and /2l-mvp)
 plans:
@@ -26,3 +26,13 @@ plans:
     vision_file: plan-2/vision.md
     master_plan_file: plan-2/master-plan.yaml
     description: "Production Hardening - Dark mode fixes, visual warmth completion, performance optimization"
+
+  plan-3:
+    status: PLANNED
+    created: 2025-11-01T00:00:00Z
+    vision_file: plan-3/vision.md
+    master_plan_file: plan-3/master-plan.yaml
+    description: "Production Deployment with NIS Currency Migration - USD to NIS conversion, Vercel deployment, production Supabase setup"
+    master_exploration:
+      num_explorers: 4
+      complexity_level: COMPLEX

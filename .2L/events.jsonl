@@ -1,0 +1,60 @@
+{"timestamp":"2025-11-01T19:30:56Z","event_type":"plan_start","phase":"initialization","agent_id":"orchestrator","data":"Plan plan-3 started in MASTER mode (Level 2: Vision Control)"}
+{"timestamp":"2025-11-01T19:31:28Z","event_type":"complexity_decision","phase":"master_exploration","agent_id":"orchestrator","data":"Spawning 4 explorers (complexity: COMPLEX)"}
+{"timestamp":"2025-11-01T19:31:44Z","event_type":"phase_change","phase":"master_exploration","agent_id":"orchestrator","data":"Starting Master Exploration phase"}
+{"timestamp":"2025-11-01T19:31:52Z","event_type":"agent_spawn","phase":"master_exploration","agent_id":"master-explorer-1","data":"Master Explorer-1: Architecture & Complexity Analysis"}
+{"timestamp":"2025-11-01T19:31:52Z","event_type":"agent_spawn","phase":"master_exploration","agent_id":"master-explorer-2","data":"Master Explorer-2: Dependencies & Risk Assessment"}
+{"timestamp":"2025-11-01T19:31:52Z","event_type":"agent_spawn","phase":"master_exploration","agent_id":"master-explorer-3","data":"Master Explorer-3: User Experience & Integration Points"}
+{"timestamp":"2025-11-01T19:31:52Z","event_type":"agent_spawn","phase":"master_exploration","agent_id":"master-explorer-4","data":"Master Explorer-4: Scalability & Performance Considerations"}
+{"timestamp":"2025-11-01T19:32:23Z","event_type":"agent_start","phase":"master-exploration","agent_id":"master-explorer-1","data":"Master-Explorer-1: Starting architecture & complexity analysis"}
+{"timestamp":"2025-11-01T19:32:24Z","event_type":"agent_start","phase":"master-exploration","agent_id":"master-explorer-4","data":"Master-Explorer-4: Starting scalability & performance analysis"}
+{"timestamp":"2025-11-01T19:32:24Z","event_type":"agent_start","phase":"master-exploration","agent_id":"master-explorer-3","data":"Master-Explorer-3: Starting user experience & integration points analysis"}
+{"timestamp":"2025-11-01T19:32:24Z","event_type":"agent_start","phase":"master-exploration","agent_id":"master-explorer-2","data":"Master-Explorer-2: Starting dependencies & risk assessment"}
+{"timestamp":"2025-11-01T19:33:12Z","event_type":"agent_complete","phase":"master-exploration","agent_id":"master-explorer-1","data":"Master-Explorer-1: Architecture & complexity analysis complete"}
+{"timestamp":"2025-11-01T19:33:18Z","event_type":"agent_complete","phase":"master-exploration","agent_id":"master-explorer-2","data":"Master-Explorer-2: Dependencies & risk assessment complete"}
+{"timestamp":"2025-11-01T19:36:30Z","event_type":"agent_complete","phase":"master-exploration","agent_id":"master-explorer-3","data":"Master-Explorer-3: User experience & integration points analysis complete"}
+{"timestamp":"2025-11-01T19:37:04Z","event_type":"agent_complete","phase":"master-exploration","agent_id":"master-explorer-4","data":"Master-Explorer-4: Scalability & performance analysis complete"}
+{"timestamp":"2025-11-01T19:37:50Z","event_type":"agent_complete","phase":"master_exploration","agent_id":"master-explorer-1","data":"Master Explorer-1 completed"}
+{"timestamp":"2025-11-01T19:37:50Z","event_type":"agent_complete","phase":"master_exploration","agent_id":"master-explorer-2","data":"Master Explorer-2 completed"}
+{"timestamp":"2025-11-01T19:37:50Z","event_type":"agent_complete","phase":"master_exploration","agent_id":"master-explorer-3","data":"Master Explorer-3 completed"}
+{"timestamp":"2025-11-01T19:37:50Z","event_type":"agent_complete","phase":"master_exploration","agent_id":"master-explorer-4","data":"Master Explorer-4 completed"}
+{"timestamp":"2025-11-01T19:38:26Z","event_type":"phase_change","phase":"master_planning","agent_id":"orchestrator","data":"Starting Master Planning phase"}
+{"timestamp":"2025-11-01T19:40:25Z","event_type":"iteration_start","phase":"initialization","agent_id":"orchestrator","data":"Iteration 12: Currency Migration + Production Deployment"}
+{"timestamp":"2025-11-01T19:40:25Z","event_type":"phase_change","phase":"exploration","agent_id":"orchestrator","data":"Starting Exploration phase"}
+{"timestamp":"2025-11-01T19:40:34Z","event_type":"agent_spawn","phase":"exploration","agent_id":"explorer-1","data":"Explorer-1: Architecture & Structure"}
+{"timestamp":"2025-11-01T19:40:34Z","event_type":"agent_spawn","phase":"exploration","agent_id":"explorer-2","data":"Explorer-2: Technology Patterns & Dependencies"}
+{"timestamp":"2025-11-01T19:40:34Z","event_type":"agent_spawn","phase":"exploration","agent_id":"explorer-3","data":"Explorer-3: Complexity & Integration Points"}
+{"timestamp":"2025-11-01T19:40:59Z","event_type":"agent_start","phase":"exploration","agent_id":"explorer-1","data":"Explorer-1: Starting architecture and structure analysis for currency migration"}
+{"timestamp":"2025-11-01T19:41:01Z","event_type":"agent_start","phase":"exploration","agent_id":"explorer-3","data":"Explorer-3: Starting complexity and integration points analysis"}
+{"timestamp":"2025-11-01T19:41:08Z","event_type":"agent_start","phase":"exploration","agent_id":"explorer-2","data":"Explorer-2: Starting technology patterns and dependencies analysis"}
+{"timestamp":"2025-11-01T19:42:11Z","event_type":"agent_complete","phase":"exploration","agent_id":"explorer-3","data":"Explorer-3: Complexity and integration points analysis complete"}
+{"timestamp":"2025-11-01T19:42:14Z","event_type":"agent_complete","phase":"exploration","agent_id":"explorer-1","data":"Explorer-1: Architecture and structure analysis complete"}
+{"timestamp":"2025-11-01T19:42:57Z","event_type":"agent_complete","phase":"exploration","agent_id":"explorer-2","data":"Explorer-2: Technology patterns and dependencies analysis complete"}
+{"timestamp":"2025-11-01T19:47:23Z","event_type":"agent_complete","phase":"exploration","agent_id":"explorer-1","data":"Explorer-1 completed"}
+{"timestamp":"2025-11-01T19:47:23Z","event_type":"agent_complete","phase":"exploration","agent_id":"explorer-2","data":"Explorer-2 completed"}
+{"timestamp":"2025-11-01T19:47:23Z","event_type":"agent_complete","phase":"exploration","agent_id":"explorer-3","data":"Explorer-3 completed"}
+{"timestamp":"2025-11-01T19:47:23Z","event_type":"phase_change","phase":"planning","agent_id":"orchestrator","data":"Starting Planning phase"}
+{"timestamp":"2025-11-01T19:47:36Z","event_type":"agent_spawn","phase":"planning","agent_id":"planner-1","data":"Planner: Creating development plan"}
+{"timestamp":"2025-11-01T19:55:01Z","event_type":"agent_complete","phase":"planning","agent_id":"planner-1","data":"Planner-1 completed"}
+{"timestamp":"2025-11-01T19:55:01Z","event_type":"phase_change","phase":"building","agent_id":"orchestrator","data":"Starting Building phase"}
+{"timestamp":"2025-11-01T19:55:11Z","event_type":"agent_spawn","phase":"building","agent_id":"builder-1A","data":"Builder-1A: Currency Migration"}
+{"timestamp":"2025-11-01T19:55:11Z","event_type":"agent_spawn","phase":"building","agent_id":"builder-1B","data":"Builder-1B: Deployment Configuration"}
+{"timestamp":"2025-11-01T19:55:11Z","event_type":"agent_spawn","phase":"building","agent_id":"builder-1C","data":"Builder-1C: Test Validation & QA"}
+{"timestamp":"2025-11-01T19:55:41Z","event_type":"agent_start","phase":"building","agent_id":"builder-1A","data":"Builder-1A: Starting Currency Migration (USD → NIS)"}
+{"timestamp":"2025-11-01T19:55:47Z","event_type":"agent_start","phase":"building","agent_id":"builder-1B","data":"Builder-1B: Starting deployment configuration"}
+{"timestamp":"2025-11-01T19:55:50Z","event_type":"agent_start","phase":"building","agent_id":"builder-1C","data":"Builder-1C: Starting Test Validation & QA"}
+{"timestamp":"2025-11-01T20:00:26Z","event_type":"agent_complete","phase":"building","agent_id":"builder-1A","data":"Builder-1A: Currency Migration (USD → NIS) complete"}
+{"timestamp":"2025-11-01T20:00:29Z","event_type":"agent_complete","phase":"building","agent_id":"builder-1C","data":"Builder-1C: Test Validation & QA complete"}
+{"timestamp":"2025-11-01T20:01:14Z","event_type":"agent_complete","phase":"building","agent_id":"builder-1B","data":"Builder-1B: Deployment configuration complete"}
+{"timestamp":"2025-11-01T20:03:28Z","event_type":"agent_complete","phase":"building","agent_id":"builder-1A","data":"Builder-1A completed"}
+{"timestamp":"2025-11-01T20:03:28Z","event_type":"agent_complete","phase":"building","agent_id":"builder-1B","data":"Builder-1B completed"}
+{"timestamp":"2025-11-01T20:03:28Z","event_type":"agent_complete","phase":"building","agent_id":"builder-1C","data":"Builder-1C completed"}
+{"timestamp":"2025-11-01T20:03:40Z","event_type":"phase_change","phase":"integration","agent_id":"orchestrator","data":"Starting Integration phase"}
+{"timestamp":"2025-11-01T20:06:43Z","event_type":"agent_start","phase":"integration","agent_id":"integrator-1","data":"Integrator-1: Starting zone-based integration for iteration 12"}
+{"timestamp":"2025-11-01T20:09:37Z","event_type":"agent_complete","phase":"integration","agent_id":"integrator-1","data":"Integrator-1: Zone-based integration complete for iteration 12"}
+{"timestamp":"2025-11-01T20:11:46Z","event_type":"agent_start","phase":"validation","agent_id":"ivalidator","data":"Ivalidator: Starting integration validation"}
+{"timestamp":"2025-11-01T20:14:44Z","event_type":"agent_complete","phase":"validation","agent_id":"ivalidator","data":"Ivalidator: Integration validation complete"}
+{"timestamp":"2025-11-01T20:15:19Z","event_type":"phase_change","phase":"validation","agent_id":"orchestrator","data":"Starting Validation phase"}
+{"timestamp":"2025-11-01T20:15:40Z","event_type":"agent_start","phase":"validation","agent_id":"validator","data":"Validator: Starting comprehensive validation"}
+{"timestamp":"2025-11-01T20:17:46Z","event_type":"agent_complete","phase":"validation","agent_id":"validator","data":"Validator: Comprehensive validation complete"}
+{"timestamp":"2025-11-01T20:20:21Z","event_type":"validation_result","phase":"validation","agent_id":"validator-1","data":"Validation: PASS (88% confidence)"}
+{"timestamp":"2025-11-01T20:20:21Z","event_type":"iteration_complete","phase":"complete","agent_id":"orchestrator","data":"Iteration 12 completed successfully"}

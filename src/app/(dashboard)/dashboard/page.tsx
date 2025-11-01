@@ -5,6 +5,7 @@ import { AffirmationCard } from '@/components/ui/affirmation-card'
 import { FinancialHealthIndicator } from '@/components/dashboard/FinancialHealthIndicator'
 import { DashboardStats } from '@/components/dashboard/DashboardStats'
 import { RecentTransactionsCard } from '@/components/dashboard/RecentTransactionsCard'
+import { UpcomingBills } from '@/components/dashboard/UpcomingBills'
 
 export default async function DashboardPage() {
   const supabase = createClient()
@@ -41,10 +42,13 @@ export default async function DashboardPage() {
         {/* 3. FINANCIAL HEALTH INDICATOR - New component */}
         <FinancialHealthIndicator />
 
-        {/* 4. RECENT TRANSACTIONS */}
+        {/* 4. UPCOMING BILLS */}
+        <UpcomingBills />
+
+        {/* 5. RECENT TRANSACTIONS */}
         <RecentTransactionsCard />
 
-        {/* 5. STATS CARDS - Moved lower */}
+        {/* 6. STATS CARDS - Moved lower */}
         <DashboardStats />
       </div>
     </PageTransition>

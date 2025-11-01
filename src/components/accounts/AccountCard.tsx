@@ -68,7 +68,7 @@ export function AccountCard({ account, onEdit, onArchive }: AccountCardProps) {
                   : 'text-warm-gray-700'
               }`}
             >
-              {formatCurrency(Math.abs(Number(account.balance)), account.currency)}
+              {formatCurrency(Math.abs(Number(account.balance)))}
             </span>
           </div>
 
