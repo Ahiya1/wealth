@@ -17,6 +17,8 @@ import {
   User,
   LogOut,
   Info,
+  Menu,
+  X,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -40,6 +42,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
   const router = useRouter()
   const { data: userData } = trpc.users.me.useQuery()
   const [signingOut, setSigningOut] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleSignOut = async () => {
     setSigningOut(true)
@@ -101,7 +104,37 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
   }
 
   return (
-    <aside className="w-64 bg-white dark:bg-warm-gray-900 border-r border-warm-gray-200 dark:border-warm-gray-700 min-h-screen flex flex-col">
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-warm-gray-900 border border-warm-gray-200 dark:border-warm-gray-700 shadow-lg"
+        aria-label="Toggle menu"
+      >
+        {mobileMenuOpen ? (
+          <X className="h-6 w-6 text-warm-gray-900 dark:text-warm-gray-100" />
+        ) : (
+          <Menu className="h-6 w-6 text-warm-gray-900 dark:text-warm-gray-100" />
+        )}
+      </button>
+
+      {/* Mobile Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "fixed lg:static inset-y-0 left-0 z-40",
+          "w-64 bg-white dark:bg-warm-gray-900 border-r border-warm-gray-200 dark:border-warm-gray-700",
+          "min-h-screen flex flex-col transition-transform duration-300 ease-in-out",
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
+      >
       {/* Logo/Brand */}
       <div className="p-6 border-b border-warm-gray-200 dark:border-warm-gray-700">
         <h1 className="text-2xl font-bold text-sage-600 dark:text-sage-400">Wealth</h1>
@@ -133,6 +166,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setMobileMenuOpen(false)}
               className={cn(
                 'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
                 'hover:bg-sage-50 dark:hover:bg-sage-900/30',
@@ -202,5 +236,6 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
         </DropdownMenu>
       </div>
     </aside>
+    </>
   )
 }

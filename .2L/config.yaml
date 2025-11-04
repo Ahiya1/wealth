@@ -6,6 +6,31 @@ requirements: "See WEALTH_REQUIREMENTS.md for complete specification"
 # Global iteration counter (tracks iterations across all plans)
 global_iteration_counter: 13
 
+# Environment Configuration
+# Supports: development, staging, production
+environments:
+  development:
+    url: "http://localhost:3000"
+    database: "local-supabase"
+    supabase_url: "http://localhost:54421"
+    features:
+      - verbose_logging
+      - mock_data
+      - debug_mode
+    description: "Local development with Docker Supabase"
+
+  production:
+    url: "https://wealth-ta2f.vercel.app"
+    database: "supabase-cloud"
+    description: "Production deployment on Vercel"
+    features:
+      - analytics
+      - cron_jobs
+      - email_notifications
+
+# Current environment (set via NODE_ENV or manually)
+current_environment: "development"
+
 # Current active plan
 current_plan: plan-3
 current_phase: exploration
