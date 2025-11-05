@@ -1,63 +1,60 @@
-project_name: "Wealth - Personal Finance Dashboard"
+project_name: Wealth - Personal Finance Dashboard
 iteration: 1
 created_at: 2025-10-01
-requirements: "See WEALTH_REQUIREMENTS.md for complete specification"
-
-# Global iteration counter (tracks iterations across all plans)
+requirements: See WEALTH_REQUIREMENTS.md for complete specification
 global_iteration_counter: 13
-
-# Environment Configuration
-# Supports: development, staging, production
 environments:
   development:
-    url: "http://localhost:3000"
-    database: "local-supabase"
-    supabase_url: "http://localhost:54421"
+    url: http://localhost:3000
+    database: local-supabase
+    supabase_url: http://localhost:54421
     features:
-      - verbose_logging
-      - mock_data
-      - debug_mode
-    description: "Local development with Docker Supabase"
-
+    - verbose_logging
+    - mock_data
+    - debug_mode
+    description: Local development with Docker Supabase
   production:
-    url: "https://wealth-ta2f.vercel.app"
-    database: "supabase-cloud"
-    description: "Production deployment on Vercel"
+    url: https://wealth-ta2f.vercel.app
+    database: supabase-cloud
+    description: Production deployment on Vercel
     features:
-      - analytics
-      - cron_jobs
-      - email_notifications
-
-# Current environment (set via NODE_ENV or manually)
-current_environment: "development"
-
-# Current active plan
+    - analytics
+    - cron_jobs
+    - email_notifications
+current_environment: development
 current_plan: plan-3
 current_phase: exploration
-
-# Plans (managed by /2l-vision and /2l-mvp)
 plans:
   plan-1:
     status: COMPLETED
-    created: 2025-10-02T22:35:00Z
-    completed: 2025-10-02T23:47:00Z
+    created: 2025-10-02 22:35:00+00:00
+    completed: 2025-10-02 23:47:00+00:00
     vision_file: plan-1/vision.md
     master_plan_file: plan-1/master-plan.yaml
-    description: "Conscious Money Relationship UX Transformation - Currency switching, user roles, settings restructure, dashboard warmth"
-
+    description: Conscious Money Relationship UX Transformation - Currency switching,
+      user roles, settings restructure, dashboard warmth
   plan-2:
     status: PLANNED
-    created: 2025-10-03T01:15:00Z
+    created: 2025-10-03 01:15:00+00:00
     vision_file: plan-2/vision.md
     master_plan_file: plan-2/master-plan.yaml
-    description: "Production Hardening - Dark mode fixes, visual warmth completion, performance optimization"
-
+    description: Production Hardening - Dark mode fixes, visual warmth completion,
+      performance optimization
   plan-3:
     status: PLANNED
-    created: 2025-11-01T00:00:00Z
+    created: 2025-11-01 00:00:00+00:00
     vision_file: plan-3/vision.md
     master_plan_file: plan-3/master-plan.yaml
-    description: "Production Deployment with NIS Currency Migration - USD to NIS conversion, Vercel deployment, production Supabase setup"
+    description: Production Deployment with NIS Currency Migration - USD to NIS conversion,
+      Vercel deployment, production Supabase setup
     master_exploration:
       num_explorers: 4
       complexity_level: COMPLEX
+  plan-4:
+    status: PLANNED
+    created: 2025-11-05 00:00:00+00:00
+    vision_file: plan-4/vision.md
+    description: Mobile Experience Polish - Transform from 'responsive' to 'curated
+      for mobile' with layout fixes, touch optimization, bottom navigation, and native-feeling
+      interactions
+    master_plan_file: .2L/plan-4/master-plan.yaml

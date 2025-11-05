@@ -89,10 +89,10 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
               </p>
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2 sm:gap-1">
               {onEdit && (
-                <Button variant="ghost" size="icon" onClick={onEdit} className="h-8 w-8">
-                  <Edit className="h-4 w-4" />
+                <Button variant="ghost" size="icon" onClick={onEdit} className="h-11 w-11 sm:h-8 sm:w-8">
+                  <Edit className="h-5 w-5 sm:h-4 sm:w-4" />
                   <span className="sr-only">Edit</span>
                 </Button>
               )}
@@ -101,9 +101,9 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
                   variant="ghost"
                   size="icon"
                   onClick={onDelete}
-                  className="h-8 w-8 text-coral hover:text-coral/90 hover:bg-coral/10"
+                  className="h-11 w-11 sm:h-8 sm:w-8 text-coral hover:text-coral/90 hover:bg-coral/10"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-5 w-5 sm:h-4 sm:w-4" />
                   <span className="sr-only">Delete</span>
                 </Button>
               )}

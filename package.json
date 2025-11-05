@@ -74,6 +74,7 @@
     "zod": "3.23.8"
   },
   "devDependencies": {
+    "@tailwindcss/container-queries": "^0.1.1",
     "@types/node": "20.12.7",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
@@ -86,6 +87,7 @@
     "supabase": "^1.226.4",
     "tsx": "4.7.1",
     "vitest": "^3.2.4",
-    "vitest-mock-extended": "^3.1.0"
+    "vitest-mock-extended": "^3.1.0",
+    "xlsx": "^0.18.5"
   }
 }

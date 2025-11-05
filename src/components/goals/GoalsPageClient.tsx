@@ -15,8 +15,8 @@ export function GoalsPageClient() {
 
   return (
     <PageTransition>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-serif font-bold text-sage-600">Goals</h1>
             <p className="text-warm-gray-700">Track your financial goals and progress</p>

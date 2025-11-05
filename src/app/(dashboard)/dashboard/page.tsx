@@ -25,7 +25,7 @@ export default async function DashboardPage() {
 
   return (
     <PageTransition duration="slow">
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* 1. AFFIRMATION FIRST - Hero element */}
         <AffirmationCard />
 

@@ -23,8 +23,8 @@ export function TransactionListPageClient() {
 
   return (
     <PageTransition>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-serif font-bold text-sage-600 dark:text-sage-400">Transactions</h1>
             <p className="mt-2 text-warm-gray-700 dark:text-warm-gray-300">
@@ -32,7 +32,7 @@ export function TransactionListPageClient() {
             </p>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
               onClick={() => router.push('/recurring')}

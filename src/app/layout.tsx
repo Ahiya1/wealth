@@ -25,6 +25,12 @@ export const metadata: Metadata = {
   description: 'Mindful personal finance management',
 }
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover' as const,  // CRITICAL: Enables safe-area-inset-* variables
+}
+
 export default function RootLayout({
   children,
 }: {

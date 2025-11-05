@@ -29,8 +29,8 @@ export default function BudgetsPage() {
 
   return (
     <PageTransition>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <h1 className="text-3xl font-serif font-bold text-sage-600">Budgets</h1>
           <Button onClick={() => setAddDialogOpen(true)} className="bg-sage-600 hover:bg-sage-700">
             <Plus className="mr-2 h-4 w-4" />
@@ -41,7 +41,7 @@ export default function BudgetsPage() {
       <MonthSelector selectedMonth={selectedMonth} onMonthChange={setSelectedMonth} />
 
       {summary && (
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-warm-gray-600">

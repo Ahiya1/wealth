@@ -17,10 +17,10 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-lg px-3",
-        lg: "h-11 rounded-lg px-8",
-        icon: "h-10 w-10",
+        default: "h-11 px-4 py-2 sm:h-10",        // 44px mobile, 40px desktop
+        sm: "h-10 rounded-lg px-3 sm:h-9",        // 40px mobile, 36px desktop
+        lg: "h-12 rounded-lg px-8 sm:h-11",       // 48px mobile, 44px desktop
+        icon: "h-11 w-11 sm:h-10 sm:w-10",        // 44x44 mobile, 40x40 desktop
       },
     },
     defaultVariants: {

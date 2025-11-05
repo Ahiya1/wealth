@@ -1,0 +1,413 @@
+plan_id: plan-4
+created_at: "2025-11-05T03:57:00Z"
+status: PLANNED
+total_iterations: 3
+
+complexity_assessment: COMPLEX
+estimated_total_hours: 40-50
+explorer_count: 4
+
+strategy: |
+  Three-iteration approach for mobile experience polish, focusing on:
+  1. Foundation (layout fixes, safe areas, bottom nav, touch targets)
+  2. Component optimization (forms, tables, charts, performance)
+  3. Polish & validation (cross-device testing, accessibility, final optimizations)
+
+  All explorers (Architecture, Dependencies, UX/Integration, Performance) recommend
+  a phased approach to manage complexity and reduce risk. Performance optimization
+  is treated as a first-class feature throughout, not saved for polish phase.
+
+  Key findings:
+  - 8 MVP features with 56+ acceptance criteria
+  - 40+ components requiring mobile optimization
+  - Bundle size optimization critical (400KB → 250KB target)
+  - Touch target compliance (60% → 100% WCAG)
+  - Bottom navigation as architectural cornerstone
+
+iterations:
+  - iteration_id: 1
+    global_iteration: 14
+    name: "Foundation & Navigation Architecture"
+    vision: "Establish mobile-first foundation with bottom navigation, safe areas, and responsive infrastructure"
+    complexity: HIGH
+    estimated_hours: 14-16
+    scope: |
+      **Phase 1: Foundation Setup (3 hours)**
+      - Add Tailwind safe area utilities (env variables)
+      - Install @tailwindcss/container-queries plugin
+      - Add touch-target utilities (min-h-touch-target: 44px)
+      - Create useMediaQuery hook
+      - Add prefers-reduced-motion wrapper utility
+      - Update globals.css with safe area CSS variables
+
+      **Phase 2: UI Primitive Fixes (4 hours)**
+      - Fix Radix Select min-width overflow (min-w-[calc(100vw-4rem)] sm:min-w-[8rem])
+      - Add safe area padding to Dropdown/Popover
+      - Create bottom sheet variant from Dialog
+      - Update Toast with safe areas
+      - Audit all Radix UI components for mobile
+
+      **Phase 3: Bottom Navigation (5-6 hours)**
+      - Create BottomNavigation component (5 tabs: Dashboard, Transactions, Budgets, Goals, More)
+      - Implement scroll-hide behavior (useScrollDirection hook)
+      - Create MoreSheet for overflow navigation
+      - Integrate with layout.tsx (conditional rendering lg:hidden)
+      - Update DashboardSidebar for coexistence
+      - Add safe-area-inset-bottom padding
+      - Test z-index coordination (nav: z-40, modals: z-50)
+
+      **Phase 4: Layout Fixes & Touch Targets (2-3 hours)**
+      - Audit 11 dashboard routes for viewport overflow
+      - Fix dashboard card layouts (DashboardStats 2-col mobile)
+      - Update spacing: p-4 sm:p-6 (mobile-first)
+      - Increase button sizes: h-11 mobile (44px touch target)
+      - Fix TransactionCard action buttons (h-11 w-11)
+      - Update all navigation items for 44px minimum
+      - Add pb-20 to main content for bottom nav clearance
+
+    status: PENDING
+    dependencies: []
+
+    success_criteria:
+      - Zero horizontal scrollbars on 375px+ screens
+      - Bottom nav visible <768px, hidden ≥768px
+      - All touch targets minimum 44x44px
+      - Safe areas respected (iPhone 14 Pro Dynamic Island)
+      - Sidebar + bottom nav coexist without conflicts
+      - Smooth scroll-hide behavior (no jank)
+      - Dashboard loads without layout shift (CLS <0.1)
+
+    risks:
+      - MEDIUM: Bottom nav z-index conflicts with modals
+      - MEDIUM: iOS Safari scroll behavior quirks
+      - MEDIUM: Responsive breakpoint inconsistencies
+      - LOW: Touch target overlap on dense interfaces
+
+    key_files:
+      created:
+        - src/components/mobile/BottomNavigation.tsx
+        - src/components/mobile/MoreSheet.tsx
+        - src/hooks/useScrollDirection.ts
+        - src/hooks/useMediaQuery.ts
+      modified:
+        - tailwind.config.ts
+        - src/app/globals.css
+        - src/app/(dashboard)/layout.tsx
+        - src/components/dashboard/DashboardSidebar.tsx
+        - src/components/ui/select.tsx
+        - src/components/ui/dropdown-menu.tsx
+        - src/components/ui/popover.tsx
+        - src/components/ui/dialog.tsx
+        - src/components/ui/button.tsx
+        - src/components/dashboard/DashboardStats.tsx
+
+  - iteration_id: 2
+    global_iteration: 15
+    name: "Component Optimization & Performance"
+    vision: "Optimize forms, tables, charts for mobile with performance-first approach"
+    complexity: HIGH
+    estimated_hours: 16-18
+    scope: |
+      **Phase 1: Performance Foundation (4-5 hours)**
+      - Dynamic import Recharts (6 chart components)
+      - Lazy load dashboard below-fold (RecentTransactions, UpcomingBills)
+      - Add React.memo to TransactionCard, StatCard, BudgetCard
+      - Optimize React Query for mobile (staleTime: 60s, retry: 1)
+      - Add Vercel Analytics + Speed Insights
+      - Bundle analysis (identify top dependencies)
+
+      **Phase 2: Dashboard & Charts (4-5 hours)**
+      - Update dashboard component order (Affirmation first)
+      - Add skeleton screens for lazy components
+      - Create useChartDimensions hook
+      - Update all 6 chart components:
+        * Responsive height (250px mobile, 350px desktop)
+        * Disable pie chart labels on mobile
+        * Touch-friendly tooltips (allowEscapeViewBox)
+        * Limit data on mobile (30 days vs 90 days)
+      - Convert DashboardStats to Server Component (reduce client JS)
+
+      **Phase 3: Forms Optimization (4-5 hours)**
+      - Update all form inputs: inputMode="decimal" for amounts
+      - Create MobileSheet component (bottom sheet pattern)
+      - Update TransactionForm for mobile keyboards
+      - Category picker as bottom sheet on mobile
+      - Date inputs use native mobile picker
+      - Ensure all inputs min-h-[48px]
+      - Keyboard handling (visualViewport API)
+      - Submit buttons fixed at bottom or in-view
+
+      **Phase 4: Tables → Cards (3-4 hours)**
+      - TransactionList: Verify card layout on mobile
+      - BudgetList: Card layout with progress bars
+      - GoalList: Vertical card layout
+      - Create MobileFilterSheet for bottom-sheet filters
+      - Add date headers to transaction list ("Today", "Yesterday")
+      - Ensure swipe-to-action ready (structure, no implementation)
+
+    status: PENDING
+    dependencies:
+      - iteration_1_complete
+
+    success_criteria:
+      - Client bundle <400KB gzipped
+      - Dashboard loads <1.8s FCP on 3G
+      - Charts fit viewport on 375px (no horizontal scroll)
+      - Charts 250px tall on mobile (save vertical space)
+      - Forms show numeric keyboard for amounts
+      - All inputs minimum 48px height
+      - Submit buttons visible with keyboard open
+      - Tables display as cards on mobile <768px
+      - Lighthouse Performance 85+ on mobile
+
+    risks:
+      - HIGH: Recharts touch interaction failures
+      - HIGH: Framer Motion performance degradation
+      - MEDIUM: Bundle size exceeding mobile tolerance
+      - MEDIUM: Keyboard overlap with submit buttons
+      - MEDIUM: Chart label collisions on small screens
+
+    key_files:
+      created:
+        - src/hooks/useChartDimensions.ts
+        - src/components/mobile/MobileFilterSheet.tsx
+        - src/components/mobile/MobileSheet.tsx
+      modified:
+        - src/app/(dashboard)/dashboard/page.tsx
+        - src/components/dashboard/RecentTransactionsCard.tsx
+        - src/components/dashboard/UpcomingBills.tsx
+        - src/components/dashboard/FinancialHealthIndicator.tsx
+        - src/components/analytics/SpendingByCategoryChart.tsx
+        - src/components/analytics/NetWorthChart.tsx
+        - src/components/analytics/MonthOverMonthChart.tsx
+        - src/components/analytics/IncomeSourcesChart.tsx
+        - src/components/analytics/SpendingTrendsChart.tsx
+        - src/components/goals/GoalProgressChart.tsx
+        - src/components/transactions/TransactionForm.tsx
+        - src/components/transactions/TransactionCard.tsx
+        - src/components/transactions/TransactionListPage.tsx
+        - src/components/budgets/BudgetList.tsx
+        - src/app/(dashboard)/analytics/page.tsx
+
+  - iteration_id: 3
+    global_iteration: 16
+    name: "Polish, Testing & Production Readiness"
+    vision: "Cross-device testing, accessibility compliance, and final performance optimization"
+    complexity: MEDIUM
+    estimated_hours: 10-12
+    scope: |
+      **Phase 1: Advanced Performance (3-4 hours)**
+      - Implement virtual scrolling for transaction lists (react-window)
+      - Add route prefetching for bottom nav
+      - Optimize font loading (subsetting)
+      - Add performance-aware animations (device capability detection)
+      - Framer Motion conditional loading
+      - Add Web Vitals tracking hook
+
+      **Phase 2: Accessibility Audit (2-3 hours)**
+      - WCAG 2.1 Level AA compliance check
+      - Screen reader testing (NVDA/VoiceOver)
+      - Keyboard navigation audit
+      - Color contrast verification (all combinations)
+      - Focus visible on all interactive elements
+      - Add skip links for screen readers
+      - ARIA labels for bottom navigation
+
+      **Phase 3: Cross-Device Testing (3-4 hours)**
+      - Test matrix: 6 screen sizes × 2 orientations × 3 browsers
+      - iPhone SE (375px) - smallest common
+      - iPhone 14 Pro (390px) - Dynamic Island
+      - Android mid-range (360px) - gesture nav
+      - iPad Mini (768px) - tablet breakpoint
+      - Test safe areas on all devices
+      - Performance profiling (60fps verification)
+      - Battery usage testing (1 hour active use)
+
+      **Phase 4: Final Polish (2-3 hours)**
+      - Animation smoothness verification
+      - Loading states for all async operations
+      - Dark mode verification on all components
+      - Lighthouse mobile audit (target: 90+)
+      - Fix any discovered issues
+      - Documentation of mobile patterns
+
+    status: PENDING
+    dependencies:
+      - iteration_1_complete
+      - iteration_2_complete
+
+    success_criteria:
+      - Lighthouse Performance 90+, Accessibility 100
+      - 100% touch target compliance (44x44px minimum)
+      - 60fps scrolling on iPhone SE
+      - Zero layout breaks on 320px-430px screens
+      - LCP <2.5s on 3G (Fast 3G profile)
+      - FID <100ms, CLS <0.1
+      - Dark mode works on all components
+      - Screen reader navigation functional
+      - All forms keyboard-accessible
+      - No horizontal scrolling at any breakpoint
+
+    risks:
+      - MEDIUM: iOS Safari quirks not caught in emulator
+      - MEDIUM: Performance on low-end Android
+      - LOW: Dark mode contrast issues
+      - LOW: Analytics charts on slow connections
+
+    key_files:
+      created:
+        - src/components/transactions/VirtualTransactionList.tsx
+        - src/hooks/useWebVitals.ts
+        - src/hooks/useDeviceCapability.ts
+        - src/hooks/usePrefetchRoutes.ts
+      modified:
+        - src/components/transactions/TransactionListPage.tsx
+        - src/components/mobile/BottomNavigation.tsx
+        - src/lib/animations.ts
+        - next.config.js (performance budgets)
+        - package.json (bundle analysis scripts)
+
+# Performance budgets
+performance_budgets:
+  pages:
+    dashboard:
+      js_budget: "150KB"
+      current_estimated: "300KB"
+      target_lcp: "2.0s"
+    transactions:
+      js_budget: "120KB"
+      current_estimated: "250KB"
+      target_lcp: "1.8s"
+    analytics:
+      js_budget: "180KB"
+      current_estimated: "350KB"
+      target_lcp: "2.5s"
+
+  bundle_reduction_target: "170-240KB"
+  optimization_strategies:
+    - "Dynamic import Recharts (80-100KB saving)"
+    - "Lazy load dashboard below-fold (40-60KB saving)"
+    - "Split Framer Motion (20-30KB saving)"
+    - "Tree-shake unused Radix (30-50KB saving)"
+
+# Technology recommendations
+technology_stack:
+  keep:
+    - "Next.js 14 App Router (excellent foundation)"
+    - "Radix UI (add mobile variants)"
+    - "Tailwind CSS (mobile-first utilities)"
+    - "tRPC + React Query (performance-positive)"
+
+  add:
+    - "@tailwindcss/container-queries (required)"
+    - "@vercel/analytics (monitoring)"
+    - "@vercel/speed-insights (monitoring)"
+    - "react-window (virtual scrolling)"
+
+  optimize:
+    - "Recharts (dynamic import + data reduction)"
+    - "Framer Motion (conditional loading)"
+    - "Radix UI (audit unused packages)"
+
+# Testing matrix
+testing_requirements:
+  devices:
+    - name: "iPhone SE"
+      screen: "375x667"
+      priority: "HIGH"
+      focus: "Smallest screen, safe areas"
+    - name: "iPhone 14 Pro"
+      screen: "390x844"
+      priority: "CRITICAL"
+      focus: "Dynamic Island, most common"
+    - name: "Android mid-range"
+      screen: "360x740"
+      priority: "HIGH"
+      focus: "Performance, gesture nav"
+    - name: "iPad Mini"
+      screen: "768x1024"
+      priority: "MEDIUM"
+      focus: "Tablet breakpoint"
+
+  browsers:
+    - "iOS Safari 15+"
+    - "Chrome Mobile (Android)"
+    - "Desktop Chrome (regression)"
+
+  network_conditions:
+    - "Slow 3G (target: LCP <2.5s)"
+    - "Fast 3G (target: LCP <2.0s)"
+    - "4G (target: LCP <1.5s)"
+
+# Risk mitigation
+high_risks:
+  - risk: "Recharts touch interaction failures"
+    probability: "70%"
+    impact: "Analytics unusable on mobile"
+    mitigation: "Add touch wrappers, show data table fallback"
+
+  - risk: "Framer Motion performance degradation"
+    probability: "60%"
+    impact: "Jank on transaction lists"
+    mitigation: "Conditional animations, CSS fallbacks"
+
+  - risk: "Breaking desktop layout"
+    probability: "50%"
+    impact: "Desktop regression"
+    mitigation: "Mobile-first CSS, desktop testing after each phase"
+
+  - risk: "Safe area inconsistencies"
+    probability: "50%"
+    impact: "Content hidden on some devices"
+    mitigation: "Test on real devices, fallback to 0px"
+
+  - risk: "Bottom nav keyboard conflicts"
+    probability: "65%"
+    impact: "Forms unusable"
+    mitigation: "Detect keyboard, hide nav or adjust layout"
+
+# Success metrics
+success_metrics:
+  quantitative:
+    lighthouse_mobile: "90+"
+    touch_target_compliance: "100%"
+    layout_breaks: "0"
+    fcp_3g: "<1.8s"
+    lcp_3g: "<2.5s"
+    cls: "<0.1"
+    fps_scrolling: "60fps"
+
+  qualitative:
+    - "Feels like a native app"
+    - "No jank during scrolling"
+    - "Navigation is intuitive"
+    - "Forms are easy to use"
+    - "Charts are readable and interactive"
+
+# GitHub integration
+github_repo: null  # Will be set during iteration execution
+auto_commit_strategy: "commit_per_iteration"
+tags_pattern: "2l-plan-4-iter-{global_iteration}"
+
+# Notes
+notes: |
+  This plan synthesizes findings from 4 comprehensive explorations:
+
+  Explorer 1 (Architecture): Recommended 3-iteration approach, identified 40+ components
+  needing mobile review, emphasized bottom nav as architectural cornerstone.
+
+  Explorer 2 (Dependencies): Identified critical performance risks (bundle size, Recharts,
+  Framer Motion), recommended 4-phase dependency optimization with bundle reduction target.
+
+  Explorer 3 (UX/Integration): Analyzed 4 critical mobile flows, recommended bottom
+  navigation in thumb zone, emphasized form keyboard handling and touch target compliance.
+
+  Explorer 4 (Performance): Established performance budgets, identified minimal memoization
+  as critical gap, recommended treating performance as MVP feature (not polish phase).
+
+  All explorers agree: Mobile polish is COMPLEX but achievable in 40-50 hours with phased
+  approach. Key success factors:
+  - Foundation first (safe areas, bottom nav) before components
+  - Performance from Day 1, not saved for polish
+  - Real device testing, not just emulators
+  - Mobile-first CSS throughout

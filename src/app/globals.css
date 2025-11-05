@@ -108,6 +108,12 @@
     --analytical-foreground: 0 0% 100%;
     --gentle-warning: var(--gold-400);
     --gentle-warning-foreground: var(--warm-gray-900);
+
+    /* NEW: Safe area insets (iPhone notch, Android gesture bar) */
+    --safe-area-inset-top: env(safe-area-inset-top, 0px);
+    --safe-area-inset-right: env(safe-area-inset-right, 0px);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-inset-left: env(safe-area-inset-left, 0px);
   }
 
   /* Dark mode palette */
@@ -176,6 +182,39 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Safe area utilities */
+@layer utilities {
+  /* Top safe area (for headers, fixed top elements) */
+  .safe-area-top {
+    padding-top: max(1rem, var(--safe-area-inset-top));
+  }
+
+  /* Bottom safe area (for bottom nav, fixed bottom elements) */
+  .safe-area-bottom {
+    padding-bottom: max(1rem, var(--safe-area-inset-bottom));
+  }
+
+  /* Left safe area (for landscape sidebars) */
+  .safe-area-left {
+    padding-left: max(1rem, var(--safe-area-inset-left));
+  }
+
+  /* Right safe area (for landscape drawers) */
+  .safe-area-right {
+    padding-right: max(1rem, var(--safe-area-inset-right));
+  }
+
+  /* Fixed bottom positioning with safe area */
+  .safe-bottom-fixed {
+    bottom: var(--safe-area-inset-bottom);
+  }
+
+  /* Fixed top positioning with safe area */
+  .safe-top-fixed {
+    top: var(--safe-area-inset-top);
   }
 }
 

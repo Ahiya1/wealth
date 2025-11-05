@@ -164,9 +164,36 @@ const config: Config = {
         '250': '250ms',
         '350': '350ms',
       },
+      // NEW: Mobile-first utilities for safe areas and touch targets
+      spacing: {
+        'safe-top': 'var(--safe-area-inset-top)',
+        'safe-bottom': 'var(--safe-area-inset-bottom)',
+        'safe-left': 'var(--safe-area-inset-left)',
+        'safe-right': 'var(--safe-area-inset-right)',
+      },
+      minHeight: {
+        'touch-target': '44px',  // WCAG AA minimum
+        'touch-target-xl': '48px', // Material Design standard
+      },
+      minWidth: {
+        'touch-target': '44px',
+        'touch-target-xl': '48px',
+      },
+      padding: {
+        'safe-t': 'var(--safe-area-inset-top)',
+        'safe-b': 'var(--safe-area-inset-bottom)',
+        'safe-l': 'var(--safe-area-inset-left)',
+        'safe-r': 'var(--safe-area-inset-right)',
+      },
+      zIndex: {
+        'bottom-nav': '45', // Between sidebar (40) and modals (50)
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require('@tailwindcss/container-queries'),
+  ],
 } satisfies Config
 
 export default config
