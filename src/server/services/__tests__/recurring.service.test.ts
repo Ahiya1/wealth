@@ -20,6 +20,11 @@ const mockPrisma = prisma as unknown as ReturnType<typeof mockDeep<PrismaClient>
 describe('Recurring Transaction Service', () => {
   beforeEach(() => {
     mockReset(mockPrisma)
+
+    // Mock $transaction to execute the callback immediately with the mocked prisma
+    mockPrisma.$transaction.mockImplementation(async (callback: any) => {
+      return await callback(mockPrisma)
+    })
   })
 
   describe('generatePendingRecurringTransactions', () => {
@@ -51,6 +56,7 @@ describe('Recurring Transaction Service', () => {
 
       mockPrisma.recurringTransaction.findMany.mockResolvedValue([recurringTemplate])
       mockPrisma.transaction.create.mockResolvedValue({} as any)
+      mockPrisma.account.update.mockResolvedValue({} as any)
       mockPrisma.recurringTransaction.update.mockResolvedValue({} as any)
 
       const results = await generatePendingRecurringTransactions()
@@ -113,6 +119,7 @@ describe('Recurring Transaction Service', () => {
 
       mockPrisma.recurringTransaction.findMany.mockResolvedValue([recurringTemplate])
       mockPrisma.transaction.create.mockResolvedValue({} as any)
+      mockPrisma.account.update.mockResolvedValue({} as any)
       mockPrisma.recurringTransaction.update.mockResolvedValue({} as any)
 
       const results = await generatePendingRecurringTransactions()
@@ -158,6 +165,7 @@ describe('Recurring Transaction Service', () => {
 
       mockPrisma.recurringTransaction.findMany.mockResolvedValue([recurringTemplate])
       mockPrisma.transaction.create.mockResolvedValue({} as any)
+      mockPrisma.account.update.mockResolvedValue({} as any)
       mockPrisma.recurringTransaction.update.mockResolvedValue({} as any)
 
       const results = await generatePendingRecurringTransactions()
@@ -203,6 +211,7 @@ describe('Recurring Transaction Service', () => {
 
       mockPrisma.recurringTransaction.findMany.mockResolvedValue([recurringTemplate])
       mockPrisma.transaction.create.mockResolvedValue({} as any)
+      mockPrisma.account.update.mockResolvedValue({} as any)
       mockPrisma.recurringTransaction.update.mockResolvedValue({} as any)
 
       const results = await generatePendingRecurringTransactions()
@@ -247,6 +256,7 @@ describe('Recurring Transaction Service', () => {
 
       mockPrisma.recurringTransaction.findMany.mockResolvedValue([recurringTemplate])
       mockPrisma.transaction.create.mockResolvedValue({} as any)
+      mockPrisma.account.update.mockResolvedValue({} as any)
       mockPrisma.recurringTransaction.update.mockResolvedValue({} as any)
 
       const results = await generatePendingRecurringTransactions()
@@ -287,6 +297,7 @@ describe('Recurring Transaction Service', () => {
 
       mockPrisma.recurringTransaction.findMany.mockResolvedValue([recurringTemplate])
       mockPrisma.transaction.create.mockResolvedValue({} as any)
+      mockPrisma.account.update.mockResolvedValue({} as any)
       mockPrisma.recurringTransaction.update.mockResolvedValue({} as any)
 
       const results = await generatePendingRecurringTransactions()
@@ -328,6 +339,7 @@ describe('Recurring Transaction Service', () => {
 
       mockPrisma.recurringTransaction.findMany.mockResolvedValue([recurringTemplate])
       mockPrisma.transaction.create.mockResolvedValue({} as any)
+      mockPrisma.account.update.mockResolvedValue({} as any)
       mockPrisma.recurringTransaction.update.mockResolvedValue({} as any)
 
       const results = await generatePendingRecurringTransactions()
@@ -373,6 +385,7 @@ describe('Recurring Transaction Service', () => {
 
       mockPrisma.recurringTransaction.findMany.mockResolvedValue([recurringTemplate])
       mockPrisma.transaction.create.mockResolvedValue({} as any)
+      mockPrisma.account.update.mockResolvedValue({} as any)
       mockPrisma.recurringTransaction.update.mockResolvedValue({} as any)
 
       const results = await generatePendingRecurringTransactions()
@@ -446,11 +459,18 @@ describe('Recurring Transaction Service', () => {
 
       mockPrisma.recurringTransaction.findMany.mockResolvedValue([template1, template2])
 
-      // First transaction fails, second succeeds
-      mockPrisma.transaction.create
-        .mockRejectedValueOnce(new Error('Database error'))
-        .mockResolvedValueOnce({} as any)
+      // First $transaction call fails, second succeeds
+      let callCount = 0
+      mockPrisma.$transaction.mockImplementation(async (callback: any) => {
+        callCount++
+        if (callCount === 1) {
+          throw new Error('Database error')
+        }
+        return await callback(mockPrisma)
+      })
 
+      mockPrisma.transaction.create.mockResolvedValue({} as any)
+      mockPrisma.account.update.mockResolvedValue({} as any)
       mockPrisma.recurringTransaction.update.mockResolvedValue({} as any)
 
       const results = await generatePendingRecurringTransactions()
@@ -510,6 +530,7 @@ describe('Recurring Transaction Service', () => {
 
       mockPrisma.recurringTransaction.findMany.mockResolvedValue(templates)
       mockPrisma.transaction.create.mockResolvedValue({} as any)
+      mockPrisma.account.update.mockResolvedValue({} as any)
       mockPrisma.recurringTransaction.update.mockResolvedValue({} as any)
 
       const results = await generatePendingRecurringTransactions()
@@ -520,6 +541,7 @@ describe('Recurring Transaction Service', () => {
 
       // Verify both transactions were created
       expect(mockPrisma.transaction.create).toHaveBeenCalledTimes(2)
+      expect(mockPrisma.account.update).toHaveBeenCalledTimes(2)
       expect(mockPrisma.recurringTransaction.update).toHaveBeenCalledTimes(2)
     })
   })
@@ -552,6 +574,7 @@ describe('Recurring Transaction Service', () => {
 
       mockPrisma.recurringTransaction.findMany.mockResolvedValue([userTemplate])
       mockPrisma.transaction.create.mockResolvedValue({} as any)
+      mockPrisma.account.update.mockResolvedValue({} as any)
       mockPrisma.recurringTransaction.update.mockResolvedValue({} as any)
 
       const results = await generateRecurringTransactionsForUser('user-specific')

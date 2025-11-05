@@ -30,20 +30,33 @@ export async function generatePendingRecurringTransactions() {
     try {
       results.processed++
 
-      // Generate transaction
-      await prisma.transaction.create({
-        data: {
-          userId: recurring.userId,
-          accountId: recurring.accountId,
-          date: recurring.nextScheduledDate,
-          amount: recurring.amount,
-          payee: recurring.payee,
-          categoryId: recurring.categoryId,
-          notes: recurring.notes,
-          tags: recurring.tags,
-          recurringTransactionId: recurring.id,
-          isManual: false, // Auto-generated from recurring template
-        },
+      // Generate transaction and update account balance in a transaction
+      await prisma.$transaction(async (tx) => {
+        // Create the transaction
+        await tx.transaction.create({
+          data: {
+            userId: recurring.userId,
+            accountId: recurring.accountId,
+            date: recurring.nextScheduledDate,
+            amount: recurring.amount,
+            payee: recurring.payee,
+            categoryId: recurring.categoryId,
+            notes: recurring.notes,
+            tags: recurring.tags,
+            recurringTransactionId: recurring.id,
+            isManual: false, // Auto-generated from recurring template
+          },
+        })
+
+        // Update account balance
+        await tx.account.update({
+          where: { id: recurring.accountId },
+          data: {
+            balance: {
+              increment: recurring.amount,
+            },
+          },
+        })
       })
 
       results.created++
@@ -189,19 +202,33 @@ export async function generateRecurringTransactionsForUser(userId: string) {
     try {
       results.processed++
 
-      await prisma.transaction.create({
-        data: {
-          userId: recurring.userId,
-          accountId: recurring.accountId,
-          date: recurring.nextScheduledDate,
-          amount: recurring.amount,
-          payee: recurring.payee,
-          categoryId: recurring.categoryId,
-          notes: recurring.notes,
-          tags: recurring.tags,
-          recurringTransactionId: recurring.id,
-          isManual: false,
-        },
+      // Generate transaction and update account balance in a transaction
+      await prisma.$transaction(async (tx) => {
+        // Create the transaction
+        await tx.transaction.create({
+          data: {
+            userId: recurring.userId,
+            accountId: recurring.accountId,
+            date: recurring.nextScheduledDate,
+            amount: recurring.amount,
+            payee: recurring.payee,
+            categoryId: recurring.categoryId,
+            notes: recurring.notes,
+            tags: recurring.tags,
+            recurringTransactionId: recurring.id,
+            isManual: false,
+          },
+        })
+
+        // Update account balance
+        await tx.account.update({
+          where: { id: recurring.accountId },
+          data: {
+            balance: {
+              increment: recurring.amount,
+            },
+          },
+        })
       })
 
       results.created++

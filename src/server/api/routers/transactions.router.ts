@@ -116,22 +116,40 @@ export const transactionsRouter = router({
         })
       }
 
-      const transaction = await ctx.prisma.transaction.create({
-        data: {
-          userId: ctx.user.id,
-          accountId: input.accountId,
-          date: input.date,
-          amount: input.amount,
-          payee: input.payee,
-          categoryId: input.categoryId,
-          notes: input.notes,
-          tags: input.tags || [],
-          isManual: true,
-        },
-        include: {
-          category: true,
-          account: true,
-        },
+      // Create transaction and update account balance in a transaction
+      const transaction = await ctx.prisma.$transaction(async (prisma) => {
+        // Create the transaction
+        const newTransaction = await prisma.transaction.create({
+          data: {
+            userId: ctx.user.id,
+            accountId: input.accountId,
+            date: input.date,
+            amount: input.amount,
+            payee: input.payee,
+            categoryId: input.categoryId,
+            notes: input.notes,
+            tags: input.tags || [],
+            isManual: true,
+          },
+          include: {
+            category: true,
+            account: true,
+          },
+        })
+
+        // Update account balance
+        // Positive amounts (income) increase balance
+        // Negative amounts (expenses) decrease balance
+        await prisma.account.update({
+          where: { id: input.accountId },
+          data: {
+            balance: {
+              increment: input.amount,
+            },
+          },
+        })
+
+        return newTransaction
       })
 
       return transaction
@@ -172,20 +190,42 @@ export const transactionsRouter = router({
         }
       }
 
-      const transaction = await ctx.prisma.transaction.update({
-        where: { id: input.id },
-        data: {
-          ...(input.date && { date: input.date }),
-          ...(input.amount !== undefined && { amount: input.amount }),
-          ...(input.payee && { payee: input.payee }),
-          ...(input.categoryId && { categoryId: input.categoryId }),
-          ...(input.notes !== undefined && { notes: input.notes }),
-          ...(input.tags && { tags: input.tags }),
-        },
-        include: {
-          category: true,
-          account: true,
-        },
+      // Update transaction and adjust account balance if amount changed
+      const transaction = await ctx.prisma.$transaction(async (prisma) => {
+        const updatedTransaction = await prisma.transaction.update({
+          where: { id: input.id },
+          data: {
+            ...(input.date && { date: input.date }),
+            ...(input.amount !== undefined && { amount: input.amount }),
+            ...(input.payee && { payee: input.payee }),
+            ...(input.categoryId && { categoryId: input.categoryId }),
+            ...(input.notes !== undefined && { notes: input.notes }),
+            ...(input.tags && { tags: input.tags }),
+          },
+          include: {
+            category: true,
+            account: true,
+          },
+        })
+
+        // If amount changed, update account balance
+        if (input.amount !== undefined) {
+          const oldAmount = existing.amount.toNumber()
+          const newAmount = input.amount
+          const balanceDiff = newAmount - oldAmount
+
+          // Adjust account balance by the difference
+          await prisma.account.update({
+            where: { id: existing.accountId },
+            data: {
+              balance: {
+                increment: balanceDiff,
+              },
+            },
+          })
+        }
+
+        return updatedTransaction
       })
 
       return transaction
@@ -202,8 +242,23 @@ export const transactionsRouter = router({
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
-      await ctx.prisma.transaction.delete({
-        where: { id: input.id },
+      // Delete transaction and reverse its effect on account balance
+      await ctx.prisma.$transaction(async (prisma) => {
+        // Delete the transaction
+        await prisma.transaction.delete({
+          where: { id: input.id },
+        })
+
+        // Reverse the transaction's effect on the account balance
+        // Subtract the transaction amount (which reverses the original operation)
+        await prisma.account.update({
+          where: { id: existing.accountId },
+          data: {
+            balance: {
+              decrement: existing.amount.toNumber(),
+            },
+          },
+        })
       })
 
       return { success: true }

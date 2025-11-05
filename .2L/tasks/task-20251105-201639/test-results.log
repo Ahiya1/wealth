@@ -1,0 +1,76 @@
+
+> wealth@0.1.0 test
+> vitest
+
+
+ RUN  v3.2.4 /home/ahiya/Ahiya/SoverignityTracker/wealth
+
+stdout | src/server/api/routers/__tests__/goals.router.test.ts
+✓ Test environment initialized
+
+stdout | src/server/api/routers/__tests__/transactions.router.test.ts
+✓ Test environment initialized
+
+ ✓ src/server/api/routers/__tests__/transactions.router.test.ts (24 tests) 4ms
+ ✓ src/server/api/routers/__tests__/goals.router.test.ts (22 tests) 5ms
+stdout | src/lib/__tests__/encryption.test.ts
+✓ Test environment initialized
+
+ ✓ src/lib/__tests__/encryption.test.ts (10 tests) 13ms
+stdout | src/server/services/__tests__/categorize.service.test.ts
+✓ Test environment initialized
+
+stderr | src/server/services/__tests__/categorize.service.test.ts > categorizeTransactions > should fallback to Miscellaneous on API error
+Claude categorization error: Error: API Error
+    at [90m/home/ahiya/Ahiya/SoverignityTracker/wealth/[39msrc/server/services/__tests__/categorize.service.test.ts:147:44
+    at [90mfile:///home/ahiya/Ahiya/SoverignityTracker/wealth/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///home/ahiya/Ahiya/SoverignityTracker/wealth/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///home/ahiya/Ahiya/SoverignityTracker/wealth/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///home/ahiya/Ahiya/SoverignityTracker/wealth/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+    at runTest [90m(file:///home/ahiya/Ahiya/SoverignityTracker/wealth/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1574:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at runSuite [90m(file:///home/ahiya/Ahiya/SoverignityTracker/wealth/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+    at runSuite [90m(file:///home/ahiya/Ahiya/SoverignityTracker/wealth/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1729:8[90m)[39m
+
+ ✓ src/server/services/__tests__/categorize.service.test.ts (8 tests) 15ms
+stdout | src/server/services/__tests__/recurring.service.test.ts
+✓ Test environment initialized
+
+stderr | src/server/services/__tests__/recurring.service.test.ts > Recurring Transaction Service > generatePendingRecurringTransactions > should handle errors gracefully and continue processing
+Error generating transaction for recurring recurring-error: Error: Database error
+    at Proxy.<anonymous> [90m(/home/ahiya/Ahiya/SoverignityTracker/wealth/[39msrc/server/services/__tests__/recurring.service.test.ts:467:17[90m)[39m
+    at Proxy.mockCall [90m(file:///home/ahiya/Ahiya/SoverignityTracker/wealth/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Proxy.spy [90m(file:///home/ahiya/Ahiya/SoverignityTracker/wealth/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at Module.generatePendingRecurringTransactions [90m(/home/ahiya/Ahiya/SoverignityTracker/wealth/[39msrc/server/services/recurring.service.ts:34:20[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/home/ahiya/Ahiya/SoverignityTracker/wealth/[39msrc/server/services/__tests__/recurring.service.test.ts:476:23
+    at [90mfile:///home/ahiya/Ahiya/SoverignityTracker/wealth/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:20
+
+stdout | src/server/services/__tests__/plaid.service.test.ts
+✓ Test environment initialized
+
+ ✓ src/server/services/__tests__/recurring.service.test.ts (13 tests) 17ms
+ ✓ src/server/services/__tests__/plaid.service.test.ts (8 tests) 3ms
+stdout | src/server/api/routers/__tests__/accounts.router.test.ts
+✓ Test environment initialized
+
+ ✓ src/server/api/routers/__tests__/accounts.router.test.ts (20 tests) 19ms
+stdout | src/server/api/routers/__tests__/budgets.router.test.ts
+✓ Test environment initialized
+
+stdout | src/server/api/routers/__tests__/analytics.router.test.ts
+✓ Test environment initialized
+
+stdout | src/server/api/routers/__tests__/recurring.router.test.ts
+✓ Test environment initialized
+
+ ✓ src/server/api/routers/__tests__/analytics.router.test.ts (13 tests) 13ms
+ ✓ src/server/api/routers/__tests__/recurring.router.test.ts (20 tests) 15ms
+ ✓ src/server/api/routers/__tests__/budgets.router.test.ts (20 tests) 18ms
+
+ Test Files  10 passed (10)
+      Tests  158 passed (158)
+   Start at  20:32:11
+   Duration  891ms (transform 736ms, setup 204ms, collect 2.88s, tests 122ms, environment 1ms, prepare 1.58s)
+
