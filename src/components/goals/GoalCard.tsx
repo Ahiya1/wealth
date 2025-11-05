@@ -1,6 +1,7 @@
 // src/components/goals/GoalCard.tsx
 'use client'
 
+import { memo, useMemo } from 'react'
 import { type Account, type Goal } from '@prisma/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ProgressRing } from '@/components/ui/progress-ring'
@@ -44,39 +45,55 @@ const GOAL_TYPE_CONFIG = {
   },
 }
 
-export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
+export const GoalCard = memo(function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
   const config = GOAL_TYPE_CONFIG[goal.type]
   const Icon = config.icon
 
-  const currentAmount = Number(goal.currentAmount)
-  const targetAmount = Number(goal.targetAmount)
-  const percentComplete = Math.min((currentAmount / targetAmount) * 100, 100)
-  const remaining = targetAmount - currentAmount
-  const daysRemaining = differenceInDays(goal.targetDate, new Date())
+  // Memoize all expensive calculations
+  const calculations = useMemo(() => {
+    const currentAmount = Number(goal.currentAmount)
+    const targetAmount = Number(goal.targetAmount)
+    const percentComplete = Math.min((currentAmount / targetAmount) * 100, 100)
+    const remaining = targetAmount - currentAmount
+    const daysRemaining = differenceInDays(goal.targetDate, new Date())
 
-  const getEncouragingMessage = () => {
-    if (goal.isCompleted) return 'Congratulations! Goal achieved!'
-    if (percentComplete >= 90) return 'Almost there! Keep going!'
-    if (percentComplete >= 75) return "You're on track!"
-    if (percentComplete >= 50) return 'Great progress!'
-    if (percentComplete >= 25) return 'Off to a good start!'
-    return 'Every step counts!'
-  }
+    const getEncouragingMessage = () => {
+      if (goal.isCompleted) return 'Congratulations! Goal achieved!'
+      if (percentComplete >= 90) return 'Almost there! Keep going!'
+      if (percentComplete >= 75) return "You're on track!"
+      if (percentComplete >= 50) return 'Great progress!'
+      if (percentComplete >= 25) return 'Off to a good start!'
+      return 'Every step counts!'
+    }
 
-  const getStatusText = () => {
-    if (goal.isCompleted) return 'Completed'
-    if (daysRemaining < 0) return `${Math.abs(daysRemaining)} days past target`
-    if (daysRemaining === 0) return 'Target date is today'
-    if (daysRemaining < 30) return `${daysRemaining} days left`
-    return `${daysRemaining} days remaining`
-  }
+    const getStatusText = () => {
+      if (goal.isCompleted) return 'Completed'
+      if (daysRemaining < 0) return `${Math.abs(daysRemaining)} days past target`
+      if (daysRemaining === 0) return 'Target date is today'
+      if (daysRemaining < 30) return `${daysRemaining} days left`
+      return `${daysRemaining} days remaining`
+    }
 
-  const getStatusColor = () => {
-    if (goal.isCompleted) return 'text-sage-600'
-    if (daysRemaining < 30) return 'text-warm-gray-600'
-    if (daysRemaining < 0) return 'text-coral'
-    return 'text-warm-gray-500'
-  }
+    const getStatusColor = () => {
+      if (goal.isCompleted) return 'text-sage-600'
+      if (daysRemaining < 30) return 'text-warm-gray-600'
+      if (daysRemaining < 0) return 'text-coral'
+      return 'text-warm-gray-500'
+    }
+
+    return {
+      currentAmount,
+      targetAmount,
+      percentComplete,
+      remaining,
+      daysRemaining,
+      encouragingMessage: getEncouragingMessage(),
+      statusText: getStatusText(),
+      statusColor: getStatusColor(),
+      formattedTarget: format(goal.targetDate, 'MMM d, yyyy'),
+      formattedCompleted: goal.completedAt ? format(goal.completedAt, 'MMM d, yyyy') : null
+    }
+  }, [goal.currentAmount, goal.targetAmount, goal.targetDate, goal.isCompleted, goal.completedAt])
 
   return (
     <motion.div {...cardHoverElevated}>
@@ -114,17 +131,17 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
         {/* Progress Ring */}
         <div className="flex items-center justify-center py-4">
           <div className="relative">
-            <ProgressRing percentage={percentComplete} size={120} strokeWidth={8} />
+            <ProgressRing percentage={calculations.percentComplete} size={120} strokeWidth={8} />
           </div>
         </div>
 
         {/* Amounts */}
         <div className="text-center space-y-1">
           <p className="text-sm text-warm-gray-600">
-            {formatCurrency(currentAmount)} of {formatCurrency(targetAmount)}
+            {formatCurrency(calculations.currentAmount)} of {formatCurrency(calculations.targetAmount)}
           </p>
           <p className="text-xs text-warm-gray-500">
-            {remaining > 0 ? `${formatCurrency(remaining)} remaining` : 'Target reached!'}
+            {calculations.remaining > 0 ? `${formatCurrency(calculations.remaining)} remaining` : 'Target reached!'}
           </p>
         </div>
 
@@ -137,17 +154,17 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
             <div className="flex items-center justify-center gap-2 mb-1">
               <CheckCircle2 className="h-5 w-5 text-sage-600" />
               <p className="font-serif text-lg font-semibold text-sage-700">
-                {getEncouragingMessage()}
+                {calculations.encouragingMessage}
               </p>
             </div>
             <p className="text-xs text-warm-gray-600">
-              Completed on {format(goal.completedAt || new Date(), 'MMM d, yyyy')}
+              Completed on {calculations.formattedCompleted || 'Unknown'}
             </p>
           </motion.div>
         ) : (
           <div className="rounded-lg bg-sage-50 p-3 text-center">
             <p className="text-sm font-serif font-semibold text-sage-700">
-              {getEncouragingMessage()}
+              {calculations.encouragingMessage}
             </p>
           </div>
         )}
@@ -157,12 +174,12 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
           <div>
             <p className="text-xs text-warm-gray-500">Target Date</p>
             <p className="font-semibold text-warm-gray-700">
-              {format(goal.targetDate, 'MMM d, yyyy')}
+              {calculations.formattedTarget}
             </p>
           </div>
           <div className="text-right">
-            <p className={`text-xs font-medium ${getStatusColor()}`}>
-              {getStatusText()}
+            <p className={`text-xs font-medium ${calculations.statusColor}`}>
+              {calculations.statusText}
             </p>
             {goal.linkedAccount && (
               <Badge variant="outline" className="text-xs mt-1 border-sage-200">
@@ -175,4 +192,6 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
     </Card>
     </motion.div>
   )
-}
+})
+
+GoalCard.displayName = 'GoalCard'

@@ -167,6 +167,7 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
           id="balance"
           type="number"
           step="0.01"
+          inputMode="decimal"
           {...register('balance', { valueAsNumber: true })}
           placeholder="0.00"
           disabled={isLoading}

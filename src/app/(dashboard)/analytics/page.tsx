@@ -1,21 +1,58 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PageTransition } from '@/components/ui/page-transition'
 import { EmptyState } from '@/components/ui/empty-state'
 import { trpc } from '@/lib/trpc'
-import { SpendingByCategoryChart } from '@/components/analytics/SpendingByCategoryChart'
-import { SpendingTrendsChart } from '@/components/analytics/SpendingTrendsChart'
-import { MonthOverMonthChart } from '@/components/analytics/MonthOverMonthChart'
-import { IncomeSourcesChart } from '@/components/analytics/IncomeSourcesChart'
-import { NetWorthChart } from '@/components/analytics/NetWorthChart'
-import { Skeleton } from '@/components/ui/skeleton'
+import { ChartSkeleton } from '@/components/analytics/skeletons/ChartSkeleton'
 import { subMonths, startOfMonth, endOfMonth, format } from 'date-fns'
 import { Download, TrendingUp } from 'lucide-react'
 import { generateTransactionCSV, downloadCSV } from '@/lib/csvExport'
 import { toast } from 'sonner'
+
+// Dynamic import charts with custom skeleton
+const SpendingByCategoryChart = dynamic(
+  () => import('@/components/analytics/SpendingByCategoryChart').then(mod => ({ default: mod.SpendingByCategoryChart })),
+  {
+    loading: () => <ChartSkeleton height={350} />,
+    ssr: false
+  }
+)
+
+const NetWorthChart = dynamic(
+  () => import('@/components/analytics/NetWorthChart').then(mod => ({ default: mod.NetWorthChart })),
+  {
+    loading: () => <ChartSkeleton height={350} />,
+    ssr: false
+  }
+)
+
+const MonthOverMonthChart = dynamic(
+  () => import('@/components/analytics/MonthOverMonthChart').then(mod => ({ default: mod.MonthOverMonthChart })),
+  {
+    loading: () => <ChartSkeleton height={350} />,
+    ssr: false
+  }
+)
+
+const SpendingTrendsChart = dynamic(
+  () => import('@/components/analytics/SpendingTrendsChart').then(mod => ({ default: mod.SpendingTrendsChart })),
+  {
+    loading: () => <ChartSkeleton height={350} />,
+    ssr: false
+  }
+)
+
+const IncomeSourcesChart = dynamic(
+  () => import('@/components/analytics/IncomeSourcesChart').then(mod => ({ default: mod.IncomeSourcesChart })),
+  {
+    loading: () => <ChartSkeleton height={350} />,
+    ssr: false
+  }
+)
 
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState({
@@ -39,7 +76,7 @@ export default function AnalyticsPage() {
     months: 6,
   })
 
-  const { data: incomeSources, isLoading: loadingIncome } = trpc.analytics.incomeBySource.useQuery({
+  const { data: incomeSources, isLoading: _loadingIncome } = trpc.analytics.incomeBySource.useQuery({
     startDate: dateRange.startDate,
     endDate: dateRange.endDate,
   })
@@ -186,7 +223,7 @@ export default function AnalyticsPage() {
                 <CardDescription className="text-warm-gray-600">Your total net worth over time</CardDescription>
               </CardHeader>
               <CardContent>
-                {loadingNetWorth ? <Skeleton className="h-[350px] w-full" /> : <NetWorthChart data={netWorthHistory || []} />}
+                <NetWorthChart data={netWorthHistory || []} />
               </CardContent>
             </Card>
 
@@ -197,7 +234,7 @@ export default function AnalyticsPage() {
                 <CardDescription className="text-warm-gray-600">Month-over-month comparison of income and expenses</CardDescription>
               </CardHeader>
               <CardContent>
-                {loadingMoM ? <Skeleton className="h-[350px] w-full" /> : <MonthOverMonthChart data={monthOverMonth || []} />}
+                <MonthOverMonthChart data={monthOverMonth || []} />
               </CardContent>
             </Card>
 
@@ -210,7 +247,7 @@ export default function AnalyticsPage() {
                   <CardDescription className="text-warm-gray-600">Where your money goes</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {loadingCategory ? <Skeleton className="h-[350px] w-full" /> : <SpendingByCategoryChart data={spendingByCategory || []} />}
+                  <SpendingByCategoryChart data={spendingByCategory || []} />
                 </CardContent>
               </Card>
 
@@ -221,7 +258,7 @@ export default function AnalyticsPage() {
                   <CardDescription className="text-warm-gray-600">Where your income comes from</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {loadingIncome ? <Skeleton className="h-[350px] w-full" /> : <IncomeSourcesChart data={incomeSources || []} />}
+                  <IncomeSourcesChart data={incomeSources || []} />
                 </CardContent>
               </Card>
             </div>
@@ -233,7 +270,7 @@ export default function AnalyticsPage() {
                 <CardDescription className="text-warm-gray-600">Your spending over time</CardDescription>
               </CardHeader>
               <CardContent>
-                {loadingTrends ? <Skeleton className="h-[350px] w-full" /> : <SpendingTrendsChart data={spendingTrends || []} />}
+                <SpendingTrendsChart data={spendingTrends || []} />
               </CardContent>
             </Card>
           </>

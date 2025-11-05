@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useMemo } from 'react'
 import { type Account } from '@prisma/client'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,8 +17,13 @@ interface AccountCardProps {
   onArchive?: (account: Account) => void
 }
 
-export function AccountCard({ account, onEdit, onArchive }: AccountCardProps) {
-  const isDebt = account.type === 'CREDIT' && Number(account.balance) < 0
+export const AccountCard = memo(function AccountCard({ account, onEdit, onArchive }: AccountCardProps) {
+  // Memoize expensive calculations
+  const { isDebt, formattedBalance, lastSyncedDate } = useMemo(() => ({
+    isDebt: account.type === 'CREDIT' && Number(account.balance) < 0,
+    formattedBalance: formatCurrency(Math.abs(Number(account.balance))),
+    lastSyncedDate: account.lastSynced ? new Date(account.lastSynced).toLocaleDateString() : null
+  }), [account.type, account.balance, account.lastSynced])
 
   return (
     <motion.div {...cardHoverSubtle}>
@@ -68,13 +74,13 @@ export function AccountCard({ account, onEdit, onArchive }: AccountCardProps) {
                   : 'text-warm-gray-700'
               }`}
             >
-              {formatCurrency(Math.abs(Number(account.balance)))}
+              {formattedBalance}
             </span>
           </div>
 
-          {account.lastSynced && !account.isManual && (
+          {lastSyncedDate && !account.isManual && (
             <p className="text-xs text-muted-foreground">
-              Last synced: {new Date(account.lastSynced).toLocaleDateString()}
+              Last synced: {lastSyncedDate}
             </p>
           )}
 
@@ -92,4 +98,6 @@ export function AccountCard({ account, onEdit, onArchive }: AccountCardProps) {
     </Card>
     </motion.div>
   )
-}
+})
+
+AccountCard.displayName = 'AccountCard'

@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -19,10 +20,14 @@ interface TransactionCardProps {
   onDelete?: () => void
 }
 
-export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCardProps) {
-  const isExpense = Number(transaction.amount) < 0
-  const absAmount = Math.abs(Number(transaction.amount))
-  const isRecurring = !!transaction.recurringTransactionId
+export const TransactionCard = memo(function TransactionCard({ transaction, onEdit, onDelete }: TransactionCardProps) {
+  // Memoize expensive calculations
+  const { isExpense, absAmount, isRecurring, formattedDate } = useMemo(() => ({
+    isExpense: Number(transaction.amount) < 0,
+    absAmount: Math.abs(Number(transaction.amount)),
+    isRecurring: !!transaction.recurringTransactionId,
+    formattedDate: format(new Date(transaction.date), 'MMM d, yyyy')
+  }), [transaction.amount, transaction.recurringTransactionId, transaction.date])
 
   return (
     <motion.div {...cardHoverSubtle}>
@@ -49,7 +54,7 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm text-muted-foreground">
-              <span>{format(new Date(transaction.date), 'MMM d, yyyy')}</span>
+              <span>{formattedDate}</span>
               <span className="hidden sm:inline">•</span>
               <span className="truncate">{transaction.account.name}</span>
               <span className="hidden sm:inline">•</span>
@@ -114,4 +119,6 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
       </Card>
     </motion.div>
   )
-}
+})
+
+TransactionCard.displayName = 'TransactionCard'

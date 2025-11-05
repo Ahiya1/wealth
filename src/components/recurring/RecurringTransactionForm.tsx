@@ -121,6 +121,7 @@ export function RecurringTransactionForm({ onSuccess }: RecurringTransactionForm
           id="amount"
           type="number"
           step="0.01"
+          inputMode="decimal"
           {...register('amount', { valueAsNumber: true })}
           placeholder="Use negative for expenses (e.g., -50.00), positive for income (e.g., 2000.00)"
         />
@@ -212,6 +213,7 @@ export function RecurringTransactionForm({ onSuccess }: RecurringTransactionForm
             type="number"
             min="-1"
             max="31"
+            inputMode="numeric"
             {...register('dayOfMonth', { valueAsNumber: true })}
             placeholder="e.g., 1-31, or -1 for last day"
           />

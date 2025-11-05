@@ -1,8 +1,10 @@
 // src/components/goals/GoalProgressChart.tsx
 'use client'
 
+import { memo } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { formatCurrency } from '@/lib/utils'
+import { useChartDimensions } from '@/hooks/useChartDimensions'
 
 interface GoalProgressChartProps {
   currentAmount: number
@@ -11,12 +13,14 @@ interface GoalProgressChartProps {
   targetDate: Date
 }
 
-export function GoalProgressChart({
+export const GoalProgressChart = memo(function GoalProgressChart({
   currentAmount,
   targetAmount,
   projectedDate,
   targetDate: _targetDate,
 }: GoalProgressChartProps) {
+  const { height, margin } = useChartDimensions()
+
   // Create data points for the chart
   const data = [
     {
@@ -30,14 +34,15 @@ export function GoalProgressChart({
   ]
 
   return (
-    <ResponsiveContainer width="100%" height={250}>
-      <LineChart data={data}>
+    <ResponsiveContainer width="100%" height={height}>
+      <LineChart data={data} margin={margin}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="date" />
         <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`} />
         <Tooltip
           formatter={(value) => [formatCurrency(Number(value)), 'Amount']}
           contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc' }}
+          allowEscapeViewBox={{ x: true, y: true }}
         />
         <ReferenceLine
           y={targetAmount}
@@ -55,4 +60,6 @@ export function GoalProgressChart({
       </LineChart>
     </ResponsiveContainer>
   )
-}
+})
+
+GoalProgressChart.displayName = 'GoalProgressChart'

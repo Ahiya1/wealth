@@ -1,7 +1,9 @@
 'use client'
 
+import { memo } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 import { CATEGORY_COLORS } from '@/lib/chartColors'
+import { useChartDimensions } from '@/hooks/useChartDimensions'
 
 interface SpendingByCategoryChartProps {
   data: { category: string; amount: number; color?: string }[]
@@ -15,7 +17,9 @@ interface TooltipProps {
   }>
 }
 
-export function SpendingByCategoryChart({ data }: SpendingByCategoryChartProps) {
+export const SpendingByCategoryChart = memo(function SpendingByCategoryChart({ data }: SpendingByCategoryChartProps) {
+  const { height, hidePieLabels } = useChartDimensions()
+
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-[350px] text-warm-gray-500">
@@ -47,15 +51,15 @@ export function SpendingByCategoryChart({ data }: SpendingByCategoryChartProps) 
   }
 
   return (
-    <ResponsiveContainer width="100%" height={350}>
+    <ResponsiveContainer width="100%" height={height}>
       <PieChart>
         <Pie
           data={data}
           cx="50%"
           cy="50%"
-          labelLine={false}
-          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-          outerRadius={120}
+          labelLine={!hidePieLabels}
+          label={!hidePieLabels ? ({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%` : false}
+          outerRadius={hidePieLabels ? 80 : 120}
           fill="#8884d8"
           dataKey="amount"
           nameKey="category"
@@ -64,9 +68,12 @@ export function SpendingByCategoryChart({ data }: SpendingByCategoryChartProps) 
             <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
           ))}
         </Pie>
-        <Tooltip content={<CustomTooltip />} />
-        <Legend />
+        <Tooltip content={<CustomTooltip />} allowEscapeViewBox={{ x: true, y: true }} />
+        {hidePieLabels && <Legend wrapperStyle={{ fontSize: '12px' }} iconSize={10} />}
+        {!hidePieLabels && <Legend />}
       </PieChart>
     </ResponsiveContainer>
   )
-}
+})
+
+SpendingByCategoryChart.displayName = 'SpendingByCategoryChart'

@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { TrendingUp, TrendingDown, type LucideIcon } from 'lucide-react'
@@ -18,7 +19,7 @@ interface StatCardProps {
   className?: string
 }
 
-export function StatCard({
+export const StatCard = memo(function StatCard({
   title,
   value,
   trend,
@@ -69,4 +70,6 @@ export function StatCard({
       </Card>
     </motion.div>
   )
-}
+})
+
+StatCard.displayName = 'StatCard'

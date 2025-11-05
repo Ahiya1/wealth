@@ -111,7 +111,7 @@ export function BudgetForm({ month, onSuccess, existingBudget }: BudgetFormProps
   const isSubmitting = createBudget.isPending || updateBudget.isPending
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pb-20">
       <div>
         <Label htmlFor="categoryId">Category</Label>
         <Select
@@ -142,6 +142,7 @@ export function BudgetForm({ month, onSuccess, existingBudget }: BudgetFormProps
           type="number"
           step="0.01"
           min="0"
+          inputMode="decimal"
           placeholder="0.00"
           {...register('amount', { valueAsNumber: true })}
         />
@@ -166,11 +167,13 @@ export function BudgetForm({ month, onSuccess, existingBudget }: BudgetFormProps
         </Label>
       </div>
 
-      <Button type="submit" loading={isSubmitting} className="w-full">
-        {isSubmitting
-          ? (existingBudget ? 'Updating...' : 'Creating...')
-          : (existingBudget ? 'Update Budget' : 'Create Budget')}
-      </Button>
+      <div className="sticky bottom-4 pt-4 border-t bg-background">
+        <Button type="submit" loading={isSubmitting} className="w-full">
+          {isSubmitting
+            ? (existingBudget ? 'Updating...' : 'Creating...')
+            : (existingBudget ? 'Update Budget' : 'Create Budget')}
+        </Button>
+      </div>
     </form>
   )
 }

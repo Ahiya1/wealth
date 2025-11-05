@@ -1,7 +1,10 @@
 'use client'
 
+import { memo, useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { CHART_COLORS, CHART_CONFIG } from '@/lib/chartColors'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useChartDimensions } from '@/hooks/useChartDimensions'
 
 interface MonthOverMonthChartProps {
   data: { month: string; income: number; expenses: number }[]
@@ -17,7 +20,17 @@ interface TooltipProps {
   label?: string
 }
 
-export function MonthOverMonthChart({ data }: MonthOverMonthChartProps) {
+export const MonthOverMonthChart = memo(function MonthOverMonthChart({ data }: MonthOverMonthChartProps) {
+  const isMobile = useMediaQuery('(max-width: 768px)')
+  const { height, margin } = useChartDimensions()
+
+  // Limit to 6 months on mobile (vs 12 on desktop)
+  const chartData = useMemo(() => {
+    if (!isMobile || data.length <= 6) return data
+    // Take last 6 months on mobile
+    return data.slice(-6)
+  }, [data, isMobile])
+
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-[350px] text-warm-gray-500">
@@ -51,8 +64,8 @@ export function MonthOverMonthChart({ data }: MonthOverMonthChartProps) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={350}>
-      <BarChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart data={chartData} margin={margin}>
         <CartesianGrid {...CHART_CONFIG.cartesianGrid} />
 
         <XAxis
@@ -65,7 +78,7 @@ export function MonthOverMonthChart({ data }: MonthOverMonthChartProps) {
           tickFormatter={(value) => `${(value / 1000).toFixed(0)}K ₪`}
         />
 
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={<CustomTooltip />} allowEscapeViewBox={{ x: true, y: true }} />
         <Legend />
 
         <Bar dataKey="income" fill={CHART_COLORS.primary} name="Income" radius={[4, 4, 0, 0]} />
@@ -73,4 +86,6 @@ export function MonthOverMonthChart({ data }: MonthOverMonthChartProps) {
       </BarChart>
     </ResponsiveContainer>
   )
-}
+})
+
+MonthOverMonthChart.displayName = 'MonthOverMonthChart'

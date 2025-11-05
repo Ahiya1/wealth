@@ -95,7 +95,7 @@ export function AddTransactionForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 pb-20">
       {/* Account Selection */}
       <div className="space-y-2">
         <Label htmlFor="accountId">
@@ -143,6 +143,7 @@ export function AddTransactionForm({
             id="amount"
             type="number"
             step="0.01"
+            inputMode="decimal"
             className="pl-7"
             placeholder="0.00"
             {...register('amount', { valueAsNumber: true })}
@@ -250,15 +251,17 @@ export function AddTransactionForm({
       </div>
 
       {/* Form Actions */}
-      <div className="flex justify-end gap-2 border-t pt-4">
-        {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-            Cancel
+      <div className="sticky bottom-4 pt-4 border-t bg-background">
+        <div className="flex justify-end gap-2">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+              Cancel
+            </Button>
+          )}
+          <Button type="submit" loading={isSubmitting} className="flex-1 sm:flex-initial">
+            {isSubmitting ? 'Saving...' : isEditing ? 'Update Transaction' : 'Create Transaction'}
           </Button>
-        )}
-        <Button type="submit" loading={isSubmitting}>
-          {isSubmitting ? 'Saving...' : isEditing ? 'Update Transaction' : 'Create Transaction'}
-        </Button>
+        </div>
       </div>
     </form>
   )

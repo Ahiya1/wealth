@@ -2,6 +2,7 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { trpc } from '@/lib/trpc'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -10,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { GoalForm } from './GoalForm'
-import { GoalProgressChart } from './GoalProgressChart'
+import { ChartSkeleton } from '@/components/analytics/skeletons/ChartSkeleton'
 import { CompletedGoalCelebration } from './CompletedGoalCelebration'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { PageTransition } from '@/components/ui/page-transition'
@@ -20,6 +21,15 @@ import { PiggyBank, TrendingDown, TrendingUp, Calendar, Target, TrendingUpIcon, 
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/components/ui/use-toast'
 import Link from 'next/link'
+
+// Dynamic import for GoalProgressChart
+const GoalProgressChart = dynamic(
+  () => import('./GoalProgressChart').then(mod => ({ default: mod.GoalProgressChart })),
+  {
+    loading: () => <ChartSkeleton height={250} />,
+    ssr: false
+  }
+)
 
 const GOAL_TYPE_CONFIG = {
   SAVINGS: {

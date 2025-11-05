@@ -161,6 +161,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
             id="targetAmount"
             type="number"
             step="0.01"
+            inputMode="decimal"
             {...register('targetAmount', { valueAsNumber: true })}
             placeholder="10000.00"
           />
@@ -175,6 +176,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
             id="currentAmount"
             type="number"
             step="0.01"
+            inputMode="decimal"
             {...register('currentAmount', { valueAsNumber: true })}
             placeholder="0.00"
           />

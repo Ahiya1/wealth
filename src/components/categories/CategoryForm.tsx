@@ -200,18 +200,19 @@ export function CategoryForm({ categoryId, onSuccess }: CategoryFormProps) {
             className="w-20 h-10"
             disabled={!!categoryId && existingCategory?.isDefault}
           />
-          <div className="flex gap-1 flex-wrap">
+          <div className="flex gap-2 sm:gap-1 flex-wrap">
             {POPULAR_COLORS.map((color) => (
               <button
                 key={color}
                 type="button"
-                className="w-8 h-8 rounded border-2 hover:scale-110 transition-transform"
+                className="w-12 h-12 sm:w-8 sm:h-8 rounded border-2 hover:scale-110 transition-transform"
                 style={{
                   backgroundColor: color,
                   borderColor: selectedColor === color ? '#000' : 'transparent',
                 }}
                 onClick={() => setValue('color', color)}
                 disabled={!!categoryId && existingCategory?.isDefault}
+                aria-label={`Select color ${color}`}
               />
             ))}
           </div>

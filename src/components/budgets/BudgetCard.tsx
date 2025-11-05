@@ -1,6 +1,7 @@
 // src/components/budgets/BudgetCard.tsx
 'use client'
 
+import { memo, useMemo } from 'react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { BudgetProgressBar } from './BudgetProgressBar'
@@ -25,7 +26,14 @@ interface BudgetCardProps {
   onDelete?: (budgetId: string) => void
 }
 
-export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
+export const BudgetCard = memo(function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
+  // Memoize expensive calculations
+  const { formattedBudget, formattedSpent, formattedRemaining, isNegative } = useMemo(() => ({
+    formattedBudget: formatCurrency(budget.budgetAmount),
+    formattedSpent: formatCurrency(budget.spentAmount),
+    formattedRemaining: formatCurrency(Math.abs(budget.remainingAmount)),
+    isNegative: budget.remainingAmount < 0
+  }), [budget.budgetAmount, budget.spentAmount, budget.remainingAmount])
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -57,20 +65,20 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
             <p className="text-muted-foreground">Budgeted</p>
-            <p className="font-semibold">{formatCurrency(budget.budgetAmount)}</p>
+            <p className="font-semibold">{formattedBudget}</p>
           </div>
           <div>
             <p className="text-muted-foreground">Spent</p>
-            <p className="font-semibold">{formatCurrency(budget.spentAmount)}</p>
+            <p className="font-semibold">{formattedSpent}</p>
           </div>
           <div>
             <p className="text-muted-foreground">Remaining</p>
             <p
               className={`font-semibold ${
-                budget.remainingAmount < 0 ? 'text-coral' : 'text-sage-600'
+                isNegative ? 'text-coral' : 'text-sage-600'
               }`}
             >
-              {formatCurrency(Math.abs(budget.remainingAmount))}
+              {formattedRemaining}
             </p>
           </div>
         </div>
@@ -83,4 +91,6 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
       </CardContent>
     </Card>
   )
-}
+})
+
+BudgetCard.displayName = 'BudgetCard'

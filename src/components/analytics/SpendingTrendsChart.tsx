@@ -1,7 +1,10 @@
 'use client'
 
+import { memo, useMemo } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { CHART_COLORS, CHART_CONFIG } from '@/lib/chartColors'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useChartDimensions } from '@/hooks/useChartDimensions'
 
 interface SpendingTrendsChartProps {
   data: { date: string; amount: number }[]
@@ -15,7 +18,17 @@ interface TooltipProps {
   }>
 }
 
-export function SpendingTrendsChart({ data }: SpendingTrendsChartProps) {
+export const SpendingTrendsChart = memo(function SpendingTrendsChart({ data }: SpendingTrendsChartProps) {
+  const isMobile = useMediaQuery('(max-width: 768px)')
+  const { height, margin } = useChartDimensions()
+
+  // Sample data on mobile (show every 3rd point to reduce complexity)
+  const chartData = useMemo(() => {
+    if (!isMobile) return data
+    // Sample every 3rd data point on mobile to reduce visual clutter
+    return data.filter((_, index) => index % 3 === 0)
+  }, [data, isMobile])
+
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-[350px] text-warm-gray-500">
@@ -44,8 +57,8 @@ export function SpendingTrendsChart({ data }: SpendingTrendsChartProps) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={350}>
-      <LineChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+    <ResponsiveContainer width="100%" height={height}>
+      <LineChart data={chartData} margin={margin}>
         <CartesianGrid {...CHART_CONFIG.cartesianGrid} />
 
         <XAxis
@@ -58,7 +71,7 @@ export function SpendingTrendsChart({ data }: SpendingTrendsChartProps) {
           tickFormatter={(value) => `${(value / 1000).toFixed(0)}K ₪`}
         />
 
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={<CustomTooltip />} allowEscapeViewBox={{ x: true, y: true }} />
 
         <Line
           type="monotone"
@@ -80,4 +93,6 @@ export function SpendingTrendsChart({ data }: SpendingTrendsChartProps) {
       </LineChart>
     </ResponsiveContainer>
   )
-}
+})
+
+SpendingTrendsChart.displayName = 'SpendingTrendsChart'

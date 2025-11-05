@@ -141,7 +141,7 @@ export function TransactionForm({ transaction, onSuccess }: TransactionFormProps
   const isLoading = createTransaction.isPending || updateTransaction.isPending
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pb-20">
       {!transaction && (
         <div>
           <Label htmlFor="accountId">Account</Label>
@@ -178,6 +178,7 @@ export function TransactionForm({ transaction, onSuccess }: TransactionFormProps
           id="amount"
           type="number"
           step="0.01"
+          inputMode="decimal"
           placeholder="e.g., -45.00 for expense, 500.00 for income"
           {...register('amount', { valueAsNumber: true })}
         />
@@ -236,9 +237,11 @@ export function TransactionForm({ transaction, onSuccess }: TransactionFormProps
         <p className="mt-1 text-xs text-muted-foreground">Separate multiple tags with commas</p>
       </div>
 
-      <Button type="submit" loading={isLoading} className="w-full">
-        {isLoading ? 'Saving...' : transaction ? 'Update Transaction' : 'Create Transaction'}
-      </Button>
+      <div className="sticky bottom-4 pt-4 border-t bg-background">
+        <Button type="submit" loading={isLoading} className="w-full">
+          {isLoading ? 'Saving...' : transaction ? 'Update Transaction' : 'Create Transaction'}
+        </Button>
+      </div>
     </form>
   )
 }
