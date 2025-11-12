@@ -1,0 +1,347 @@
+plan_id: plan-5
+created_at: 2025-11-09T20:45:00Z
+status: PLANNED
+total_iterations: 3
+
+strategy: |
+  The export system requires a COMPLEX 3-iteration approach based on unanimous explorer consensus:
+
+  CRITICAL INSIGHT: All 4 explorers identified the Analytics export date range bug as BLOCKING.
+  This bug must be fixed in Iteration 1 before building new features to validate infrastructure.
+
+  ITERATION 1: Foundation & Bug Fix (10-12 hours, HIGH risk)
+  - Fix critical Analytics export bug (date range filter)
+  - Build backend export engine (Excel, ZIP, AI metadata)
+  - Create ExportHistory database model
+  - Enable all 6 data types in 3 formats each
+  - Install new dependencies (archiver/jszip)
+  - Validate export infrastructure works correctly
+
+  ITERATION 2: Export Center UI (8-10 hours, MEDIUM risk)
+  - Build unified Settings > Data & Export page
+  - Implement Quick Exports section (individual data types)
+  - Complete Export package generator (ZIP with README + ai-context.json)
+  - Export history display and re-download functionality
+  - Vercel Blob Storage caching integration
+
+  ITERATION 3: Context Exports & Mobile (6-8 hours, MEDIUM risk)
+  - Add export buttons to 5 context pages (Transactions, Budgets, Goals, Accounts, Recurring)
+  - Filter-aware export logic (preserve page state)
+  - Mobile Web Share API integration
+  - Platform-specific UX (iOS/Android/Desktop)
+  - 30-day cleanup cron job
+  - Performance optimization and monitoring
+
+  DEPENDENCIES:
+  - Iteration 2 depends on Iteration 1 (backend engine must exist before UI)
+  - Iteration 3 depends on Iteration 2 (Export Center provides base patterns for context exports)
+
+  RISK MITIGATION:
+  - Bug fix first (not last) validates foundation before building on top
+  - Defer caching complexity to Iteration 2 (start with filesystem fallback)
+  - Streaming for large exports deferred to post-MVP unless profiling shows need
+  - Background jobs explicitly out of scope (adds 10+ hours, premature optimization)
+
+iterations:
+  - iteration_id: 1
+    global_iteration: 14
+    name: "Export Engine Foundation & Bug Fix"
+    vision: "Build robust backend export infrastructure supporting all data types in 3 formats, fix critical Analytics bug, establish ExportHistory model"
+    scope: |
+      PRIORITY 0: Critical Bug Fix (BLOCKING)
+      - Fix Analytics export date range filter bug (src/app/(dashboard)/analytics/page.tsx:93-108)
+      - Investigate root cause: Date format passed to tRPC vs Prisma date operators
+      - Likely culprits: Timezone conversion (client Date → UTC → Prisma gte/lte), ISO string formatting
+      - Validate fix by testing exports with various date ranges
+
+      PRIORITY 1: Backend Export Infrastructure
+      1. Install new dependencies:
+         - archiver (or jszip) for ZIP generation
+         - Verify xlsx library already installed (v0.18.5)
+
+      2. Create Export Utilities (src/lib/):
+         - xlsxExport.ts: Excel workbook generator for all data types
+         - aiContextGenerator.ts: Generate ai-context.json with field descriptions, category hierarchy, AI prompts
+         - archiveExport.ts: ZIP package creator with organized folder structure
+         - Extend csvExport.ts: Add recurring transactions, categories support
+         - Extend jsonExport.ts: Add recurring transactions, categories, enhance with AI context
+
+      3. Database Migration:
+         - Add ExportHistory model to schema.prisma:
+           * userId (relation to User)
+           * exportType (QUICK | COMPLETE)
+           * format (CSV | JSON | EXCEL | ZIP)
+           * dataType (TRANSACTIONS | BUDGETS | GOALS | etc.)
+           * dateRange (optional JSON: {from, to})
+           * fileSize (bytes)
+           * blobKey (Vercel Blob storage key)
+           * createdAt, expiresAt (30 days from creation)
+         - Run prisma migrate dev --name add-export-history
+
+      4. tRPC Export Endpoints (src/server/api/routers/):
+         - Create exports.router.ts with procedures:
+           * exportTransactions (format: CSV/JSON/EXCEL, dateRange optional)
+           * exportBudgets (format: CSV/JSON/EXCEL)
+           * exportGoals (format: CSV/JSON/EXCEL)
+           * exportAccounts (format: CSV/JSON/EXCEL)
+           * exportRecurringTransactions (format: CSV/JSON/EXCEL)
+           * exportCategories (format: CSV/JSON/EXCEL)
+         - Each endpoint returns file blob + metadata (filename, size, mimeType)
+         - Add to src/server/api/root.ts: export { exportsRouter }
+
+      5. Validation & Testing:
+         - Test each data type export in all 3 formats
+         - Verify Excel compatibility (open in Excel, Google Sheets, Numbers)
+         - Confirm CSV UTF-8 BOM for international characters
+         - Validate JSON structure matches expected schema
+         - Test with edge cases: Empty datasets, 1 record, 10k+ records
+
+      SUCCESS CRITERIA:
+      - [ ] Analytics export bug is fixed (users can export transactions from Analytics page)
+      - [ ] ExportHistory model exists and migration applied
+      - [ ] All 6 data types export successfully in CSV, JSON, and Excel formats
+      - [ ] Excel files open correctly in Excel/Sheets/Numbers
+      - [ ] CSV files use UTF-8 BOM and load properly in Excel
+      - [ ] Export utilities are modular and reusable
+      - [ ] tRPC endpoints validated with manual testing
+      - [ ] AI context generator creates valid JSON structure
+
+      OUT OF SCOPE (Iteration 2):
+      - Export Center UI (Settings page)
+      - Export history display
+      - Vercel Blob caching (use filesystem/temp for now)
+      - Complete ZIP package (just individual file exports)
+    status: PENDING
+    dependencies: []
+
+  - iteration_id: 2
+    global_iteration: 15
+    name: "Export Center & Complete Package"
+    vision: "Build unified Export Center UI in Settings, implement complete ZIP export package with AI metadata, add export history with caching"
+    scope: |
+      PRIORITY 1: Unified Export Center UI
+      1. Settings > Data & Export Page (src/app/(dashboard)/settings/data/page.tsx):
+         - Replace "coming soon" placeholder with full Export Center
+         - Structure: 3 main sections (Quick Exports, Complete Export, Export History)
+
+         Section 1: Quick Exports
+         - Grid of export cards for each data type (Transactions, Budgets, Goals, Accounts, Recurring, Categories)
+         - Each card shows: Icon, data type name, record count, format selector (CSV/JSON/Excel)
+         - Optional date range picker for time-series data (Transactions, Budgets)
+         - Export button triggers download with loading state
+         - Success toast shows: "Downloaded 247 transactions as CSV"
+
+         Section 2: Complete Export
+         - "Export Everything" button with prominent styling
+         - Export preview before generation: "Preparing: 1,247 transactions, 12 budgets, 3 goals..."
+         - Progress indicator during ZIP generation (0-100%)
+         - Format: ZIP file containing all data + README + ai-context.json
+
+         Section 3: Export History
+         - Table showing last 10 exports (Type, Format, Date, Size, Actions)
+         - "Download Again" button for cached exports (instant)
+         - "Generate Fresh" button if cache expired
+         - Automatic 30-day retention display
+
+      2. Export Components (src/components/exports/):
+         - ExportCard.tsx: Reusable export card with format selector
+         - ExportHistoryTable.tsx: Export history display with re-download
+         - ExportProgressBar.tsx: Progress indicator for large exports
+         - FormatSelector.tsx: Dropdown for CSV/JSON/Excel selection
+
+      PRIORITY 2: Complete Export Package
+      1. ZIP Package Generator (backend):
+         - Use archiver library to create organized ZIP structure:
+           ```
+           wealth-export-2025-11-09/
+             README.md (usage instructions, AI prompts, data dictionary)
+             ai-context.json (field descriptions, category hierarchy, AI prompt templates)
+             summary.json (export metadata: date, counts, currency, timezone)
+             transactions.csv
+             recurring-transactions.csv
+             budgets.csv
+             goals.csv
+             accounts.csv
+             categories.csv
+           ```
+         - README.md template with:
+           * Quick start guide for AI analysis
+           * Copy-paste prompt templates
+           * Data dictionary (field descriptions)
+           * File format explanations
+         - ai-context.json includes:
+           * exportVersion: "1.0"
+           * user: {currency, timezone}
+           * fields: {transaction.amount: "Amount in NIS. Negative = expense", ...}
+           * categories: {hierarchy: {...}}
+           * aiPrompts: {spendingAnalysis: "...", budgetReview: "...", goalProgress: "..."}
+
+      2. tRPC Complete Export Endpoint:
+         - exportComplete procedure in exports.router.ts
+         - Generates all 6 data type CSVs
+         - Creates README.md and ai-context.json
+         - Archives into ZIP file
+         - Returns ZIP blob with filename: wealth-complete-export-YYYY-MM-DD.zip
+
+      PRIORITY 3: Export History & Caching
+      1. Vercel Blob Storage Integration:
+         - Install @vercel/blob package
+         - Configure BLOB_READ_WRITE_TOKEN in .env
+         - Upload exports to Vercel Blob after generation
+         - Store blobKey in ExportHistory model
+         - Set expiresAt = createdAt + 30 days
+
+      2. Export History Queries (tRPC):
+         - getExportHistory procedure: List last 10 exports for current user
+         - redownloadExport procedure: Fetch from Vercel Blob by blobKey
+         - Cache hit: Return existing blob URL (instant download)
+         - Cache miss: Regenerate export, update ExportHistory
+
+      3. Automatic Cleanup:
+         - Add cron job endpoint: /api/cron/cleanup-exports
+         - Runs daily via Vercel Cron (vercel.json config)
+         - Deletes ExportHistory records where expiresAt < now()
+         - Deletes corresponding Vercel Blob files
+         - Logs cleanup stats (records deleted, storage freed)
+
+      SUCCESS CRITERIA:
+      - [ ] Settings > Data & Export page fully functional (replaces placeholder)
+      - [ ] Quick Exports section allows exporting any data type in any format
+      - [ ] Complete Export generates organized ZIP with all files
+      - [ ] README.md and ai-context.json are accurate and helpful
+      - [ ] Export history displays past exports with correct metadata
+      - [ ] Re-download works instantly for cached exports
+      - [ ] Vercel Blob Storage integration working (uploads, downloads, deletions)
+      - [ ] 30-day cleanup cron job scheduled and tested
+      - [ ] Progress indicators show during long exports
+      - [ ] All success/error states have clear user feedback
+
+      OUT OF SCOPE (Iteration 3):
+      - Context export buttons on individual pages
+      - Mobile share sheet integration
+      - Filter-aware exports from Transactions/Budgets/etc pages
+    status: PENDING
+    dependencies: [1]
+
+  - iteration_id: 3
+    global_iteration: 16
+    name: "Context Exports & Mobile Optimization"
+    vision: "Add filter-aware export buttons to all data pages, implement mobile share sheet, optimize cross-platform UX"
+    scope: |
+      PRIORITY 1: Context Export Buttons
+      Add export functionality to 5 pages, respecting current page filters:
+
+      1. Transactions Page (src/app/(dashboard)/transactions/page.tsx):
+         - Export button in page header (near filter controls)
+         - Format selector dropdown (CSV, JSON, Excel)
+         - Export count preview: "Export 47 filtered transactions"
+         - Preserve filters in export: date range, category, account, search query
+         - Filename includes filters: wealth-transactions-dining-2025-01-to-2025-11.csv
+
+      2. Budgets Page (src/app/(dashboard)/budgets/page.tsx):
+         - Export current month's budgets OR all budgets (toggle)
+         - Format selector (CSV, JSON, Excel)
+         - Include spent amounts and remaining budget in export
+
+      3. Goals Page (src/app/(dashboard)/goals/page.tsx):
+         - Export all goals with progress calculations
+         - Format selector (CSV, JSON, Excel)
+         - Include target date, current amount, target amount, progress %
+
+      4. Accounts Page (src/app/(dashboard)/accounts/page.tsx):
+         - Export all accounts with current balances
+         - Format selector (CSV, JSON, Excel)
+         - Include account type, institution, connection status
+
+      5. Recurring Transactions Page (src/app/(dashboard)/recurring/page.tsx):
+         - Export all recurring transaction templates
+         - Format selector (CSV, JSON, Excel)
+         - Include human-readable frequency (e.g., "Every 2 weeks on Monday")
+
+      Implementation Pattern:
+      - Create shared ExportButton component (src/components/exports/ExportButton.tsx)
+      - Props: dataType, filters, currentCount
+      - Reuses tRPC endpoints from Iteration 1 (exportTransactions, exportBudgets, etc.)
+      - Handles loading state, success toast, error handling
+
+      PRIORITY 2: Mobile Share Sheet Integration
+      1. Web Share API Implementation:
+         - Detect mobile vs desktop using navigator.share availability
+         - Mobile flow:
+           * Generate export file (CSV/JSON/Excel/ZIP)
+           * Create File object from blob
+           * Trigger navigator.share({files: [file], title: "Wealth Export"})
+           * Native share sheet appears (iOS/Android)
+           * User selects: Save to Files, Share to ChatGPT, Email, etc.
+         - Desktop flow:
+           * Standard browser download via <a download> element
+           * Browser download manager handles file saving
+
+      2. Platform-Specific UX:
+         - iOS Safari: Native share sheet with Files app, AirDrop, Messages
+         - Chrome Android: Native share sheet with Drive, Gmail, Files
+         - Desktop browsers: Download manager with filename and location
+         - Fallback for older browsers: Force download with URL.createObjectURL
+
+      3. Mobile Export Optimizations:
+         - Touch-friendly export buttons (min 44px height)
+         - Large format selector for easy tapping
+         - Progress indicators sized for mobile (full-width bars)
+         - Error messages readable on small screens
+         - Success toasts positioned for thumb reach (bottom of screen)
+
+      PRIORITY 3: Performance Optimization
+      1. Export Performance Monitoring:
+         - Add timing metrics to tRPC export procedures
+         - Log export duration, file size, record count
+         - Track timeout occurrences (exports taking >10s)
+         - Identify slow queries (transactions with complex filters)
+
+      2. Optimization Strategies:
+         - Database query optimization: Use select() to limit fields returned
+         - Streaming for large exports if profiling shows >5s generation time
+         - Parallel data fetching with Promise.all() for Complete Export
+         - Client-side caching of export format preference (localStorage)
+
+      3. Error Handling & Recovery:
+         - Network error: Show retry button, don't lose user's export request
+         - Timeout error: Suggest exporting smaller date range or using Complete Export
+         - File too large: Warn before generation (e.g., "10k+ transactions may take 30s")
+         - Browser compatibility: Detect Web Share API, show appropriate UI
+
+      PRIORITY 4: Cross-Device Testing
+      1. Test Export Flows On:
+         - iOS Safari (iPhone)
+         - Chrome Android (Pixel/Samsung)
+         - Desktop Chrome, Firefox, Safari, Edge
+         - Tablet devices (iPad, Android tablet)
+
+      2. Validate:
+         - Share sheet appears correctly on mobile
+         - Downloaded files open correctly in Excel, Google Sheets, Numbers
+         - ZIP files extract correctly on all platforms (iOS Files app, Android, Windows, macOS)
+         - CSV UTF-8 BOM ensures international characters display correctly
+         - JSON files parse correctly in all viewers/editors
+
+      SUCCESS CRITERIA:
+      - [ ] Export buttons functional on all 5 context pages (Transactions, Budgets, Goals, Accounts, Recurring)
+      - [ ] Exports respect page filters (date range, category, account, search)
+      - [ ] Export count preview accurate ("Export 47 filtered transactions")
+      - [ ] Filenames include filter context (e.g., wealth-transactions-dining-jan-to-mar.csv)
+      - [ ] Mobile share sheet works on iOS Safari and Chrome Android
+      - [ ] Desktop download flow works in Chrome, Firefox, Safari, Edge
+      - [ ] Touch-friendly UI on mobile (44px minimum button height)
+      - [ ] Performance acceptable: <5s for standard exports, <15s for complete package
+      - [ ] Error handling graceful with retry options
+      - [ ] Cross-device testing validates all export flows
+      - [ ] 30-day cleanup cron job running successfully
+
+      POST-MVP IMPROVEMENTS (Explicitly Out of Scope):
+      - Scheduled exports (automatic monthly exports to email)
+      - Custom export templates (user-defined fields/formats)
+      - Multi-sheet Excel workbooks (currently single-sheet per data type)
+      - QFX/OFX export for Quicken/Mint
+      - Encrypted exports (password-protected ZIPs)
+      - Background jobs for large exports (streaming sufficient for MVP)
+    status: PENDING
+    dependencies: [2]

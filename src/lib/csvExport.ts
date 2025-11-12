@@ -46,6 +46,26 @@ interface AccountExport {
   updatedAt: Date
 }
 
+export interface RecurringTransactionExport {
+  payee: string
+  amount: number | Decimal
+  category: { name: string }
+  account: { name: string }
+  frequency: string
+  interval: number
+  nextScheduledDate: Date
+  status: string
+}
+
+export interface CategoryExport {
+  name: string
+  icon: string | null
+  color: string | null
+  parentId: string | null
+  parent: { name: string } | null
+  isDefault: boolean
+}
+
 export function generateTransactionCSV(transactions: Transaction[]): string {
   const headers = ['Date', 'Payee', 'Category', 'Account', 'Amount', 'Tags', 'Notes']
   const headerRow = headers.join(',')
@@ -157,6 +177,82 @@ export function generateAccountCSV(accounts: AccountExport[]): string {
 
   const csvContent = [headerRow, ...dataRows].join('\n')
   return '\uFEFF' + csvContent
+}
+
+export function generateRecurringTransactionCSV(
+  recurringTransactions: RecurringTransactionExport[]
+): string {
+  const headers = ['Payee', 'Amount', 'Category', 'Account', 'Frequency', 'Next Date', 'Status']
+  const headerRow = headers.join(',')
+
+  const dataRows = recurringTransactions.map((rt) => {
+    // Convert Decimal to number for CSV export
+    const amount = typeof rt.amount === 'number'
+      ? rt.amount
+      : Number(rt.amount.toString())
+
+    // Human-readable frequency
+    const frequencyText = formatFrequency(rt.frequency, rt.interval)
+
+    const row = [
+      `"${rt.payee.replace(/"/g, '""')}"`,        // Escape quotes
+      amount.toFixed(2),                           // 2 decimal places
+      `"${rt.category.name.replace(/"/g, '""')}"`,
+      `"${rt.account.name.replace(/"/g, '""')}"`,
+      `"${frequencyText}"`,
+      format(new Date(rt.nextScheduledDate), 'yyyy-MM-dd'),
+      rt.status,
+    ]
+    return row.join(',')
+  })
+
+  const csvContent = [headerRow, ...dataRows].join('\n')
+
+  // Add UTF-8 BOM for Excel compatibility
+  const BOM = '\uFEFF'
+  return BOM + csvContent
+}
+
+export function generateCategoryCSV(categories: CategoryExport[]): string {
+  const headers = ['Name', 'Parent', 'Icon', 'Color', 'Type']
+  const headerRow = headers.join(',')
+
+  const dataRows = categories.map((cat) => {
+    const row = [
+      `"${cat.name.replace(/"/g, '""')}"`,
+      cat.parent ? `"${cat.parent.name.replace(/"/g, '""')}"` : 'None',
+      cat.icon || '',
+      cat.color || '',
+      cat.isDefault ? 'Default' : 'Custom',
+    ]
+    return row.join(',')
+  })
+
+  const csvContent = [headerRow, ...dataRows].join('\n')
+  return '\uFEFF' + csvContent
+}
+
+// Helper function for human-readable frequency
+function formatFrequency(frequency: string, interval: number): string {
+  const base: Record<string, string> = {
+    'DAILY': 'day',
+    'WEEKLY': 'week',
+    'BIWEEKLY': 'week',
+    'MONTHLY': 'month',
+    'YEARLY': 'year',
+  }
+
+  const baseUnit = base[frequency] || frequency.toLowerCase()
+
+  if (frequency === 'BIWEEKLY') {
+    return 'Every 2 weeks'
+  }
+
+  if (interval === 1) {
+    return `Every ${baseUnit}`
+  }
+
+  return `Every ${interval} ${baseUnit}s`
 }
 
 export function downloadCSV(csvContent: string, filename: string): void {

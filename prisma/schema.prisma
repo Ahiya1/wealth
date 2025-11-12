@@ -59,6 +59,7 @@ model User {
   recurringTransactions RecurringTransaction[]
   budgets               Budget[]
   goals                 Goal[]
+  exportHistory         ExportHistory[]
 
   @@index([supabaseAuthId])
   @@index([email])
@@ -340,6 +341,51 @@ enum GoalType {
   SAVINGS
   DEBT_PAYOFF
   INVESTMENT
+}
+
+// ============================================================================
+// EXPORT HISTORY
+// ============================================================================
+
+model ExportHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  exportType  ExportType
+  format      ExportFormat
+  dataType    ExportDataType?  // null for COMPLETE exports
+  dateRange   Json?            // { from: ISO string, to: ISO string }
+  recordCount Int              // Number of records exported
+  fileSize    Int              // Size in bytes
+  blobKey     String?          // Vercel Blob storage key (null in Iteration 14)
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime         // createdAt + 30 days
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([expiresAt])
+}
+
+enum ExportType {
+  QUICK      // Single data type export
+  COMPLETE   // Full ZIP package export
+}
+
+enum ExportFormat {
+  CSV
+  JSON
+  EXCEL
+  ZIP
+}
+
+enum ExportDataType {
+  TRANSACTIONS
+  RECURRING_TRANSACTIONS
+  BUDGETS
+  GOALS
+  ACCOUNTS
+  CATEGORIES
 }
 
 // ============================================================================

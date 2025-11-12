@@ -20,12 +20,30 @@ import { EncouragingProgress } from '@/components/ui/encouraging-progress'
 import { Plus } from 'lucide-react'
 import { trpc } from '@/lib/trpc'
 import { formatCurrency } from '@/lib/utils'
+import { ExportButton } from '@/components/exports/ExportButton'
+import { FormatSelector } from '@/components/exports/FormatSelector'
+import { useExport } from '@/hooks/useExport'
 
 export default function BudgetsPage() {
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'))
   const [addDialogOpen, setAddDialogOpen] = useState(false)
 
   const { data: summary } = trpc.budgets.summary.useQuery({ month: selectedMonth })
+  const { data: budgetsList } = trpc.budgets.listByMonth.useQuery({ month: selectedMonth })
+
+  // Get budget count for export preview
+  const budgetCount = budgetsList?.length || 0
+
+  // Export mutation (exports ALL budgets, not just current month)
+  const exportMutation = trpc.exports.exportBudgets.useMutation()
+  const exportHook = useExport({
+    mutation: exportMutation,
+    getInput: (format) => ({
+      format,
+      // Future enhancement: filter by month
+    }),
+    dataType: 'budgets',
+  })
 
   return (
     <PageTransition>
@@ -39,6 +57,29 @@ export default function BudgetsPage() {
         </div>
 
       <MonthSelector selectedMonth={selectedMonth} onMonthChange={setSelectedMonth} />
+
+      {/* Export Section */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <FormatSelector
+          value={exportHook.format}
+          onChange={exportHook.setFormat}
+          disabled={exportHook.isLoading}
+        />
+
+        <ExportButton
+          onClick={exportHook.handleExport}
+          loading={exportHook.isLoading}
+          recordCount={budgetCount}
+        >
+          Export Budgets
+        </ExportButton>
+
+        {budgetCount === 0 && (
+          <p className="text-sm text-warm-gray-600">
+            No budgets to export
+          </p>
+        )}
+      </div>
 
       {summary && (
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">

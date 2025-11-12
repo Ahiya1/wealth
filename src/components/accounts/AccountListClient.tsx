@@ -6,8 +6,24 @@ import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { AccountForm } from './AccountForm'
+import { trpc } from '@/lib/trpc'
+import { ExportButton } from '@/components/exports/ExportButton'
+import { FormatSelector } from '@/components/exports/FormatSelector'
+import { useExport } from '@/hooks/useExport'
 
 export function AccountListClient() {
+  // Fetch all accounts for export count
+  const { data: accounts } = trpc.accounts.list.useQuery({ includeInactive: true })
+  const accountCount = accounts?.length || 0
+
+  // Export logic
+  const exportMutation = trpc.exports.exportAccounts.useMutation()
+  const exportHook = useExport({
+    mutation: exportMutation,
+    getInput: (format) => ({ format }),
+    dataType: 'accounts',
+  })
+
   return (
     <PageTransition>
       <div className="space-y-6">
@@ -30,6 +46,23 @@ export function AccountListClient() {
               <AccountForm />
             </DialogContent>
           </Dialog>
+        </div>
+
+        {/* Export Section */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <FormatSelector
+            value={exportHook.format}
+            onChange={exportHook.setFormat}
+            disabled={exportHook.isLoading}
+          />
+
+          <ExportButton
+            onClick={exportHook.handleExport}
+            loading={exportHook.isLoading}
+            recordCount={accountCount}
+          >
+            Export Accounts
+          </ExportButton>
         </div>
 
         <AccountList />

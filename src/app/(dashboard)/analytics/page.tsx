@@ -8,7 +8,7 @@ import { PageTransition } from '@/components/ui/page-transition'
 import { EmptyState } from '@/components/ui/empty-state'
 import { trpc } from '@/lib/trpc'
 import { ChartSkeleton } from '@/components/analytics/skeletons/ChartSkeleton'
-import { subMonths, startOfMonth, endOfMonth, format } from 'date-fns'
+import { subMonths, startOfMonth, endOfMonth, endOfDay, format } from 'date-fns'
 import { Download, TrendingUp } from 'lucide-react'
 import { generateTransactionCSV, downloadCSV } from '@/lib/csvExport'
 import { toast } from 'sonner'
@@ -57,7 +57,7 @@ const IncomeSourcesChart = dynamic(
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState({
     startDate: startOfMonth(subMonths(new Date(), 5)),
-    endDate: endOfMonth(new Date()),
+    endDate: endOfDay(endOfMonth(new Date())), // Fix: Include last day of month (23:59:59.999)
   })
 
   // Fetch analytics data
@@ -110,21 +110,21 @@ export default function AnalyticsPage() {
   const handleSetLast30Days = () => {
     setDateRange({
       startDate: startOfMonth(subMonths(new Date(), 0)),
-      endDate: endOfMonth(new Date()),
+      endDate: endOfDay(endOfMonth(new Date())),
     })
   }
 
   const handleSetLast6Months = () => {
     setDateRange({
       startDate: startOfMonth(subMonths(new Date(), 5)),
-      endDate: endOfMonth(new Date()),
+      endDate: endOfDay(endOfMonth(new Date())),
     })
   }
 
   const handleSetLastYear = () => {
     setDateRange({
       startDate: startOfMonth(subMonths(new Date(), 11)),
-      endDate: endOfMonth(new Date()),
+      endDate: endOfDay(endOfMonth(new Date())),
     })
   }
 

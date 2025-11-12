@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { startOfMonth, endOfMonth } from 'date-fns'
 import { PageTransition } from '@/components/ui/page-transition'
 import { TransactionList } from './TransactionList'
 import { TransactionForm } from './TransactionForm'
@@ -15,11 +16,50 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Plus, Repeat, Calendar } from 'lucide-react'
+import { ExportButton } from '@/components/exports/ExportButton'
+import { FormatSelector } from '@/components/exports/FormatSelector'
+import { useExport } from '@/hooks/useExport'
+import { trpc } from '@/lib/trpc'
 
 export function TransactionListPageClient() {
   const router = useRouter()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isAddRecurringDialogOpen, setIsAddRecurringDialogOpen] = useState(false)
+
+  // Date range filter state (defaults to current month for export)
+  const [startDate] = useState(startOfMonth(new Date()))
+  const [endDate] = useState(endOfMonth(new Date()))
+
+  // Get transaction count for export preview
+  // We'll use a simple query to get the count without fetching all data
+  const { data: transactionList } = trpc.transactions.list.useInfiniteQuery(
+    {
+      limit: 50,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
+  )
+
+  // Calculate total transaction count from loaded pages
+  // Note: This is an approximation based on currently loaded transactions
+  // The actual export will fetch ALL transactions from the server
+  const transactionCount = transactionList?.pages.reduce(
+    (total, page) => total + page.transactions.length,
+    0
+  ) || 0
+
+  // Export mutation
+  const exportMutation = trpc.exports.exportTransactions.useMutation()
+  const exportHook = useExport({
+    mutation: exportMutation,
+    getInput: (format) => ({
+      format,
+      startDate,
+      endDate,
+    }),
+    dataType: 'transactions',
+  })
 
   return (
     <PageTransition>
@@ -72,6 +112,29 @@ export function TransactionListPageClient() {
               </DialogContent>
             </Dialog>
           </div>
+        </div>
+
+        {/* Export Section */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <FormatSelector
+            value={exportHook.format}
+            onChange={exportHook.setFormat}
+            disabled={exportHook.isLoading}
+          />
+
+          <ExportButton
+            onClick={exportHook.handleExport}
+            loading={exportHook.isLoading}
+            recordCount={transactionCount}
+          >
+            Export Transactions
+          </ExportButton>
+
+          {transactionCount === 0 && (
+            <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400">
+              No transactions to export
+            </p>
+          )}
         </div>
 
         <TransactionList />
