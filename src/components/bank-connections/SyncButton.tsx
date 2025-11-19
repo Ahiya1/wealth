@@ -64,10 +64,13 @@ export function SyncButton({
     if (status.status === 'SUCCESS') {
       setSyncLogId(null)
 
-      // Invalidate all related caches
+      // Invalidate ALL related caches for complete UI refresh (8 total)
       utils.transactions.list.invalidate()
       utils.budgets.progress.invalidate()
       utils.budgets.summary.invalidate()
+      utils.budgets.activeAlerts.invalidate() // NEW: Budget alerts
+      utils.analytics.dashboardSummary.invalidate() // NEW: Dashboard analytics
+      utils.accounts.list.invalidate() // NEW: Account balances
       utils.bankConnections.list.invalidate()
       utils.syncTransactions.history.invalidate()
 

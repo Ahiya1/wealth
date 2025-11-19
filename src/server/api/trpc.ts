@@ -2,6 +2,7 @@ import { initTRPC, TRPCError } from '@trpc/server'
 import { type FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
+import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 
@@ -60,24 +61,54 @@ export const router = t.router
 export const publicProcedure = t.procedure
 
 /**
+ * Error logging middleware
+ * Captures all errors and sends to Sentry before throwing
+ */
+const errorMiddleware = t.middleware(async ({ next, ctx, path, type }) => {
+  try {
+    return await next({ ctx })
+  } catch (error) {
+    // Capture error in Sentry
+    Sentry.captureException(error, {
+      user: ctx.user ? { id: ctx.user.id.substring(0, 3) + '***' } : undefined,
+      tags: {
+        endpoint: path,
+        userId: ctx.user?.id.substring(0, 3) + '***',
+      },
+      contexts: {
+        trpc: {
+          path,
+          type,
+        },
+      },
+    })
+
+    // Re-throw the error (tRPC will handle HTTP response)
+    throw error
+  }
+})
+
+/**
  * Protected procedure - requires authenticated user
  */
-export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
-  if (!ctx.user) {
-    throw new TRPCError({
-      code: 'UNAUTHORIZED',
-      message: 'Not authenticated',
-    })
-  }
+export const protectedProcedure = t.procedure
+  .use(async ({ ctx, next }) => {
+    if (!ctx.user) {
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'Not authenticated',
+      })
+    }
 
-  return next({
-    ctx: {
-      user: ctx.user, // Prisma User (guaranteed non-null)
-      supabaseUser: ctx.supabaseUser!,
-      prisma: ctx.prisma,
-    },
+    return next({
+      ctx: {
+        user: ctx.user, // Prisma User (guaranteed non-null)
+        supabaseUser: ctx.supabaseUser!,
+        prisma: ctx.prisma,
+      },
+    })
   })
-})
+  .use(errorMiddleware)
 
 /**
  * Admin-only procedure - requires authenticated user with ADMIN role

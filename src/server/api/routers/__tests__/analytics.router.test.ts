@@ -84,8 +84,25 @@ describe('Analytics Router', () => {
       ]
 
       mockPrisma.account.findMany.mockResolvedValue(mockAccounts as any)
-      mockPrisma.transaction.findMany.mockResolvedValue([])
+      // Mock aggregate for income
+      mockPrisma.transaction.aggregate.mockResolvedValueOnce({
+        _sum: { amount: new Decimal(0) },
+        _count: { amount: 0 },
+        _avg: { amount: null },
+        _min: { amount: null },
+        _max: { amount: null },
+      } as any)
+      // Mock aggregate for expenses
+      mockPrisma.transaction.aggregate.mockResolvedValueOnce({
+        _sum: { amount: new Decimal(0) },
+        _count: { amount: 0 },
+        _avg: { amount: null },
+        _min: { amount: null },
+        _max: { amount: null },
+      } as any)
       mockPrisma.budget.findMany.mockResolvedValue([])
+      mockPrisma.transaction.findMany.mockResolvedValueOnce([]) // Recent transactions
+      mockPrisma.transaction.findMany.mockResolvedValueOnce([]) // Category transactions
 
       const result = await caller.analytics.dashboardSummary()
 
@@ -99,34 +116,6 @@ describe('Analytics Router', () => {
       const mockTransactions = [
         {
           id: 'txn-1',
-          userId: 'user-1',
-          accountId: 'account-1',
-          date: new Date(),
-          amount: new Decimal(2000), // Income
-          payee: 'Salary',
-          categoryId: 'category-1',
-          notes: null,
-          tags: [],
-          plaidTransactionId: null,
-          recurringTransactionId: null,
-          isManual: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          category: {
-            id: 'category-1',
-            userId: 'user-1',
-            name: 'Salary',
-            icon: null,
-            color: null,
-            parentId: null,
-            isDefault: false,
-            isActive: true,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        },
-        {
-          id: 'txn-2',
           userId: 'user-1',
           accountId: 'account-1',
           date: new Date(),
@@ -184,9 +173,25 @@ describe('Analytics Router', () => {
       ]
 
       mockPrisma.account.findMany.mockResolvedValue([])
-      mockPrisma.transaction.findMany.mockResolvedValueOnce(mockTransactions as any)
-      mockPrisma.transaction.findMany.mockResolvedValueOnce([]) // Recent transactions
+      // Mock aggregate for income (positive amounts)
+      mockPrisma.transaction.aggregate.mockResolvedValueOnce({
+        _sum: { amount: new Decimal(2000) },
+        _count: { amount: 1 },
+        _avg: { amount: null },
+        _min: { amount: null },
+        _max: { amount: null },
+      } as any)
+      // Mock aggregate for expenses (negative amounts)
+      mockPrisma.transaction.aggregate.mockResolvedValueOnce({
+        _sum: { amount: new Decimal(-450) },
+        _count: { amount: 2 },
+        _avg: { amount: null },
+        _min: { amount: null },
+        _max: { amount: null },
+      } as any)
       mockPrisma.budget.findMany.mockResolvedValue([])
+      mockPrisma.transaction.findMany.mockResolvedValueOnce([]) // Recent transactions
+      mockPrisma.transaction.findMany.mockResolvedValueOnce(mockTransactions as any) // Category transactions
 
       const result = await caller.analytics.dashboardSummary()
 
@@ -252,9 +257,25 @@ describe('Analytics Router', () => {
       ]
 
       mockPrisma.account.findMany.mockResolvedValue([])
-      mockPrisma.transaction.findMany.mockResolvedValueOnce(mockTransactions as any)
-      mockPrisma.transaction.findMany.mockResolvedValueOnce([]) // Recent transactions
+      // Mock aggregate for income (no income in this test)
+      mockPrisma.transaction.aggregate.mockResolvedValueOnce({
+        _sum: { amount: new Decimal(0) },
+        _count: { amount: 0 },
+        _avg: { amount: null },
+        _min: { amount: null },
+        _max: { amount: null },
+      } as any)
+      // Mock aggregate for expenses
+      mockPrisma.transaction.aggregate.mockResolvedValueOnce({
+        _sum: { amount: new Decimal(-1000) },
+        _count: { amount: 3 },
+        _avg: { amount: null },
+        _min: { amount: null },
+        _max: { amount: null },
+      } as any)
       mockPrisma.budget.findMany.mockResolvedValue([])
+      mockPrisma.transaction.findMany.mockResolvedValueOnce([]) // Recent transactions
+      mockPrisma.transaction.findMany.mockResolvedValueOnce(mockTransactions as any) // Category transactions
 
       const result = await caller.analytics.dashboardSummary()
 
@@ -520,59 +541,27 @@ describe('Analytics Router', () => {
     it('should calculate income and expenses for each month', async () => {
       const caller = createCaller('user-1')
 
-      // Mock transactions for October 2025
-      const octoberTransactions = [
-        {
-          id: 'txn-1',
-          userId: 'user-1',
-          accountId: 'account-1',
-          date: new Date('2025-10-15'),
-          amount: new Decimal(3000), // Income
-          payee: 'Salary',
-          categoryId: 'category-1',
-          notes: null,
-          tags: [],
-          plaidTransactionId: null,
-          recurringTransactionId: null,
-          isManual: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: 'txn-2',
-          userId: 'user-1',
-          accountId: 'account-1',
-          date: new Date('2025-10-20'),
-          amount: new Decimal(-500), // Expense
-          payee: 'Rent',
-          categoryId: 'category-2',
-          notes: null,
-          tags: [],
-          plaidTransactionId: null,
-          recurringTransactionId: null,
-          isManual: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: 'txn-3',
-          userId: 'user-1',
-          accountId: 'account-1',
-          date: new Date('2025-10-25'),
-          amount: new Decimal(-300), // Expense
-          payee: 'Groceries',
-          categoryId: 'category-3',
-          notes: null,
-          tags: [],
-          plaidTransactionId: null,
-          recurringTransactionId: null,
-          isManual: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ]
+      // Mock aggregate results for each month (3 months = 6 aggregate calls: income + expenses per month)
+      // Each month gets 2 aggregate calls (income and expenses)
+      for (let i = 0; i < 3; i++) {
+        // Mock income aggregate for month i
+        mockPrisma.transaction.aggregate.mockResolvedValueOnce({
+          _sum: { amount: new Decimal(3000) },
+          _count: { amount: 1 },
+          _avg: { amount: null },
+          _min: { amount: null },
+          _max: { amount: null },
+        } as any)
 
-      mockPrisma.transaction.findMany.mockResolvedValue(octoberTransactions as any)
+        // Mock expenses aggregate for month i
+        mockPrisma.transaction.aggregate.mockResolvedValueOnce({
+          _sum: { amount: new Decimal(-800) },
+          _count: { amount: 2 },
+          _avg: { amount: null },
+          _min: { amount: null },
+          _max: { amount: null },
+        } as any)
+      }
 
       const result = await caller.analytics.monthOverMonth({ months: 3 })
 
@@ -584,13 +573,34 @@ describe('Analytics Router', () => {
         expect(month).toHaveProperty('month')
         expect(month).toHaveProperty('income')
         expect(month).toHaveProperty('expenses')
+        expect(month.income).toBe(3000)
+        expect(month.expenses).toBe(800)
       })
     })
 
     it('should default to 6 months when not specified', async () => {
       const caller = createCaller('user-1')
 
-      mockPrisma.transaction.findMany.mockResolvedValue([])
+      // Mock aggregate results for 6 months (12 total calls: income + expenses per month)
+      for (let i = 0; i < 6; i++) {
+        // Mock income aggregate for month i
+        mockPrisma.transaction.aggregate.mockResolvedValueOnce({
+          _sum: { amount: new Decimal(0) },
+          _count: { amount: 0 },
+          _avg: { amount: null },
+          _min: { amount: null },
+          _max: { amount: null },
+        } as any)
+
+        // Mock expenses aggregate for month i
+        mockPrisma.transaction.aggregate.mockResolvedValueOnce({
+          _sum: { amount: new Decimal(0) },
+          _count: { amount: 0 },
+          _avg: { amount: null },
+          _min: { amount: null },
+          _max: { amount: null },
+        } as any)
+      }
 
       const result = await caller.analytics.monthOverMonth({})
 

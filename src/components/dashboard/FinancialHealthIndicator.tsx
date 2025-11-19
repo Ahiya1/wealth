@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Target } from 'lucide-react'
 import { trpc } from '@/lib/trpc'
 import { Skeleton } from '@/components/ui/skeleton'
-import { format } from 'date-fns'
+import { format, formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
@@ -12,6 +12,20 @@ import { motion } from 'framer-motion'
 export function FinancialHealthIndicator() {
   const currentMonth = format(new Date(), 'yyyy-MM')
   const { data, isLoading } = trpc.budgets.progress.useQuery({ month: currentMonth })
+  const { data: connections } = trpc.bankConnections.list.useQuery()
+
+  // Calculate most recent sync across all connections
+  const lastSynced = connections?.reduce((latest, conn) => {
+    if (!conn.lastSynced) return latest
+    if (!latest || new Date(conn.lastSynced) > new Date(latest)) {
+      return conn.lastSynced
+    }
+    return latest
+  }, null as Date | null)
+
+  const syncStatus = lastSynced
+    ? `Last synced ${formatDistanceToNow(new Date(lastSynced), { addSuffix: true })}`
+    : 'Never synced'
 
   if (isLoading) {
     return <Skeleton className="h-40 w-full rounded-lg" />
@@ -47,7 +61,10 @@ export function FinancialHealthIndicator() {
   return (
     <Card className="bg-gradient-to-br from-sage-50 to-warm-gray-50 dark:from-warm-gray-900 dark:to-warm-gray-800 shadow-soft-md dark:shadow-none dark:border dark:border-warm-gray-600 rounded-warmth">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-serif">Financial Health</CardTitle>
+        <div className="flex flex-col gap-1">
+          <CardTitle className="text-lg font-serif">Financial Health</CardTitle>
+          <div className="text-xs text-muted-foreground">{syncStatus}</div>
+        </div>
         <Target className="h-5 w-5 text-sage-500 dark:text-sage-400" />
       </CardHeader>
       <CardContent>

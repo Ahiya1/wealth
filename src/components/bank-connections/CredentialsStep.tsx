@@ -1,11 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { BankScraperConsent } from '@/components/legal/BankScraperConsent'
 
 // ============================================================================
 // Validation Schema
@@ -36,6 +38,8 @@ interface CredentialsStepProps {
 }
 
 export function CredentialsStep({ initialData, onNext, onBack }: CredentialsStepProps) {
+  const [consentGiven, setConsentGiven] = useState(false)
+
   const {
     register,
     handleSubmit,
@@ -101,11 +105,16 @@ export function CredentialsStep({ initialData, onNext, onBack }: CredentialsStep
         </p>
       </div>
 
+      {/* Bank Scraper Consent */}
+      <BankScraperConsent checked={consentGiven} onCheckedChange={setConsentGiven} />
+
       <div className="flex gap-2 justify-end">
         <Button type="button" variant="outline" onClick={onBack}>
           Back
         </Button>
-        <Button type="submit">Next</Button>
+        <Button type="submit" disabled={!consentGiven}>
+          Next
+        </Button>
       </div>
     </form>
   )

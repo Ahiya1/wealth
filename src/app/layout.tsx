@@ -3,6 +3,7 @@ import { Inter, Crimson_Pro } from 'next/font/google'
 import { Toaster } from 'sonner'
 import './globals.css'
 import { Providers } from './providers'
+import { FinancialDisclaimer } from '@/components/legal/FinancialDisclaimer'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -39,7 +40,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${crimsonPro.variable}`}>
       <body className="font-sans antialiased">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <FinancialDisclaimer />
+        </Providers>
         <Toaster
           position="top-right"
           toastOptions={{

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { PageTransition } from '@/components/ui/page-transition'
 import { AffirmationCard } from '@/components/ui/affirmation-card'
 import { FinancialHealthIndicator } from '@/components/dashboard/FinancialHealthIndicator'
+import { BudgetAlertsCard } from '@/components/dashboard/BudgetAlertsCard'
 import { DashboardStats } from '@/components/dashboard/DashboardStats'
 import { RecentTransactionsCard } from '@/components/dashboard/RecentTransactionsCard'
 import { UpcomingBills } from '@/components/dashboard/UpcomingBills'
@@ -42,13 +43,16 @@ export default async function DashboardPage() {
         {/* 3. FINANCIAL HEALTH INDICATOR - New component */}
         <FinancialHealthIndicator />
 
-        {/* 4. UPCOMING BILLS */}
+        {/* 4. BUDGET ALERTS - Show active budget alerts */}
+        <BudgetAlertsCard />
+
+        {/* 5. UPCOMING BILLS */}
         <UpcomingBills />
 
-        {/* 5. RECENT TRANSACTIONS */}
+        {/* 6. RECENT TRANSACTIONS */}
         <RecentTransactionsCard />
 
-        {/* 6. STATS CARDS - Moved lower */}
+        {/* 7. STATS CARDS - Moved lower */}
         <DashboardStats />
       </div>
     </PageTransition>

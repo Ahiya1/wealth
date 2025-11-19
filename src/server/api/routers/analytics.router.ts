@@ -6,26 +6,41 @@ export const analyticsRouter = router({
   // Dashboard summary with key metrics
   dashboardSummary: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id
+    const currentMonth = new Date()
 
-    // Parallel queries for performance
-    const [accounts, currentMonthTransactions, budgets, recentTransactions] = await Promise.all([
+    // Parallel queries for performance (optimized with aggregates)
+    const [accounts, incomeResult, expensesResult, budgets, recentTransactions] = await Promise.all([
       ctx.prisma.account.findMany({
         where: { userId, isActive: true },
       }),
-      ctx.prisma.transaction.findMany({
+      // Use aggregate for income calculation
+      ctx.prisma.transaction.aggregate({
         where: {
           userId,
           date: {
-            gte: startOfMonth(new Date()),
-            lte: endOfMonth(new Date()),
+            gte: startOfMonth(currentMonth),
+            lte: endOfMonth(currentMonth),
           },
+          amount: { gt: 0 }, // Only income
         },
-        include: { category: true },
+        _sum: { amount: true },
+      }),
+      // Use aggregate for expenses calculation
+      ctx.prisma.transaction.aggregate({
+        where: {
+          userId,
+          date: {
+            gte: startOfMonth(currentMonth),
+            lte: endOfMonth(currentMonth),
+          },
+          amount: { lt: 0 }, // Only expenses
+        },
+        _sum: { amount: true },
       }),
       ctx.prisma.budget.findMany({
         where: {
           userId,
-          month: format(new Date(), 'yyyy-MM'),
+          month: format(currentMonth, 'yyyy-MM'),
         },
       }),
       ctx.prisma.transaction.findMany({
@@ -39,27 +54,30 @@ export const analyticsRouter = router({
     // Calculate net worth
     const netWorth = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0)
 
-    // Calculate income (positive amounts)
-    const income = currentMonthTransactions
-      .filter((t) => Number(t.amount) > 0)
-      .reduce((sum, t) => sum + Number(t.amount), 0)
+    // Extract aggregated values
+    const income = Number(incomeResult._sum.amount || 0)
+    const expenses = Math.abs(Number(expensesResult._sum.amount || 0))
 
-    // Calculate expenses (negative amounts)
-    const expenses = Math.abs(
-      currentMonthTransactions
-        .filter((t) => Number(t.amount) < 0)
-        .reduce((sum, t) => sum + Number(t.amount), 0)
-    )
+    // Fetch top spending categories (still need transaction details for grouping)
+    const categoryTransactions = await ctx.prisma.transaction.findMany({
+      where: {
+        userId,
+        date: {
+          gte: startOfMonth(currentMonth),
+          lte: endOfMonth(currentMonth),
+        },
+        amount: { lt: 0 },
+      },
+      include: { category: true },
+    })
 
     // Top spending categories
     const categorySpending = Object.entries(
-      currentMonthTransactions
-        .filter((t) => Number(t.amount) < 0)
-        .reduce((acc, t) => {
-          const cat = t.category.name
-          acc[cat] = (acc[cat] || 0) + Math.abs(Number(t.amount))
-          return acc
-        }, {} as Record<string, number>)
+      categoryTransactions.reduce((acc, t) => {
+        const cat = t.category.name
+        acc[cat] = (acc[cat] || 0) + Math.abs(Number(t.amount))
+        return acc
+      }, {} as Record<string, number>)
     )
       .sort(([, a], [, b]) => b - a)
       .slice(0, 5)
@@ -173,22 +191,28 @@ export const analyticsRouter = router({
           const startDate = startOfMonth(new Date(year, monthNum - 1))
           const endDate = endOfMonth(new Date(year, monthNum - 1))
 
-          const transactions = await ctx.prisma.transaction.findMany({
-            where: {
-              userId: ctx.user.id,
-              date: { gte: startDate, lte: endDate },
-            },
-          })
+          // Use parallel aggregates instead of findMany + reduce
+          const [incomeResult, expensesResult] = await Promise.all([
+            ctx.prisma.transaction.aggregate({
+              where: {
+                userId: ctx.user.id,
+                date: { gte: startDate, lte: endDate },
+                amount: { gt: 0 }, // Only income
+              },
+              _sum: { amount: true },
+            }),
+            ctx.prisma.transaction.aggregate({
+              where: {
+                userId: ctx.user.id,
+                date: { gte: startDate, lte: endDate },
+                amount: { lt: 0 }, // Only expenses
+              },
+              _sum: { amount: true },
+            }),
+          ])
 
-          const income = transactions
-            .filter((t) => Number(t.amount) > 0)
-            .reduce((sum, t) => sum + Number(t.amount), 0)
-
-          const expenses = Math.abs(
-            transactions
-              .filter((t) => Number(t.amount) < 0)
-              .reduce((sum, t) => sum + Number(t.amount), 0)
-          )
+          const income = Number(incomeResult._sum.amount || 0)
+          const expenses = Math.abs(Number(expensesResult._sum.amount || 0))
 
           return {
             month: format(new Date(year, monthNum - 1), 'MMM yyyy'),

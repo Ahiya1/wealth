@@ -3,7 +3,9 @@ import type { BankProvider, ImportSource } from '@prisma/client'
 import { scrapeBank } from './bank-scraper.service'
 import { categorizeTransactions } from './categorize.service'
 import { isDuplicate } from '@/lib/services/duplicate-detection.service'
+import { checkBudgetAlerts } from '@/lib/services/budget-alerts.service'
 import type { ImportedTransaction } from './bank-scraper.service'
+import { format } from 'date-fns'
 
 // ============================================================================
 // Constants
@@ -20,6 +22,7 @@ export interface ImportResult {
   imported: number
   skipped: number
   categorized: number
+  alertsTriggered: number
   errors: string[]
 }
 
@@ -191,10 +194,39 @@ export async function importTransactions(
 
     console.log(`[importTransactions] Categorized ${categorizedCount} transactions`)
 
+    // Step 11: Check budget alerts after categorization
+    const currentMonth = format(new Date(), 'yyyy-MM')
+    const affectedCategories = Array.from(
+      new Set(
+        uncategorizedTransactions
+          .map((t) => t.categoryId)
+          .filter((id) => id !== miscCategory.id)
+      )
+    )
+
+    let alertsTriggered = 0
+    if (affectedCategories.length > 0) {
+      const triggeredAlerts = await checkBudgetAlerts(
+        userId,
+        affectedCategories,
+        currentMonth,
+        prismaClient
+      )
+
+      alertsTriggered = triggeredAlerts.length
+
+      if (alertsTriggered > 0) {
+        console.log(
+          `[importTransactions] Budget alerts triggered: ${alertsTriggered} for user ${userId.substring(0, 3)}***`
+        )
+      }
+    }
+
     return {
       imported: insertedCount,
       skipped: skippedCount,
       categorized: categorizedCount,
+      alertsTriggered,
       errors,
     }
   } catch (error) {

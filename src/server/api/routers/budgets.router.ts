@@ -459,6 +459,90 @@ export const budgetsRouter = router({
         percentageUsed: totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0,
       }
     }),
+
+  /**
+   * Get active budget alerts (unsent or recently sent)
+   */
+  activeAlerts: protectedProcedure
+    .input(
+      z.object({
+        month: z.string().regex(/^\d{4}-\d{2}$/).optional(), // Format: "2025-11" (defaults to current month)
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { user, prisma } = ctx
+      const month = input.month || format(new Date(), 'yyyy-MM')
+
+      // Fetch budgets with unsent alerts or alerts sent in last 24 hours
+      const budgets = await prisma.budget.findMany({
+        where: {
+          userId: user.id,
+          month,
+        },
+        include: {
+          category: true,
+          alerts: {
+            where: {
+              OR: [
+                { sent: false }, // Unsent alerts
+                {
+                  sent: true,
+                  sentAt: {
+                    gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
+                  },
+                },
+              ],
+            },
+            orderBy: { threshold: 'desc' }, // Show highest threshold first
+          },
+        },
+      })
+
+      // Calculate current spending for each budget with alerts
+      const [year, monthNum] = month.split('-').map(Number)
+      const startDate = startOfMonth(new Date(year, monthNum - 1))
+      const endDate = endOfMonth(new Date(year, monthNum - 1))
+
+      const alerts = []
+
+      for (const budget of budgets) {
+        if (budget.alerts.length === 0) continue
+
+        // Calculate current spending
+        const spent = await prisma.transaction.aggregate({
+          where: {
+            userId: user.id,
+            categoryId: budget.categoryId,
+            date: { gte: startDate, lte: endDate },
+            amount: { lt: 0 },
+          },
+          _sum: { amount: true },
+        })
+
+        const spentAmount = Math.abs(Number(spent._sum.amount || 0))
+        const budgetAmount = Number(budget.amount)
+        const percentage = budgetAmount > 0 ? (spentAmount / budgetAmount) * 100 : 0
+
+        // Add alert details
+        for (const alert of budget.alerts) {
+          alerts.push({
+            id: alert.id,
+            budgetId: budget.id,
+            categoryId: budget.categoryId,
+            categoryName: budget.category.name,
+            threshold: alert.threshold,
+            percentage: Math.round(percentage),
+            spentAmount,
+            budgetAmount,
+            sent: alert.sent,
+            sentAt: alert.sentAt,
+            createdAt: alert.createdAt,
+          })
+        }
+      }
+
+      return { alerts }
+    }),
 })
 
 // Helper function to generate future month strings
