@@ -2,7 +2,8 @@ import { z } from 'zod'
 import { router, protectedProcedure } from '../trpc'
 import { TRPCError } from '@trpc/server'
 import { BankProvider, ConnectionStatus, AccountType } from '@prisma/client'
-import { encryptBankCredentials, decryptBankCredentials } from '@/lib/encryption'
+import { encryptBankCredentials } from '@/lib/encryption'
+import { scrapeBank, BankScraperError } from '@/server/services/bank-scraper.service'
 
 export const bankConnectionsRouter = router({
   /**
@@ -190,40 +191,134 @@ export const bankConnectionsRouter = router({
     }),
 
   /**
-   * Test bank connection credentials (stub for Iteration 17)
-   * Real implementation in Iteration 18 with israeli-bank-scrapers
+   * Test bank connection by attempting to scrape with provided credentials
+   *
+   * Creates SyncLog record for every attempt (success or failure)
+   * Updates connection status based on result
+   *
+   * @returns Success message or throws TRPCError
    */
   test: protectedProcedure
     .input(
       z.object({
-        id: z.string(),
+        id: z.string().cuid(),
+        otp: z.string().length(6).optional(), // For 2FA retry
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // Verify ownership
+      // 1. Fetch connection and verify ownership
       const connection = await ctx.prisma.bankConnection.findUnique({
         where: { id: input.id },
       })
 
-      if (!connection || connection.userId !== ctx.user.id) {
-        throw new TRPCError({ code: 'NOT_FOUND' })
+      if (!connection) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Bank connection not found' })
       }
 
-      // Decrypt credentials (verify encryption works)
-      const credentials = decryptBankCredentials(connection.encryptedCredentials)
+      if (connection.userId !== ctx.user.id) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' })
+      }
 
-      // STUB: Always return success in Iteration 17
-      // Real implementation in Iteration 18 will call israeli-bank-scrapers
-      console.log(
-        'Test connection stub - bank:',
-        connection.bank,
-        'user:',
-        credentials.userId.substring(0, 3) + '***'
-      )
+      // 2. Create SyncLog record (default to FAILED, update on success)
+      const syncLog = await ctx.prisma.syncLog.create({
+        data: {
+          bankConnectionId: connection.id,
+          startedAt: new Date(),
+          status: 'FAILED', // Pessimistic default
+        },
+      })
 
-      return {
-        success: true,
-        message: 'Connection test stub (real implementation in Iteration 18)',
+      try {
+        // 3. Call scraper service
+        const result = await scrapeBank({
+          bank: connection.bank,
+          encryptedCredentials: connection.encryptedCredentials,
+          startDate: new Date(), // Only test connection, don't import transactions
+          endDate: new Date(),
+          otp: input.otp,
+        })
+
+        // 4. Update connection status to ACTIVE
+        await ctx.prisma.bankConnection.update({
+          where: { id: connection.id },
+          data: {
+            status: 'ACTIVE',
+            lastSynced: new Date(),
+            lastSuccessfulSync: new Date(),
+            errorMessage: null,
+          },
+        })
+
+        // 5. Update SyncLog to SUCCESS
+        await ctx.prisma.syncLog.update({
+          where: { id: syncLog.id },
+          data: {
+            completedAt: new Date(),
+            status: 'SUCCESS',
+            transactionsImported: 0, // Test only, no imports
+          },
+        })
+
+        return {
+          success: true,
+          message: 'Connection successful',
+          accountNumber: result.accountNumber,
+        }
+      } catch (error) {
+        // 6. Handle BankScraperError
+        if (error instanceof BankScraperError) {
+          // Update connection status based on error type
+          const status = error.errorType === 'PASSWORD_EXPIRED' ? 'EXPIRED' : 'ERROR'
+
+          await ctx.prisma.bankConnection.update({
+            where: { id: connection.id },
+            data: {
+              status,
+              errorMessage: error.message,
+            },
+          })
+
+          // Update SyncLog with error details
+          await ctx.prisma.syncLog.update({
+            where: { id: syncLog.id },
+            data: {
+              completedAt: new Date(),
+              status: 'FAILED',
+              errorDetails: `${error.errorType}: ${error.message}`,
+            },
+          })
+
+          // Special handling for OTP_REQUIRED
+          if (error.errorType === 'OTP_REQUIRED') {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: 'OTP_REQUIRED', // Client detects this specific message
+            })
+          }
+
+          // Throw user-friendly error
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: error.message,
+          })
+        }
+
+        // 7. Handle unexpected errors
+        console.error('[testConnection] Unexpected error:', error)
+
+        await ctx.prisma.syncLog.update({
+          where: { id: syncLog.id },
+          data: {
+            completedAt: new Date(),
+            status: 'FAILED',
+            errorDetails: error instanceof Error ? error.message : 'Unknown error',
+          },
+        })
+
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Connection test failed. Please try again.',
+        })
       }
     }),
 })

@@ -20,9 +20,11 @@ import { trpc } from '@/lib/trpc'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { PageTransition } from '@/components/ui/page-transition'
 import { ConnectionStatus } from '@prisma/client'
+import { BankConnectionWizard } from '@/components/bank-connections/BankConnectionWizard'
 
 export default function BankConnectionsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [isWizardOpen, setIsWizardOpen] = useState(false)
   const utils = trpc.useUtils()
 
   // Fetch connections
@@ -93,24 +95,12 @@ export default function BankConnectionsPage() {
               Connect your Israeli bank accounts for automatic transaction sync
             </p>
           </div>
-          <Button disabled>
+          <Button onClick={() => setIsWizardOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Bank
           </Button>
         </div>
 
-        {/* Connection wizard coming in Iteration 18 */}
-        <Card className="border-dashed">
-          <CardContent className="pt-6">
-            <div className="text-center text-sm text-warm-gray-600 dark:text-warm-gray-400">
-              <AlertCircle className="h-8 w-8 mx-auto mb-2 text-warm-gray-400" />
-              <p className="font-medium">Connection wizard coming in Iteration 18</p>
-              <p className="text-xs mt-1">
-                This iteration establishes secure database foundation. Bank scraping integration next.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Loading state */}
         {isLoading && (
@@ -137,7 +127,7 @@ export default function BankConnectionsPage() {
                 <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mb-4">
                   Connect your Israeli bank account to automatically import transactions
                 </p>
-                <Button disabled>
+                <Button onClick={() => setIsWizardOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add First Connection
                 </Button>
@@ -196,8 +186,8 @@ export default function BankConnectionsPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Delete bank connection?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will permanently delete this bank connection and all sync history.
-                This action cannot be undone.
+                This will permanently delete this bank connection and all sync history. This action cannot be
+                undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -211,6 +201,16 @@ export default function BankConnectionsPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Bank Connection Wizard */}
+        <BankConnectionWizard
+          isOpen={isWizardOpen}
+          onClose={() => setIsWizardOpen(false)}
+          onSuccess={() => {
+            utils.bankConnections.list.invalidate()
+            toast.success('Bank connection added successfully')
+          }}
+        />
       </div>
     </PageTransition>
   )
