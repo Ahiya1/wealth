@@ -11,6 +11,7 @@ import { usersRouter } from './routers/users.router'
 import { adminRouter } from './routers/admin.router'
 import { exportsRouter } from './routers/exports.router'
 import { bankConnectionsRouter } from './routers/bankConnections.router'
+import { syncTransactionsRouter } from './routers/syncTransactions.router'
 
 export const appRouter = router({
   categories: categoriesRouter,
@@ -25,6 +26,7 @@ export const appRouter = router({
   admin: adminRouter,
   exports: exportsRouter,
   bankConnections: bankConnectionsRouter,
+  syncTransactions: syncTransactionsRouter,
 })
 
 export type AppRouter = typeof appRouter
