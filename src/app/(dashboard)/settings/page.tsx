@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Info, ChevronRight, Palette, Database, Tags } from 'lucide-react'
+import { Info, ChevronRight, Palette, Database, Tags, Landmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
@@ -12,6 +12,12 @@ export default function SettingsPage() {
   const [showOnboarding, setShowOnboarding] = useState(false)
 
   const settingsSections = [
+    {
+      title: 'Bank Connections',
+      description: 'Connect Israeli bank accounts for automatic transaction import',
+      href: '/settings/bank-connections',
+      icon: Landmark,
+    },
     {
       title: 'Categories',
       description: 'Manage income and expense categories',

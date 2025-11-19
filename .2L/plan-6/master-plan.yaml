@@ -1,0 +1,427 @@
+plan_id: plan-6
+created_at: '2025-11-19T07:50:00Z'
+status: PLANNED
+total_iterations: 4
+
+strategy: |
+  Transform Wealth from manual transaction tracking to automated financial sync by implementing
+  secure Israeli bank integration (First International Bank of Israel + Visa CAL) with automatic
+  transaction import, AI categorization, and real-time budget updates.
+
+  **Complexity Assessment:** VERY COMPLEX (consensus from 4 master explorers)
+  - 15+ major features, 65+ acceptance criteria
+  - High-risk external dependency (israeli-bank-scrapers screen scraping)
+  - Security-critical credential encryption (AES-256-GCM)
+  - Multi-layer architecture: Security → Integration → Import → Categorization → Budget
+
+  **Iteration Strategy:** 4 iterations (24-32 hours total)
+  - Iteration 1 (17): Security Foundation & Database - LOW RISK, prove encryption works
+  - Iteration 2 (18): Israeli Bank Integration - HIGH RISK, isolate scraper complexity
+  - Iteration 3 (19): Import Pipeline & AI Integration - MEDIUM RISK, leverage existing systems
+  - Iteration 4 (20): Budget Integration & Polish - LOW RISK, production readiness
+
+  **Key Risk Mitigations:**
+  1. Separate scraper integration to dedicated iteration (Iter 2) with 2-3 days testing
+  2. Start with zero-dependency foundation (Iter 1) to prove security patterns
+  3. Leverage existing AI categorization (80% cache hit rate) and budget systems
+  4. Manual sync only for MVP - defer background jobs to post-MVP
+  5. Posted transactions only - skip pending to simplify duplicate detection
+
+  **Performance Requirements:**
+  - Vercel Pro tier or background queue for 60s+ sync times
+  - Database indexes in Iteration 1 before import engine
+  - Batch operations for transaction writes
+  - SSE for streaming sync progress updates
+
+  **Success Criteria:**
+  - >90% credit card transactions auto-imported (zero manual entry)
+  - >80% categorization accuracy (via MerchantCategoryCache + AI)
+  - Budget updates within 1 minute of sync completion
+  - >95% sync success rate (excluding credential expiration)
+
+iterations:
+  - iteration_id: 1
+    global_iteration: 17
+    name: "Security Foundation & Database Schema"
+    vision: "Establish bulletproof credential encryption infrastructure and database foundation for secure bank connection management - prove security patterns work before touching real bank APIs"
+    scope: |
+      **Focus:** Zero-dependency foundation with security-first architecture
+
+      **Database Schema (Prisma):**
+      - Add BankConnection model (9 fields: id, userId, bank enum, accountType enum, encryptedCredentials JSON, accountIdentifier, status enum, lastSynced, errorMessage)
+      - Add SyncLog model (7 fields: id, bankConnectionId, startedAt, completedAt, status enum, transactionsImported, errorDetails)
+      - Enhance Transaction model (add 5 fields: rawMerchantName, importSource enum, importedAt, categorizedBy enum, categorizationConfidence enum)
+      - Add enums: BankProvider (FIBI, VISA_CAL), AccountType (CHECKING, CREDIT_CARD), ConnectionStatus (ACTIVE, ERROR, EXPIRED), SyncStatus (SUCCESS, PARTIAL, FAILED), ImportSource (MANUAL, FIBI, CAL), CategorizationSource (USER, AI_CACHED, AI_SUGGESTED), ConfidenceLevel (HIGH, MEDIUM, LOW)
+      - Create and test Prisma migration
+
+      **Encryption Infrastructure:**
+      - Extend existing /lib/encryption.ts with AES-256-GCM bank credential encryption
+      - Derive encryption key from Supabase auth session token (no stored keys)
+      - Add encrypt/decrypt utility functions for bank credentials
+      - Write comprehensive security tests (attempt decryption with wrong key, key rotation scenarios)
+      - Document key management procedures (never log credentials, memory-only decryption)
+
+      **tRPC API Layer:**
+      - Create bankConnections.router.ts with endpoints:
+        - listConnections (query) - get all user's bank connections with status
+        - addConnection (mutation) - encrypt and store credentials, test connection
+        - updateConnection (mutation) - update credentials or status
+        - deleteConnection (mutation) - cascade delete with audit logging
+        - testConnection (mutation) - validate credentials without importing transactions
+      - Add Zod schemas for BankCredentials (userID, password, optional OTP)
+      - Implement RLS-equivalent authorization (userId validation on all operations)
+
+      **Basic UI Scaffold (Settings Page):**
+      - Create /app/settings/bank-connections route
+      - Bank connections list component (show connected accounts, status badges)
+      - "Add Bank Connection" button (navigate to wizard, not yet functional)
+      - Delete confirmation modal
+      - Use existing shadcn/ui Card, Badge, Button components
+
+      **Testing & Validation:**
+      - Unit tests for encryption/decryption edge cases
+      - Test Prisma models with mock data
+      - Verify cascade deletes work correctly
+      - Security audit: ensure no credentials logged anywhere
+
+      **Success Criteria:**
+      ✓ Database migration runs successfully on dev + staging Supabase
+      ✓ Encryption/decryption roundtrip works with real Supabase auth tokens
+      ✓ Security tests pass (cannot decrypt without correct key)
+      ✓ tRPC endpoints return expected data structures
+      ✓ UI displays mock bank connection list
+      ✓ TypeScript compilation with zero errors
+      ✓ All tests pass (unit + integration)
+
+      **Out of Scope:**
+      - No actual bank scraping (deferred to Iteration 2)
+      - No connection wizard UI (just scaffold)
+      - No transaction import logic
+      - No background jobs or sync scheduling
+
+      **Time Estimate:** 6-8 hours
+      **Risk Level:** LOW (no external dependencies)
+      **Dependencies:** None (foundation layer)
+
+    status: PENDING
+    dependencies: []
+
+  - iteration_id: 2
+    global_iteration: 18
+    name: "Israeli Bank Integration & Scraper Testing"
+    vision: "Integrate israeli-bank-scrapers library for FIBI and Visa CAL, implement robust 2FA handling, and validate scraper reliability with 2-3 days of real-world testing - isolate highest-risk component"
+    scope: |
+      **Focus:** HIGH-RISK scraper integration with extensive testing and error handling
+
+      **israeli-bank-scrapers Integration:**
+      - Install npm package: israeli-bank-scrapers
+      - Study library API documentation (scrape function, CompanyTypes, credentials format)
+      - Create /lib/bank-scrapers/fibi-scraper.ts for First International Bank
+      - Create /lib/bank-scrapers/cal-scraper.ts for Visa CAL credit card
+      - Implement scraper wrapper functions:
+        - fetchFIBITransactions(credentials, startDate, endDate) → Transaction[]
+        - fetchCALTransactions(credentials, startDate, endDate) → Transaction[]
+      - Map scraper output format to our Transaction model structure
+
+      **2FA/OTP Handling:**
+      - Implement OTP input modal component (React)
+      - Add OTP timeout handling (3-5 minute timeout with countdown)
+      - Create retry logic for failed OTP attempts (max 3 retries)
+      - Handle SMS delay scenarios (polling for scraper OTP requests)
+      - Store OTP temporarily in-memory only (never persist)
+      - Add clear user instructions: "SMS code sent to ***1234, enter within 3 minutes"
+
+      **Connection Wizard UI (Complete):**
+      - Multi-step form: Select Bank → Enter Credentials → Handle 2FA → Test Connection → Import Initial Transactions
+      - Step 1: Bank selection (dropdown: FIBI or CAL, radio: Checking or Credit Card)
+      - Step 2: Credential form (userID + password fields, secure input types)
+      - Step 3: 2FA modal (OTP input if required by bank)
+      - Step 4: Connection test (loading spinner, success/error feedback)
+      - Step 5: Initial import prompt ("Import last 30 days?" Yes/No)
+      - Form validation with Zod schemas
+      - Error handling for: invalid credentials, expired password, account locked, network timeout
+      - Success state: redirect to bank connections list with success toast
+
+      **Error Recovery & Logging:**
+      - Implement comprehensive error categorization (INVALID_CREDENTIALS, OTP_TIMEOUT, NETWORK_ERROR, SCRAPER_BROKEN, BANK_MAINTENANCE)
+      - Create SyncLog entries for all connection attempts (success + failure)
+      - Add detailed error messages for users (actionable guidance)
+      - Log scraper failures to monitoring service (without credentials)
+      - Implement exponential backoff for transient errors
+      - Add "Retry Connection" button for failed states
+
+      **Testing Plan (2-3 Days):**
+      - Day 1: Unit tests for scraper wrappers (mock israeli-bank-scrapers responses)
+      - Day 2: Integration tests with REAL FIBI test account (verify transactions import correctly)
+      - Day 3: Integration tests with REAL CAL test account (test 2FA flow, pending vs posted transactions)
+      - Failure scenario testing: wrong password, expired credentials, OTP timeout, bank website changes
+      - Document failure patterns and scraper limitations
+      - Create scraper health monitoring dashboard (track success rate)
+
+      **Security Hardening:**
+      - Decrypt credentials in-memory only during sync
+      - Clear decrypted credentials from memory after sync
+      - Never log credentials or OTP codes (sanitize all logs)
+      - Implement rate limiting on connection attempts (prevent brute force)
+      - Add CAPTCHA if bank returns bot detection error
+
+      **Success Criteria:**
+      ✓ Successfully import transactions from real FIBI checking account
+      ✓ Successfully import transactions from real CAL credit card
+      ✓ 2FA flow works end-to-end (OTP modal → SMS → verify → connect)
+      ✓ Error handling covers 8+ failure scenarios with clear user messages
+      ✓ Connection wizard completes all 5 steps without crashes
+      ✓ SyncLog records created for every connection attempt
+      ✓ Scraper success rate >80% over 20 test attempts (excluding credential errors)
+      ✓ No credentials leaked in logs or error messages
+
+      **Out of Scope:**
+      - No automatic scheduled sync (manual trigger only)
+      - No transaction deduplication yet (import all, handle dupes in Iteration 3)
+      - No AI categorization integration yet
+      - No budget updates yet
+      - No multi-account support (single FIBI + single CAL only)
+
+      **Time Estimate:** 8-10 hours (including 2-3 days testing)
+      **Risk Level:** HIGH (screen scraping fragility, 2FA complexity)
+      **Dependencies:** Iteration 1 (database + encryption infrastructure)
+
+    status: PENDING
+    dependencies: [1]
+
+  - iteration_id: 3
+    global_iteration: 19
+    name: "Import Pipeline, Duplicate Detection & AI Categorization"
+    vision: "Build production-ready transaction import pipeline with intelligent duplicate detection, integrate existing AI categorization system (MerchantCategoryCache + Claude API), and implement manual sync trigger UI with real-time progress updates"
+    scope: |
+      **Focus:** Production import pipeline leveraging existing AI infrastructure
+
+      **Transaction Import Service:**
+      - Create /lib/services/transaction-import.service.ts
+      - Core function: importTransactions(bankConnectionId, startDate, endDate)
+      - Orchestration flow:
+        1. Fetch bank connection + decrypt credentials
+        2. Call appropriate scraper (FIBI or CAL)
+        3. Map raw transactions to our Transaction model
+        4. Run duplicate detection (skip existing transactions)
+        5. Batch insert new transactions (Prisma createMany)
+        6. Trigger AI categorization for uncategorized transactions
+        7. Create SyncLog entry with results
+        8. Return summary: { imported: 47, skipped: 3, errors: 0 }
+
+      **Duplicate Detection Engine:**
+      - Implement multi-factor matching algorithm:
+        - Date match: ±1 day tolerance (handle timezone issues)
+        - Amount match: exact match required
+        - Merchant match: fuzzy string similarity ≥80% (use string-similarity library)
+      - Handle edge cases:
+        - Pending vs posted transactions: SKIP pending (importSource check)
+        - Manual vs imported: compare rawMerchantName to payee field
+        - Amount changes: refunds, tips, currency conversion (match original amount)
+      - Add isDuplicate(transaction, existingTransactions) utility function
+      - Write comprehensive test cases (20+ duplicate scenarios)
+      - Log skipped duplicates to SyncLog for user transparency
+
+      **AI Categorization Integration:**
+      - Extend existing /lib/services/categorize.service.ts
+      - New function: categorizeImportedTransactions(transactions[])
+      - Categorization strategy:
+        1. Check MerchantCategoryCache for rawMerchantName (instant, high confidence)
+        2. If cache miss, batch call Claude API (max 50 transactions per call)
+        3. Update MerchantCategoryCache for successful categorizations
+        4. Set categorizationConfidence based on source (CACHED=HIGH, AI=MEDIUM)
+        5. Flag low-confidence categorizations for user review
+      - Optimize for cost: batch API calls, cache aggressively, skip recategorization
+      - Add categorization stats to SyncLog (cached: 40, new: 7)
+
+      **Manual Sync Trigger UI:**
+      - Add "Sync Now" button to:
+        - Dashboard (header or quick actions card)
+        - Transactions page (next to filter bar)
+        - Settings → Bank Connections (per-connection sync button)
+      - Sync flow:
+        1. Click "Sync Now" → disable button, show loading spinner
+        2. Call tRPC mutation: syncTransactions.trigger({ bankConnectionId })
+        3. Poll for progress every 2 seconds (tRPC query: syncTransactions.status)
+        4. Display progress: "Fetching transactions from FIBI..." → "Categorizing 12 new transactions..." → "Done!"
+        5. Show toast notification: "Imported 12 new transactions"
+        6. Invalidate React Query caches: transactions, budgets, bankConnections
+        7. Update "Last synced: 2 minutes ago" timestamp
+      - Use Server-Sent Events (SSE) for streaming progress updates (better than polling)
+      - Handle sync errors gracefully: show error toast, log details, enable retry button
+
+      **tRPC API Additions:**
+      - syncTransactions.trigger(bankConnectionId) mutation - start manual sync
+      - syncTransactions.status(syncLogId) query - get real-time sync progress
+      - syncTransactions.history(bankConnectionId) query - get past 10 sync logs
+      - Add authorization checks (user can only sync their own connections)
+
+      **Database Indexes (Performance):**
+      - Add composite index: @@index([userId, categoryId, date(sort: Desc)]) on Transaction
+      - Add index: @@index([userId, status]) on BankConnection
+      - Add index: @@index([bankConnectionId, createdAt(sort: Desc)]) on SyncLog
+      - Verify query performance with EXPLAIN ANALYZE (target <100ms for transaction queries)
+
+      **Testing:**
+      - Unit tests for duplicate detection (20+ test cases)
+      - Integration tests for import pipeline (mock scraper responses)
+      - Test AI categorization with real merchant names (cache hit rate ≥80%)
+      - Load testing: import 500 transactions, verify performance <10 seconds
+      - UI testing: manual sync button works, progress updates display, toasts appear
+
+      **Success Criteria:**
+      ✓ Import 200 real transactions from FIBI + CAL with zero duplicates created
+      ✓ Duplicate detection accuracy >95% (manual verification of 50 test cases)
+      ✓ AI categorization accuracy >80% (user correction rate <20%)
+      ✓ MerchantCategoryCache hit rate >70% on second sync
+      ✓ Manual sync completes in <60 seconds for 50 transactions
+      ✓ Sync status updates in real-time (SSE or 2-second polling)
+      ✓ Toast notifications appear for sync start, progress, completion, errors
+      ✓ React Query caches invalidate correctly (UI updates immediately)
+      ✓ All tests pass (unit + integration + E2E)
+
+      **Out of Scope:**
+      - No budget updates yet (deferred to Iteration 4)
+      - No transaction review queue (auto-approve all imports)
+      - No historical import beyond 30 days
+      - No automatic scheduled sync (cron jobs deferred to post-MVP)
+
+      **Time Estimate:** 6-8 hours
+      **Risk Level:** MEDIUM (duplicate detection edge cases, categorization accuracy)
+      **Dependencies:** Iteration 2 (working scrapers)
+
+    status: PENDING
+    dependencies: [2]
+
+  - iteration_id: 4
+    global_iteration: 20
+    name: "Budget Integration, Real-Time Updates & Production Polish"
+    vision: "Complete the automated financial sync loop by connecting imported transactions to real-time budget tracking, add production monitoring, optimize performance, and polish UX for MVP launch"
+    scope: |
+      **Focus:** Production readiness with budget integration and user experience polish
+
+      **Budget Auto-Update System:**
+      - Extend existing /lib/services/budgets.service.ts
+      - After transaction import, automatically trigger budget recalculation:
+        - Invalidate budget progress cache for affected categories
+        - Recalculate spent amounts using existing aggregation logic
+        - Update budget status indicators (green/yellow/red based on % used)
+      - Real-time UI updates:
+        - React Query invalidation on sync completion
+        - Budget progress bars animate to new values
+        - Category cards show updated spent/remaining amounts
+      - Budget alerts integration:
+        - Check existing BudgetAlert thresholds (75%, 90%, 100%)
+        - Create alert records for newly exceeded thresholds
+        - Display alerts on dashboard (use existing alert system)
+        - Deduplicate alerts (only show once per threshold per month)
+
+      **Dashboard Enhancements:**
+      - Add "Last Synced" timestamp for each connected bank (relative time: "2 minutes ago")
+      - Add quick sync button (sync all connected accounts with one click)
+      - Add sync status indicator (syncing, success, error badges)
+      - Add recent transactions widget (show last 10 imported transactions with auto-categorization badges)
+      - Add budget health summary (# of budgets on track, approaching limit, over budget)
+      - Mobile responsive layout for sync controls
+
+      **Performance Optimizations:**
+      - Replace existing budget query `findMany() + reduce()` with Prisma `aggregate()` (10x faster)
+      - Batch transaction inserts with `createMany()` instead of loops
+      - Add caching layer for budget calculations (Redis or in-memory, 5-minute TTL)
+      - Optimize AI categorization: batch calls (50 transactions per request)
+      - Add database connection pooling (Prisma connection limit: 10)
+      - Profile slow queries with Vercel Analytics (target: all queries <200ms)
+
+      **Error Handling & Monitoring:**
+      - Add comprehensive error tracking:
+        - Sentry integration for runtime errors
+        - Log scraper failures with detailed context (bank, error type, timestamp)
+        - Track sync success rate by bank (FIBI vs CAL)
+        - Alert on sustained scraper failures (>3 consecutive fails)
+      - User-facing error messages:
+        - "Your CAL credentials expired, please update them in Settings"
+        - "Sync failed due to bank maintenance, will retry automatically"
+        - "Network error, please check your connection and try again"
+      - Add health check endpoint: /api/health (check database, Supabase, scraper library)
+
+      **Security & Compliance:**
+      - Add security disclaimer to bank connection wizard:
+        - "Wealth uses screen scraping to access your bank data"
+        - "This violates your bank's Terms of Service"
+        - "We encrypt your credentials with AES-256-GCM"
+        - "You can delete your connection anytime"
+        - Require explicit consent checkbox before connecting
+      - Add data deletion flow:
+        - "Delete Connection" also deletes all imported transactions from that source
+        - Confirmation modal: "This will delete 347 transactions imported from FIBI. Continue?"
+        - Cascade delete SyncLog entries
+      - Add audit log for sensitive operations (connection created, deleted, credentials updated)
+
+      **Production Testing:**
+      - End-to-end testing with real bank accounts:
+        - Connect FIBI checking account → Import 30 days → Verify budget updates
+        - Connect CAL credit card → Import 30 days → Verify categorization accuracy
+        - Test full user journey: Setup → Sync → Review categorizations → Monitor budgets
+      - Performance testing:
+        - Import 500 transactions → Verify completes in <60 seconds
+        - Budget recalculation for 10 categories → Verify <2 seconds
+        - Dashboard load with 1000 transactions → Verify <3 seconds
+      - Security testing:
+        - Attempt to access other user's bank connections (should fail with 401)
+        - Verify credentials never logged (grep all logs for sensitive patterns)
+        - Test credential encryption/decryption with wrong keys (should fail)
+
+      **Documentation:**
+      - User guide: How to connect your Israeli bank account
+      - Developer docs: How israeli-bank-scrapers integration works
+      - Troubleshooting guide: Common sync errors and solutions
+      - Security FAQ: How we protect your banking credentials
+
+      **Success Criteria:**
+      ✓ Budget progress updates within 1 minute of sync completion (measure with timer)
+      ✓ Budget alerts trigger correctly when thresholds exceeded (test with controlled data)
+      ✓ Dashboard shows real-time sync status for all connected accounts
+      ✓ Sync completes in <60 seconds for 50 transactions (performance target met)
+      ✓ All budget queries use aggregate() instead of findMany() (code review)
+      ✓ Error tracking captures 100% of scraper failures (Sentry dashboard)
+      ✓ Security disclaimer displayed and consent required (UI test)
+      ✓ End-to-end user journey works flawlessly (manual QA)
+      ✓ All acceptance criteria from vision.md met (37+ criteria checklist)
+      ✓ Production deployment successful (Vercel + Supabase)
+
+      **Post-MVP Roadmap (Not in This Iteration):**
+      - Automatic scheduled background sync (cron jobs)
+      - Transaction review queue (approve/reject imports)
+      - Multi-account support (multiple checking accounts, credit cards)
+      - Historical import (3-6 months backfill)
+      - Support for other Israeli banks (Leumi, Hapoalim, Discount, Mizrahi)
+      - Official Open Banking API migration (when licensed)
+
+      **Time Estimate:** 6-8 hours
+      **Risk Level:** LOW (leveraging existing systems, mostly polish and integration)
+      **Dependencies:** Iteration 3 (import pipeline + AI categorization)
+
+    status: PENDING
+    dependencies: [3]
+
+metadata:
+  total_estimated_hours: 26-34
+  risk_distribution:
+    low: 2
+    medium: 1
+    high: 1
+  technology_additions:
+    - israeli-bank-scrapers
+  database_changes:
+    new_models: 2
+    enhanced_models: 1
+    new_enums: 7
+  leverage_existing:
+    - encryption.ts (AES-256-GCM for Plaid tokens)
+    - categorize.service.ts (AI + MerchantCategoryCache)
+    - budgets.router.ts (budget progress calculations)
+    - BudgetAlert system (threshold notifications)
+  critical_dependencies:
+    - Vercel Pro tier (60s function timeout) OR background queue
+    - Database indexes (performance for budget queries)
+    - israeli-bank-scrapers library health (monitor for breakage)

@@ -22,8 +22,9 @@ environments:
     - cron_jobs
     - email_notifications
 current_environment: development
-current_plan: plan-5
-current_phase: exploration
+current_plan: plan-6
+current_phase: validation
+current_iteration: 17
 plans:
   plan-1:
     status: COMPLETED
@@ -66,6 +67,19 @@ plans:
     description: Seamless Data Export & AI-Ready Architecture - Complete export system
       across all data types with multi-format support, mobile optimization, and AI-friendly
       formatting to enable external analysis today and in-app AI integration tomorrow
+    master_exploration:
+      num_explorers: 4
+      complexity_level: COMPLEX
+  plan-6:
+    status: PLANNED
+    created: 2025-11-18 00:00:00+00:00
+    vision_file: plan-6/vision.md
+    master_plan_file: plan-6/master-plan.yaml
+    description: Automatic Transaction Sync & Budget Integration - Connect First International
+      Bank of Israel (FIBI-031) and Visa CAL credit card for automatic transaction
+      import with AI categorization and real-time budget tracking, eliminating manual
+      entry friction
+    github_repo: git@github.com:Ahiya1/wealth.git
     master_exploration:
       num_explorers: 4
       complexity_level: COMPLEX

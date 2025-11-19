@@ -60,6 +60,7 @@ model User {
   budgets               Budget[]
   goals                 Goal[]
   exportHistory         ExportHistory[]
+  bankConnections       BankConnection[]
 
   @@index([supabaseAuthId])
   @@index([email])
@@ -139,9 +140,9 @@ model Account {
   type             AccountType
   name             String
   institution      String
-  balance        Decimal  @db.Decimal(15, 2)
-  currency       String   @default("NIS") // Always NIS - multi-currency not supported
-  plaidAccountId String?  @unique
+  balance          Decimal     @db.Decimal(15, 2)
+  currency         String      @default("NIS") // Always NIS - multi-currency not supported
+  plaidAccountId   String?     @unique
   plaidAccessToken String?     @db.Text
   isManual         Boolean     @default(true)
   isActive         Boolean     @default(true)
@@ -166,6 +167,42 @@ enum AccountType {
   CASH
 }
 
+enum BankProvider {
+  FIBI // First International Bank of Israel (031)
+  VISA_CAL // Visa CAL credit card
+}
+
+enum ConnectionStatus {
+  ACTIVE
+  ERROR
+  EXPIRED
+}
+
+enum SyncStatus {
+  SUCCESS
+  PARTIAL
+  FAILED
+}
+
+enum ImportSource {
+  MANUAL
+  FIBI
+  CAL
+  PLAID
+}
+
+enum CategorizationSource {
+  USER // Manually categorized
+  AI_CACHED // From MerchantCategoryCache
+  AI_SUGGESTED // From Claude API
+}
+
+enum ConfidenceLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
 // ============================================================================
 // TRANSACTIONS - Builder-5A
 // ============================================================================
@@ -186,9 +223,16 @@ model Transaction {
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 
-  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  account              Account                @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  category             Category               @relation(fields: [categoryId], references: [id])
+  // Import tracking fields (Iteration 17)
+  rawMerchantName          String? // Original merchant name from bank
+  importSource             ImportSource? // MANUAL, FIBI, CAL, PLAID
+  importedAt               DateTime? // Timestamp of import
+  categorizedBy            CategorizationSource? // USER, AI_CACHED, AI_SUGGESTED
+  categorizationConfidence ConfidenceLevel? // HIGH, MEDIUM, LOW
+
+  user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account              Account               @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category             Category              @relation(fields: [categoryId], references: [id])
   recurringTransaction RecurringTransaction? @relation("RecurringTransactionSource", fields: [recurringTransactionId], references: [id], onDelete: SetNull)
 
   @@index([userId])
@@ -198,6 +242,7 @@ model Transaction {
   @@index([plaidTransactionId])
   @@index([recurringTransactionId])
   @@index([userId, date(sort: Desc)])
+  @@index([importSource])
 }
 
 // ============================================================================
@@ -220,35 +265,35 @@ enum RecurringTransactionStatus {
 }
 
 model RecurringTransaction {
-  id                  String                     @id @default(cuid())
-  userId              String
-  accountId           String
-  amount              Decimal                    @db.Decimal(15, 2)
-  payee               String
-  categoryId          String
-  notes               String?                    @db.Text
-  tags                String[]
+  id         String   @id @default(cuid())
+  userId     String
+  accountId  String
+  amount     Decimal  @db.Decimal(15, 2)
+  payee      String
+  categoryId String
+  notes      String?  @db.Text
+  tags       String[]
 
   // Recurrence settings
-  frequency           RecurrenceFrequency
-  interval            Int                        @default(1) // e.g., every 2 weeks = interval 2
-  startDate           DateTime
-  endDate             DateTime? // null = no end date
-  dayOfMonth          Int? // For monthly: 1-31, or -1 for last day
-  dayOfWeek           Int? // For weekly: 0=Sun, 1=Mon, etc.
+  frequency  RecurrenceFrequency
+  interval   Int                 @default(1) // e.g., every 2 weeks = interval 2
+  startDate  DateTime
+  endDate    DateTime? // null = no end date
+  dayOfMonth Int? // For monthly: 1-31, or -1 for last day
+  dayOfWeek  Int? // For weekly: 0=Sun, 1=Mon, etc.
 
   // Status & tracking
-  status              RecurringTransactionStatus @default(ACTIVE)
-  lastGeneratedDate   DateTime?
-  nextScheduledDate   DateTime
+  status            RecurringTransactionStatus @default(ACTIVE)
+  lastGeneratedDate DateTime?
+  nextScheduledDate DateTime
 
-  createdAt           DateTime                   @default(now())
-  updatedAt           DateTime                   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user                    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  account                 Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  category                Category      @relation(fields: [categoryId], references: [id])
-  generatedTransactions   Transaction[] @relation("RecurringTransactionSource")
+  user                  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account               Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category              Category      @relation(fields: [categoryId], references: [id])
+  generatedTransactions Transaction[] @relation("RecurringTransactionSource")
 
   @@index([userId])
   @@index([accountId])
@@ -348,17 +393,17 @@ enum GoalType {
 // ============================================================================
 
 model ExportHistory {
-  id          String   @id @default(cuid())
+  id          String          @id @default(cuid())
   userId      String
   exportType  ExportType
   format      ExportFormat
-  dataType    ExportDataType?  // null for COMPLETE exports
-  dateRange   Json?            // { from: ISO string, to: ISO string }
-  recordCount Int              // Number of records exported
-  fileSize    Int              // Size in bytes
-  blobKey     String?          // Vercel Blob storage key (null in Iteration 14)
-  createdAt   DateTime @default(now())
-  expiresAt   DateTime         // createdAt + 30 days
+  dataType    ExportDataType? // null for COMPLETE exports
+  dateRange   Json? // { from: ISO string, to: ISO string }
+  recordCount Int // Number of records exported
+  fileSize    Int // Size in bytes
+  blobKey     String? // Vercel Blob storage key (null in Iteration 14)
+  createdAt   DateTime        @default(now())
+  expiresAt   DateTime // createdAt + 30 days
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -368,8 +413,8 @@ model ExportHistory {
 }
 
 enum ExportType {
-  QUICK      // Single data type export
-  COMPLETE   // Full ZIP package export
+  QUICK // Single data type export
+  COMPLETE // Full ZIP package export
 }
 
 enum ExportFormat {
@@ -394,3 +439,48 @@ enum ExportDataType {
 // Multi-currency support removed for production MVP
 // All amounts are stored and displayed in NIS (₪)
 // Currency fields kept in schema for potential future expansion
+
+// ============================================================================
+// BANK INTEGRATIONS (ITERATION 17)
+// ============================================================================
+
+model BankConnection {
+  id                   String           @id @default(cuid())
+  userId               String
+  bank                 BankProvider
+  accountType          AccountType // Reuse existing enum
+  encryptedCredentials String           @db.Text
+  accountIdentifier    String // Last 4 digits
+  status               ConnectionStatus @default(ACTIVE)
+  lastSynced           DateTime?
+  lastSuccessfulSync   DateTime?
+  errorMessage         String?          @db.Text
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  syncLogs SyncLog[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([userId, status])
+  @@index([lastSynced])
+}
+
+model SyncLog {
+  id                   String     @id @default(cuid())
+  bankConnectionId     String
+  startedAt            DateTime
+  completedAt          DateTime?
+  status               SyncStatus
+  transactionsImported Int        @default(0)
+  transactionsSkipped  Int        @default(0)
+  errorDetails         String?    @db.Text
+  createdAt            DateTime   @default(now())
+
+  bankConnection BankConnection @relation(fields: [bankConnectionId], references: [id], onDelete: Cascade)
+
+  @@index([bankConnectionId])
+  @@index([createdAt(sort: Desc)])
+  @@index([status])
+}

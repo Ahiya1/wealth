@@ -38,3 +38,48 @@ export function decrypt(encrypted: string): string {
   decipher.setAuthTag(authTag)
   return decipher.update(encryptedText).toString('utf8') + decipher.final('utf8')
 }
+
+/**
+ * Bank credentials structure for encryption
+ */
+export interface BankCredentials {
+  userId: string       // Bank user ID (not Wealth user ID)
+  password: string     // Bank password
+  otp?: string        // Optional 2FA code
+}
+
+/**
+ * Encrypts bank credentials for secure database storage.
+ *
+ * SECURITY NOTE: Credentials are decrypted only in-memory during sync operations.
+ * Never log decrypted credentials or store them in plaintext.
+ *
+ * @param credentials - Bank login credentials
+ * @returns Encrypted string in format: iv:authTag:encrypted
+ */
+export function encryptBankCredentials(credentials: BankCredentials): string {
+  return encrypt(JSON.stringify(credentials))
+}
+
+/**
+ * Decrypts bank credentials from database storage.
+ *
+ * SECURITY WARNING:
+ * - Only call this in sync operations (server-side only)
+ * - Clear credentials from memory after use
+ * - Never log the result
+ *
+ * @param encrypted - Encrypted credentials string
+ * @returns Decrypted credentials object
+ */
+export function decryptBankCredentials(encrypted: string): BankCredentials {
+  const json = decrypt(encrypted)
+  const credentials = JSON.parse(json) as BankCredentials
+
+  // Validate required fields
+  if (!credentials.userId || !credentials.password) {
+    throw new Error('Invalid credentials: userId and password required')
+  }
+
+  return credentials
+}
