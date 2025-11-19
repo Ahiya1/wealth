@@ -25,6 +25,11 @@ yarn-error.log*
 # Local env files
 .env*.local
 .env
+.env.production
+.env.vercel.production
+
+# Keep .env.development as template (committed)
+!.env.development
 
 # Vercel
 .vercel
