@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, KeyboardEvent } from 'react'
 import { Send, StopCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { FileUploadZone } from './FileUploadZone'
 
 interface ChatInputProps {
   sessionId: string | null
@@ -25,6 +26,10 @@ export function ChatInput({
   const [input, setInput] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [uploadedFile, setUploadedFile] = useState<{
+    file: File
+    base64: string
+  } | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -36,11 +41,18 @@ export function ChatInput({
     }
   }, [input])
 
+  const handleFileUpload = (file: File, base64: string) => {
+    setUploadedFile({ file, base64 })
+    setError(null)
+  }
+
   const handleSend = async () => {
-    if (!input.trim() || !sessionId || isStreaming) return
+    if ((!input.trim() && !uploadedFile) || !sessionId || isStreaming) return
 
     const userMessage = input.trim()
+    const fileData = uploadedFile
     setInput('')
+    setUploadedFile(null)
     setError(null)
     setIsStreaming(true)
     onStreamingStart?.()
@@ -49,10 +61,28 @@ export function ChatInput({
       abortControllerRef.current = new AbortController()
       const timeoutId = setTimeout(() => abortControllerRef.current?.abort(), 30000)
 
+      // Prepare request body with optional file data
+      const requestBody: {
+        sessionId: string
+        message: string
+        fileContent?: string
+        fileName?: string
+        fileType?: string
+      } = {
+        sessionId,
+        message: userMessage || 'I uploaded a file. Please analyze it.',
+      }
+
+      if (fileData) {
+        requestBody.fileContent = fileData.base64
+        requestBody.fileName = fileData.file.name
+        requestBody.fileType = fileData.file.name.split('.').pop()?.toLowerCase()
+      }
+
       const response = await fetch('/api/chat/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, message: userMessage }),
+        body: JSON.stringify(requestBody),
         signal: abortControllerRef.current.signal,
       })
 
@@ -143,6 +173,13 @@ export function ChatInput({
         </div>
       )}
 
+      {/* File Upload Zone */}
+      {sessionId && !isStreaming && (
+        <div className="mb-4">
+          <FileUploadZone onFileUpload={handleFileUpload} />
+        </div>
+      )}
+
       <form
         onSubmit={(e) => {
           e.preventDefault()
@@ -187,7 +224,7 @@ export function ChatInput({
           <Button
             type="submit"
             size="icon"
-            disabled={!input.trim() || !sessionId || disabled}
+            disabled={(!input.trim() && !uploadedFile) || !sessionId || disabled}
             className="flex-shrink-0"
           >
             <Send className="h-4 w-4" />

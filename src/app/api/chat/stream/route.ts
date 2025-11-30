@@ -1,8 +1,9 @@
-// SSE Streaming Route for Wealth AI Chat - Builder-2
+// SSE Streaming Route for Wealth AI Chat - Iteration 22
 import { NextRequest } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { getToolDefinitions, executeToolCall } from '@/server/services/chat-tools.service'
 
 const claude = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
@@ -158,18 +159,18 @@ export async function POST(req: NextRequest) {
         // Get system prompt
         const systemPrompt = await buildSystemPrompt(user.id)
 
-        // Stream from Claude API
+        // Stream from Claude API with tools
         const claudeStream = await claude.messages.stream({
           model: 'claude-sonnet-4-5-20250514',
           max_tokens: 4096,
           temperature: 0.3,
           system: systemPrompt,
           messages: claudeMessages,
-          // Tool definitions will be added by Builder-1
-          // tools: getToolDefinitions(),
+          tools: getToolDefinitions(),
         })
 
         let fullContent = ''
+        const toolCalls: Array<{ id: string; name: string; input: any }> = []
 
         // Process streaming events
         for await (const event of claudeStream) {
@@ -184,7 +185,116 @@ export async function POST(req: NextRequest) {
             }
           }
 
-          // Handle stream completion
+          // Handle tool use blocks
+          if (event.type === 'content_block_start') {
+            if (event.content_block.type === 'tool_use') {
+              toolCalls.push({
+                id: event.content_block.id,
+                name: event.content_block.name,
+                input: event.content_block.input,
+              })
+            }
+          }
+
+          // Handle message completion (not stream stop yet)
+          if (event.type === 'message_delta') {
+            if (event.delta.stop_reason === 'tool_use') {
+              // Claude wants to use tools - execute them
+              const toolResults = await Promise.all(
+                toolCalls.map(async (toolCall) => {
+                  try {
+                    const result = await executeToolCall(
+                      toolCall.name,
+                      toolCall.input,
+                      user.id,
+                      prisma
+                    )
+
+                    return {
+                      type: 'tool_result' as const,
+                      tool_use_id: toolCall.id,
+                      content: JSON.stringify(result),
+                    }
+                  } catch (error) {
+                    console.error('Tool execution error:', error)
+                    return {
+                      type: 'tool_result' as const,
+                      tool_use_id: toolCall.id,
+                      is_error: true,
+                      content:
+                        error instanceof Error
+                          ? error.message
+                          : 'Tool execution failed',
+                    }
+                  }
+                })
+              )
+
+              // Continue conversation with tool results
+              claudeMessages.push({
+                role: 'assistant' as const,
+                content: toolCalls.map((tc) => ({
+                  type: 'tool_use' as const,
+                  id: tc.id,
+                  name: tc.name,
+                  input: tc.input,
+                })) as any, // Tool use content type
+              })
+
+              claudeMessages.push({
+                role: 'user' as const,
+                content: toolResults as any, // Tool results content type
+              })
+
+              // Resume streaming with tool results
+              const resumeStream = await claude.messages.stream({
+                model: 'claude-sonnet-4-5-20250514',
+                max_tokens: 4096,
+                temperature: 0.3,
+                system: systemPrompt,
+                messages: claudeMessages,
+                tools: getToolDefinitions(),
+              })
+
+              // Continue processing resume stream
+              for await (const resumeEvent of resumeStream) {
+                if (resumeEvent.type === 'content_block_delta') {
+                  if (resumeEvent.delta.type === 'text_delta') {
+                    const text = resumeEvent.delta.text
+                    fullContent += text
+                    controller.enqueue(
+                      encoder.encode(`data: ${JSON.stringify({ text })}\n\n`)
+                    )
+                  }
+                }
+
+                if (resumeEvent.type === 'message_stop') {
+                  // Save assistant message with tool results
+                  await prisma.chatMessage.create({
+                    data: {
+                      sessionId,
+                      role: 'assistant',
+                      content: fullContent,
+                      toolCalls: toolCalls,
+                    },
+                  })
+
+                  // Update session timestamp
+                  await prisma.chatSession.update({
+                    where: { id: sessionId },
+                    data: { updatedAt: new Date() },
+                  })
+
+                  // Send completion event
+                  controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+                  controller.close()
+                  return
+                }
+              }
+            }
+          }
+
+          // Handle stream completion (no tools)
           if (event.type === 'message_stop') {
             // Save assistant message to database
             await prisma.chatMessage.create({

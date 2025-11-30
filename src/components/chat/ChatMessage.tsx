@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
 import { StreamingIndicator } from './StreamingIndicator'
+import { MarkdownRenderer } from './MarkdownRenderer'
 
 interface ChatMessageProps {
   message: ChatMessageType
@@ -55,8 +56,16 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
               : 'bg-white dark:bg-warm-gray-900 border-warm-gray-200 dark:border-warm-gray-700'
           )}
         >
-          <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-            {message.content || (isStreaming && <StreamingIndicator />)}
+          <div className="text-sm leading-relaxed break-words">
+            {message.content ? (
+              isUser ? (
+                <div className="whitespace-pre-wrap">{message.content}</div>
+              ) : (
+                <MarkdownRenderer content={message.content} />
+              )
+            ) : (
+              isStreaming && <StreamingIndicator />
+            )}
           </div>
         </Card>
 

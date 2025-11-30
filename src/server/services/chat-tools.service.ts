@@ -4,6 +4,10 @@ import { appRouter } from '@/server/api/root'
 import type { PrismaClient } from '@prisma/client'
 import type { ToolDefinition } from '@/types/chat'
 import { startOfMonth, endOfMonth, format } from 'date-fns'
+import { parseFile } from '@/lib/fileParser.service'
+import type { FileType } from '@/lib/fileParser.service'
+import { isDuplicate } from '@/lib/services/duplicate-detection.service'
+import { categorizeTransactions } from '@/server/services/categorize.service'
 
 /**
  * Get all tool definitions for Claude API
@@ -124,6 +128,113 @@ export function getToolDefinitions(): ToolDefinition[] {
         required: ['query'],
       },
     },
+    // ========================================================================
+    // WRITE TOOLS - Iteration 22
+    // ========================================================================
+    {
+      name: 'parse_file',
+      description:
+        'Parse uploaded file (PDF, CSV, Excel) to extract transactions. Returns parsed transaction data for preview before importing.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          base64Data: {
+            type: 'string',
+            description: 'Base64 encoded file content',
+          },
+          fileType: {
+            type: 'string',
+            enum: ['pdf', 'csv', 'xlsx'],
+            description: 'Type of file',
+          },
+          hint: {
+            type: 'string',
+            description: 'Optional bank name hint for PDF parsing (e.g., "FIBI", "Leumi")',
+          },
+        },
+        required: ['base64Data', 'fileType'],
+      },
+    },
+    {
+      name: 'create_transaction',
+      description: 'Create a single transaction in the user account',
+      input_schema: {
+        type: 'object',
+        properties: {
+          accountId: { type: 'string', description: 'Account ID' },
+          date: { type: 'string', description: 'Transaction date (ISO 8601)' },
+          amount: { type: 'number', description: 'Amount (negative for expenses)' },
+          payee: { type: 'string', description: 'Merchant/payee name' },
+          categoryId: { type: 'string', description: 'Category ID' },
+          notes: { type: 'string', description: 'Optional notes' },
+        },
+        required: ['accountId', 'date', 'amount', 'payee', 'categoryId'],
+      },
+    },
+    {
+      name: 'create_transactions_batch',
+      description:
+        'Import multiple transactions at once with duplicate detection. Max 100 transactions per batch.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          accountId: { type: 'string', description: 'Account ID to import into' },
+          transactions: {
+            type: 'array',
+            maxItems: 100,
+            items: {
+              type: 'object',
+              properties: {
+                date: { type: 'string', description: 'Transaction date (ISO 8601)' },
+                amount: { type: 'number', description: 'Amount (negative for expenses)' },
+                payee: { type: 'string', description: 'Merchant/payee name' },
+                categoryId: { type: 'string', description: 'Category ID (optional if autoCategorize is true)' },
+                notes: { type: 'string', description: 'Optional notes' },
+              },
+              required: ['date', 'amount', 'payee'],
+            },
+          },
+          autoCategorize: {
+            type: 'boolean',
+            description: 'Auto-categorize transactions without categoryId (default: true)',
+            default: true,
+          },
+        },
+        required: ['accountId', 'transactions'],
+      },
+    },
+    {
+      name: 'update_transaction',
+      description: 'Modify an existing transaction',
+      input_schema: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'Transaction ID' },
+          date: { type: 'string', description: 'New transaction date (ISO 8601)' },
+          amount: { type: 'number', description: 'New amount' },
+          payee: { type: 'string', description: 'New payee name' },
+          categoryId: { type: 'string', description: 'New category ID' },
+          notes: { type: 'string', description: 'New notes' },
+        },
+        required: ['id'],
+      },
+    },
+    {
+      name: 'categorize_transactions',
+      description: 'Bulk re-categorization of transactions using AI. Max 50 transactions.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          transactionIds: {
+            type: 'array',
+            maxItems: 50,
+            items: { type: 'string' },
+            description: 'Array of transaction IDs to categorize',
+          },
+        },
+        required: ['transactionIds'],
+      },
+    },
   ]
 }
 
@@ -155,6 +266,45 @@ const toolSchemas = {
   search_transactions: z.object({
     query: z.string().min(1),
     limit: z.number().min(1).max(50).default(20),
+  }),
+  parse_file: z.object({
+    base64Data: z.string().min(1),
+    fileType: z.enum(['pdf', 'csv', 'xlsx']),
+    hint: z.string().optional(),
+  }),
+  create_transaction: z.object({
+    accountId: z.string().min(1),
+    date: z.string(), // Will be parsed to Date
+    amount: z.number(),
+    payee: z.string().min(1).max(200),
+    categoryId: z.string().min(1),
+    notes: z.string().optional(),
+  }),
+  create_transactions_batch: z.object({
+    accountId: z.string().min(1),
+    transactions: z
+      .array(
+        z.object({
+          date: z.string(),
+          amount: z.number(),
+          payee: z.string().min(1).max(200),
+          categoryId: z.string().optional(),
+          notes: z.string().optional(),
+        })
+      )
+      .max(100),
+    autoCategorize: z.boolean().default(true),
+  }),
+  update_transaction: z.object({
+    id: z.string().min(1),
+    date: z.string().optional(),
+    amount: z.number().optional(),
+    payee: z.string().min(1).max(200).optional(),
+    categoryId: z.string().optional(),
+    notes: z.string().optional(),
+  }),
+  categorize_transactions: z.object({
+    transactionIds: z.array(z.string()).max(50),
   }),
 }
 
@@ -217,6 +367,33 @@ export async function executeToolCall(
       return await executeTool_searchTransactions(
         validatedInput as z.infer<typeof toolSchemas.search_transactions>,
         caller
+      )
+    case 'parse_file':
+      return await executeTool_parseFile(
+        validatedInput as z.infer<typeof toolSchemas.parse_file>
+      )
+    case 'create_transaction':
+      return await executeTool_createTransaction(
+        validatedInput as z.infer<typeof toolSchemas.create_transaction>,
+        caller
+      )
+    case 'create_transactions_batch':
+      return await executeTool_createTransactionsBatch(
+        validatedInput as z.infer<typeof toolSchemas.create_transactions_batch>,
+        userId,
+        caller,
+        prismaClient
+      )
+    case 'update_transaction':
+      return await executeTool_updateTransaction(
+        validatedInput as z.infer<typeof toolSchemas.update_transaction>,
+        caller
+      )
+    case 'categorize_transactions':
+      return await executeTool_categorizeTransactions(
+        validatedInput as z.infer<typeof toolSchemas.categorize_transactions>,
+        userId,
+        prismaClient
       )
     default:
       throw new Error(`Unhandled tool: ${toolName}`)
@@ -470,5 +647,300 @@ async function executeTool_searchTransactions(
       tags: t.tags,
     })),
     count: filtered.length,
+  }
+}
+
+// ============================================================================
+// WRITE TOOL IMPLEMENTATIONS - Iteration 22
+// ============================================================================
+
+/**
+ * Tool: parse_file
+ * Parse uploaded file and extract transactions
+ */
+async function executeTool_parseFile(
+  input: z.infer<typeof toolSchemas.parse_file>
+) {
+  try {
+    const transactions = await parseFile(
+      input.base64Data,
+      input.fileType as FileType,
+      input.hint
+    )
+
+    return {
+      success: true,
+      count: transactions.length,
+      transactions: transactions.map((t) => ({
+        date: t.date,
+        amount: t.amount,
+        payee: t.payee,
+        description: t.description,
+        reference: t.reference,
+      })),
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to parse file',
+      suggestion:
+        'Please ensure the file is a valid bank statement. Try exporting as CSV if the problem persists.',
+    }
+  }
+}
+
+/**
+ * Tool: create_transaction
+ * Create a single transaction via tRPC
+ */
+async function executeTool_createTransaction(
+  input: z.infer<typeof toolSchemas.create_transaction>,
+  caller: any
+) {
+  const transaction = await caller.transactions.create({
+    accountId: input.accountId,
+    date: new Date(input.date),
+    amount: input.amount,
+    payee: input.payee,
+    categoryId: input.categoryId,
+    notes: input.notes,
+    tags: [],
+  })
+
+  // Serialize for Claude
+  return {
+    success: true,
+    transaction: {
+      id: transaction.id,
+      date: transaction.date.toISOString(),
+      amount: Number(transaction.amount),
+      payee: transaction.payee,
+      category: transaction.category.name,
+      account: transaction.account.name,
+      notes: transaction.notes || undefined,
+    },
+  }
+}
+
+/**
+ * Tool: create_transactions_batch
+ * Bulk import with duplicate detection and auto-categorization
+ */
+async function executeTool_createTransactionsBatch(
+  input: z.infer<typeof toolSchemas.create_transactions_batch>,
+  userId: string,
+  caller: any,
+  prisma: PrismaClient
+) {
+  // Enforce batch size limit
+  if (input.transactions.length > 100) {
+    throw new Error('Batch size exceeds maximum of 100 transactions')
+  }
+
+  const results = {
+    created: 0,
+    skipped: 0,
+    categorized: 0,
+    transactions: [] as any[],
+  }
+
+  // Get existing transactions for duplicate detection (±7 days window)
+  const dates = input.transactions.map((t: any) => new Date(t.date))
+  const minDate = new Date(
+    Math.min(...dates.map((d: Date) => d.getTime())) - 7 * 24 * 60 * 60 * 1000
+  )
+  const maxDate = new Date(
+    Math.max(...dates.map((d: Date) => d.getTime())) + 7 * 24 * 60 * 60 * 1000
+  )
+
+  const existingTransactions = await prisma.transaction.findMany({
+    where: {
+      userId,
+      accountId: input.accountId,
+      date: { gte: minDate, lte: maxDate },
+    },
+    select: {
+      id: true,
+      date: true,
+      amount: true,
+      payee: true,
+      rawMerchantName: true,
+    },
+  })
+
+  const existingForComparison = existingTransactions.map((t) => ({
+    id: t.id,
+    date: t.date,
+    amount: Number(t.amount),
+    merchant: t.rawMerchantName || t.payee,
+  }))
+
+  // Auto-categorize if needed
+  let transactionsWithCategories = input.transactions
+  if (input.autoCategorize) {
+    const uncategorized = input.transactions.filter((t: any) => !t.categoryId)
+    if (uncategorized.length > 0) {
+      const categorizations = await categorizeTransactions(
+        userId,
+        uncategorized.map((t: any) => ({
+          id: 'temp',
+          payee: t.payee,
+          amount: t.amount,
+        })),
+        prisma
+      )
+
+      transactionsWithCategories = input.transactions.map((t: any) => {
+        if (t.categoryId) return t
+        const cat = categorizations.find((c) => c.transactionId === 'temp')
+        return { ...t, categoryId: cat?.categoryId || null }
+      })
+
+      results.categorized = categorizations.filter((c) => c.categoryId).length
+    }
+  }
+
+  // Process each transaction
+  for (const txn of transactionsWithCategories) {
+    // Check for duplicate
+    const isDupe = isDuplicate(
+      { date: new Date(txn.date), amount: txn.amount, merchant: txn.payee },
+      existingForComparison
+    )
+
+    if (isDupe) {
+      results.skipped++
+      continue
+    }
+
+    // Create transaction
+    const created = await caller.transactions.create({
+      accountId: input.accountId,
+      date: new Date(txn.date),
+      amount: txn.amount,
+      payee: txn.payee,
+      categoryId: txn.categoryId,
+      notes: txn.notes,
+      tags: [],
+    })
+
+    results.created++
+    results.transactions.push({
+      id: created.id,
+      date: created.date.toISOString(),
+      amount: Number(created.amount),
+      payee: created.payee,
+      category: created.category.name,
+    })
+  }
+
+  return {
+    success: true,
+    ...results,
+  }
+}
+
+/**
+ * Tool: update_transaction
+ * Modify existing transaction via tRPC
+ */
+async function executeTool_updateTransaction(
+  input: z.infer<typeof toolSchemas.update_transaction>,
+  caller: any
+) {
+  const updateData: any = { id: input.id }
+  if (input.date) updateData.date = new Date(input.date)
+  if (input.amount !== undefined) updateData.amount = input.amount
+  if (input.payee) updateData.payee = input.payee
+  if (input.categoryId) updateData.categoryId = input.categoryId
+  if (input.notes !== undefined) updateData.notes = input.notes
+
+  const transaction = await caller.transactions.update(updateData)
+
+  return {
+    success: true,
+    transaction: {
+      id: transaction.id,
+      date: transaction.date.toISOString(),
+      amount: Number(transaction.amount),
+      payee: transaction.payee,
+      category: transaction.category.name,
+      notes: transaction.notes || undefined,
+    },
+  }
+}
+
+/**
+ * Tool: categorize_transactions
+ * Bulk re-categorization using AI service
+ */
+async function executeTool_categorizeTransactions(
+  input: z.infer<typeof toolSchemas.categorize_transactions>,
+  userId: string,
+  prisma: PrismaClient
+) {
+  if (input.transactionIds.length > 50) {
+    throw new Error('Cannot categorize more than 50 transactions at once')
+  }
+
+  // Load transactions
+  const transactions = await prisma.transaction.findMany({
+    where: {
+      id: { in: input.transactionIds },
+      userId,
+    },
+    select: {
+      id: true,
+      payee: true,
+      amount: true,
+    },
+  })
+
+  if (transactions.length === 0) {
+    return {
+      success: false,
+      error: 'No transactions found',
+    }
+  }
+
+  // Categorize via AI service - convert Decimal to number
+  const categorizations = await categorizeTransactions(
+    userId,
+    transactions.map((t) => ({
+      id: t.id,
+      payee: t.payee,
+      amount: Number(t.amount),
+    })),
+    prisma
+  )
+
+  // Update transactions with new categories
+  const updateResults = await Promise.all(
+    categorizations.map(async (cat) => {
+      if (!cat.categoryId) return null
+
+      await prisma.transaction.update({
+        where: { id: cat.transactionId },
+        data: {
+          categoryId: cat.categoryId,
+          categorizedBy: cat.confidence === 'high' ? 'AI_CACHED' : 'AI_SUGGESTED',
+        },
+      })
+
+      return {
+        transactionId: cat.transactionId,
+        categoryName: cat.categoryName,
+        confidence: cat.confidence,
+      }
+    })
+  )
+
+  const successfulUpdates = updateResults.filter((r) => r !== null)
+
+  return {
+    success: true,
+    total: input.transactionIds.length,
+    categorized: successfulUpdates.length,
+    results: successfulUpdates,
   }
 }

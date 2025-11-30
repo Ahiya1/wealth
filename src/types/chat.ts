@@ -51,11 +51,17 @@ export interface ToolDefinition {
   description: string
   input_schema: {
     type: 'object'
-    properties: Record<string, {
-      type: string
-      description?: string
-      default?: any
-    }>
+    properties: Record<
+      string,
+      {
+        type: string
+        description?: string
+        default?: any
+        enum?: string[]
+        items?: any
+        maxItems?: number
+      }
+    >
     required?: string[]
   }
 }
