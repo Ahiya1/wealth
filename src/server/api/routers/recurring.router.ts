@@ -16,7 +16,7 @@ export const recurringRouter = router({
     .query(async ({ ctx, input }) => {
       const recurringTransactions = await ctx.prisma.recurringTransaction.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           ...(input.status && { status: input.status }),
           ...(input.accountId && { accountId: input.accountId }),
         },
@@ -49,7 +49,7 @@ export const recurringRouter = router({
         },
       })
 
-      if (!recurringTransaction || recurringTransaction.userId !== ctx.user.id) {
+      if (!recurringTransaction || recurringTransaction.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -79,7 +79,7 @@ export const recurringRouter = router({
         where: { id: input.accountId },
       })
 
-      if (!account || account.userId !== ctx.user.id) {
+      if (!account || account.userId !== ctx.user!.id) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Account not found',
@@ -109,7 +109,7 @@ export const recurringRouter = router({
 
       const recurringTransaction = await ctx.prisma.recurringTransaction.create({
         data: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           accountId: input.accountId,
           amount: input.amount,
           payee: input.payee,
@@ -161,7 +161,7 @@ export const recurringRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -227,7 +227,7 @@ export const recurringRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -245,7 +245,7 @@ export const recurringRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -270,7 +270,7 @@ export const recurringRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -306,7 +306,7 @@ export const recurringRouter = router({
 
       const recurringTransactions = await ctx.prisma.recurringTransaction.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           status: RecurringTransactionStatus.ACTIVE,
           nextScheduledDate: {
             lte: endDate,
@@ -329,7 +329,7 @@ export const recurringRouter = router({
     const { generateRecurringTransactionsForUser } = await import(
       '@/server/services/recurring.service'
     )
-    const results = await generateRecurringTransactionsForUser(ctx.user.id)
+    const results = await generateRecurringTransactionsForUser(ctx.user!.id)
     return results
   }),
 })

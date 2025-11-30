@@ -23,7 +23,7 @@ export const transactionsRouter = router({
     .query(async ({ ctx, input }) => {
       const transactions = await ctx.prisma.transaction.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           ...(input.accountId && { accountId: input.accountId }),
           ...(input.categoryId && { categoryId: input.categoryId }),
           ...((input.startDate || input.endDate) && {
@@ -72,7 +72,7 @@ export const transactionsRouter = router({
         },
       })
 
-      if (!transaction || transaction.userId !== ctx.user.id) {
+      if (!transaction || transaction.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -97,7 +97,7 @@ export const transactionsRouter = router({
         where: { id: input.accountId },
       })
 
-      if (!account || account.userId !== ctx.user.id) {
+      if (!account || account.userId !== ctx.user!.id) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Account not found',
@@ -121,7 +121,7 @@ export const transactionsRouter = router({
         // Create the transaction
         const newTransaction = await prisma.transaction.create({
           data: {
-            userId: ctx.user.id,
+            userId: ctx.user!.id,
             accountId: input.accountId,
             date: input.date,
             amount: input.amount,
@@ -172,7 +172,7 @@ export const transactionsRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -238,7 +238,7 @@ export const transactionsRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -278,13 +278,13 @@ export const transactionsRouter = router({
         where: { id: input.transactionId },
       })
 
-      if (!transaction || transaction.userId !== ctx.user.id) {
+      if (!transaction || transaction.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Transaction not found' })
       }
 
       // Get category suggestion from AI
       const result = await categorizeSingleTransaction(
-        ctx.user.id,
+        ctx.user!.id,
         transaction.payee,
         transaction.amount.toNumber(),
         ctx.prisma
@@ -329,7 +329,7 @@ export const transactionsRouter = router({
       const transactions = await ctx.prisma.transaction.findMany({
         where: {
           id: { in: input.transactionIds },
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
         },
       })
 
@@ -349,7 +349,7 @@ export const transactionsRouter = router({
 
       // Get categorizations from AI
       const results = await categorizeTransactions(
-        ctx.user.id,
+        ctx.user!.id,
         txnsToCategorize,
         ctx.prisma
       )
@@ -401,7 +401,7 @@ export const transactionsRouter = router({
     // Find all uncategorized transactions
     const uncategorizedTransactions = await ctx.prisma.transaction.findMany({
       where: {
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         categoryId: miscCategory.id,
       },
       take: 100, // Limit to 100 at a time to avoid API cost explosion
@@ -425,7 +425,7 @@ export const transactionsRouter = router({
 
     // Get categorizations from AI
     const results = await categorizeTransactions(
-      ctx.user.id,
+      ctx.user!.id,
       txnsToCategorize,
       ctx.prisma
     )
@@ -465,7 +465,7 @@ export const transactionsRouter = router({
     )
     .query(async ({ ctx, input }) => {
       const result = await categorizeSingleTransaction(
-        ctx.user.id,
+        ctx.user!.id,
         input.payee,
         input.amount,
         ctx.prisma
@@ -481,7 +481,7 @@ export const transactionsRouter = router({
    * Get categorization statistics
    */
   categorizationStats: protectedProcedure.query(async ({ ctx }) => {
-    const stats = await getCategorizationStats(ctx.user.id, ctx.prisma)
+    const stats = await getCategorizationStats(ctx.user!.id, ctx.prisma)
 
     return stats
   }),

@@ -11,7 +11,7 @@ export const usersRouter = router({
     }
 
     return await ctx.prisma.user.findUnique({
-      where: { id: ctx.user.id },
+      where: { id: ctx.user!.id },
       select: {
         id: true,
         email: true,
@@ -32,7 +32,7 @@ export const usersRouter = router({
   // Mark onboarding as completed
   completeOnboarding: protectedProcedure.mutation(async ({ ctx }) => {
     return await ctx.prisma.user.update({
-      where: { id: ctx.user.id },
+      where: { id: ctx.user!.id },
       data: {
         onboardingCompletedAt: new Date(),
         onboardingSkipped: false, // Clear skip flag if set
@@ -43,7 +43,7 @@ export const usersRouter = router({
   // Mark onboarding as skipped
   skipOnboarding: protectedProcedure.mutation(async ({ ctx }) => {
     return await ctx.prisma.user.update({
-      where: { id: ctx.user.id },
+      where: { id: ctx.user!.id },
       data: {
         onboardingSkipped: true,
       },
@@ -61,7 +61,7 @@ export const usersRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const updatedUser = await ctx.prisma.user.update({
-        where: { id: ctx.user.id },
+        where: { id: ctx.user!.id },
         data: {
           ...(input.name !== undefined && { name: input.name }),
           // Currency not updatable - NIS only
@@ -77,37 +77,37 @@ export const usersRouter = router({
     .query(async ({ ctx }) => {
       const [accounts, transactions, budgets, goals, categories] = await Promise.all([
         ctx.prisma.account.findMany({
-          where: { userId: ctx.user.id },
+          where: { userId: ctx.user!.id },
           orderBy: { name: 'asc' },
         }),
         ctx.prisma.transaction.findMany({
-          where: { userId: ctx.user.id },
+          where: { userId: ctx.user!.id },
           include: { category: true, account: true },
           orderBy: { date: 'desc' },
           take: 10000, // Hard limit
         }),
         ctx.prisma.budget.findMany({
-          where: { userId: ctx.user.id },
+          where: { userId: ctx.user!.id },
           include: { category: true },
           orderBy: { month: 'desc' },
         }),
         ctx.prisma.goal.findMany({
-          where: { userId: ctx.user.id },
+          where: { userId: ctx.user!.id },
           include: { linkedAccount: true },
           orderBy: { createdAt: 'desc' },
         }),
         ctx.prisma.category.findMany({
-          where: { userId: ctx.user.id },
+          where: { userId: ctx.user!.id },
           orderBy: { name: 'asc' },
         }),
       ])
 
       const exportData = {
         user: {
-          email: ctx.user.email,
-          name: ctx.user.name,
-          currency: ctx.user.currency,
-          timezone: ctx.user.timezone,
+          email: ctx.user!.email,
+          name: ctx.user!.name,
+          currency: ctx.user!.currency,
+          timezone: ctx.user!.timezone,
         },
         accounts,
         transactions,
@@ -125,8 +125,8 @@ export const usersRouter = router({
   // Delete user account and all data
   deleteAccount: protectedProcedure
     .mutation(async ({ ctx }) => {
-      const userId = ctx.user.id
-      const supabaseAuthId = ctx.user.supabaseAuthId
+      const userId = ctx.user!.id
+      const supabaseAuthId = ctx.user!.supabaseAuthId
 
       // 1. Delete from Prisma (cascade handles all relationships)
       await ctx.prisma.user.delete({

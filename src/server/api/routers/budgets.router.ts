@@ -23,7 +23,7 @@ export const budgetsRouter = router({
         where: {
           id: input.categoryId,
           OR: [
-            { userId: ctx.user.id }, // User's custom category
+            { userId: ctx.user!.id }, // User's custom category
             { userId: null, isDefault: true }, // Default category
           ],
         },
@@ -46,7 +46,7 @@ export const budgetsRouter = router({
       // Check if any budgets already exist
       const existingBudgets = await ctx.prisma.budget.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           categoryId: input.categoryId,
           month: { in: monthsToCreate },
         },
@@ -65,7 +65,7 @@ export const budgetsRouter = router({
       for (const month of monthsToCreate) {
         const budget = await ctx.prisma.budget.create({
           data: {
-            userId: ctx.user.id,
+            userId: ctx.user!.id,
             categoryId: input.categoryId,
             amount: input.amount,
             month,
@@ -105,7 +105,7 @@ export const budgetsRouter = router({
       const budget = await ctx.prisma.budget.findUnique({
         where: {
           userId_categoryId_month: {
-            userId: ctx.user.id,
+            userId: ctx.user!.id,
             categoryId: input.categoryId,
             month: input.month,
           },
@@ -136,7 +136,7 @@ export const budgetsRouter = router({
     .query(async ({ ctx, input }) => {
       const budgets = await ctx.prisma.budget.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           month: input.month,
         },
         include: {
@@ -163,7 +163,7 @@ export const budgetsRouter = router({
     .query(async ({ ctx, input }) => {
       const budgets = await ctx.prisma.budget.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           month: input.month,
         },
         include: {
@@ -192,7 +192,7 @@ export const budgetsRouter = router({
           // Get sum of expenses for this category in this month
           const spent = await ctx.prisma.transaction.aggregate({
             where: {
-              userId: ctx.user.id,
+              userId: ctx.user!.id,
               categoryId: budget.categoryId,
               date: { gte: startDate, lte: endDate },
               amount: { lt: 0 }, // Only expenses (negative amounts)
@@ -250,7 +250,7 @@ export const budgetsRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Budget not found',
@@ -271,7 +271,7 @@ export const budgetsRouter = router({
         // Update all budgets >= current month for this category
         await ctx.prisma.budget.updateMany({
           where: {
-            userId: ctx.user.id,
+            userId: ctx.user!.id,
             categoryId: existing.categoryId,
             month: { gte: existing.month },
           },
@@ -313,7 +313,7 @@ export const budgetsRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Budget not found',
@@ -324,7 +324,7 @@ export const budgetsRouter = router({
         // Delete this budget and all future budgets for this category
         await ctx.prisma.budget.deleteMany({
           where: {
-            userId: ctx.user.id,
+            userId: ctx.user!.id,
             categoryId: existing.categoryId,
             month: { gte: existing.month },
           },
@@ -367,7 +367,7 @@ export const budgetsRouter = router({
           const budget = await ctx.prisma.budget.findUnique({
             where: {
               userId_categoryId_month: {
-                userId: ctx.user.id,
+                userId: ctx.user!.id,
                 categoryId: input.categoryId,
                 month: month,
               },
@@ -390,7 +390,7 @@ export const budgetsRouter = router({
 
           const spent = await ctx.prisma.transaction.aggregate({
             where: {
-              userId: ctx.user.id,
+              userId: ctx.user!.id,
               categoryId: input.categoryId,
               date: { gte: startDate, lte: endDate },
               amount: { lt: 0 },
@@ -419,7 +419,7 @@ export const budgetsRouter = router({
     .query(async ({ ctx, input }) => {
       const budgets = await ctx.prisma.budget.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           month: input.month,
         },
       })
@@ -442,7 +442,7 @@ export const budgetsRouter = router({
 
       const spent = await ctx.prisma.transaction.aggregate({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           date: { gte: startDate, lte: endDate },
           amount: { lt: 0 },
         },
@@ -476,7 +476,7 @@ export const budgetsRouter = router({
       // Fetch budgets with unsent alerts or alerts sent in last 24 hours
       const budgets = await prisma.budget.findMany({
         where: {
-          userId: user.id,
+          userId: user!.id,
           month,
         },
         include: {
@@ -500,8 +500,8 @@ export const budgetsRouter = router({
 
       // Calculate current spending for each budget with alerts
       const [year, monthNum] = month.split('-').map(Number)
-      const startDate = startOfMonth(new Date(year, monthNum - 1))
-      const endDate = endOfMonth(new Date(year, monthNum - 1))
+      const startDate = startOfMonth(new Date(year!, monthNum! - 1))
+      const endDate = endOfMonth(new Date(year!, monthNum! - 1))
 
       const alerts = []
 
@@ -511,7 +511,7 @@ export const budgetsRouter = router({
         // Calculate current spending
         const spent = await prisma.transaction.aggregate({
           where: {
-            userId: user.id,
+            userId: user!.id,
             categoryId: budget.categoryId,
             date: { gte: startDate, lte: endDate },
             amount: { lt: 0 },

@@ -12,7 +12,7 @@ export const bankConnectionsRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
     const connections = await ctx.prisma.bankConnection.findMany({
       where: {
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
       },
       orderBy: {
         createdAt: 'desc',
@@ -53,7 +53,7 @@ export const bankConnectionsRouter = router({
       })
 
       // Verify ownership
-      if (!connection || connection.userId !== ctx.user.id) {
+      if (!connection || connection.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -87,7 +87,7 @@ export const bankConnectionsRouter = router({
         // Create bank connection
         const connection = await ctx.prisma.bankConnection.create({
           data: {
-            userId: ctx.user.id,
+            userId: ctx.user!.id,
             bank: input.bank,
             accountType: input.accountType,
             encryptedCredentials,
@@ -131,7 +131,7 @@ export const bankConnectionsRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -178,7 +178,7 @@ export const bankConnectionsRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -215,7 +215,7 @@ export const bankConnectionsRouter = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Bank connection not found' })
       }
 
-      if (connection.userId !== ctx.user.id) {
+      if (connection.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' })
       }
 

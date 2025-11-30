@@ -5,7 +5,7 @@ import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns'
 export const analyticsRouter = router({
   // Dashboard summary with key metrics
   dashboardSummary: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.user.id
+    const userId = ctx.user!.id
     const currentMonth = new Date()
 
     // Parallel queries for performance (optimized with aggregates)
@@ -104,7 +104,7 @@ export const analyticsRouter = router({
     .query(async ({ ctx, input }) => {
       const transactions = await ctx.prisma.transaction.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           date: { gte: input.startDate, lte: input.endDate },
           amount: { lt: 0 }, // Only expenses
         },
@@ -137,7 +137,7 @@ export const analyticsRouter = router({
     .query(async ({ ctx, input }) => {
       const transactions = await ctx.prisma.transaction.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           date: { gte: input.startDate, lte: input.endDate },
           amount: { lt: 0 }, // Only expenses
         },
@@ -195,7 +195,7 @@ export const analyticsRouter = router({
           const [incomeResult, expensesResult] = await Promise.all([
             ctx.prisma.transaction.aggregate({
               where: {
-                userId: ctx.user.id,
+                userId: ctx.user!.id,
                 date: { gte: startDate, lte: endDate },
                 amount: { gt: 0 }, // Only income
               },
@@ -203,7 +203,7 @@ export const analyticsRouter = router({
             }),
             ctx.prisma.transaction.aggregate({
               where: {
-                userId: ctx.user.id,
+                userId: ctx.user!.id,
                 date: { gte: startDate, lte: endDate },
                 amount: { lt: 0 }, // Only expenses
               },
@@ -228,7 +228,7 @@ export const analyticsRouter = router({
   // Net worth over time (current snapshot only for MVP)
   netWorthHistory: protectedProcedure.query(async ({ ctx }) => {
     const accounts = await ctx.prisma.account.findMany({
-      where: { userId: ctx.user.id, isActive: true },
+      where: { userId: ctx.user!.id, isActive: true },
     })
 
     const currentNetWorth = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0)
@@ -249,7 +249,7 @@ export const analyticsRouter = router({
     .query(async ({ ctx, input }) => {
       const transactions = await ctx.prisma.transaction.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           date: { gte: input.startDate, lte: input.endDate },
           amount: { gt: 0 }, // Only income
         },

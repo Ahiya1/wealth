@@ -44,6 +44,7 @@ export const createTRPCContext = async (_opts: FetchCreateContextFnOptions) => {
 
 export type Context = Awaited<ReturnType<typeof createTRPCContext>>
 
+
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
@@ -89,26 +90,45 @@ const errorMiddleware = t.middleware(async ({ next, ctx, path, type }) => {
 })
 
 /**
- * Protected procedure - requires authenticated user
+ * Protected (authenticated-only) procedure
+ *
+ * Usage: `import { protectedProcedure } from '@/server/api/trpc'`
+ *
+ * After this middleware, `ctx.user` is GUARANTEED to be non-null at runtime.
+ * However, due to tRPC v11 type system limitations, TypeScript may still show it as nullable.
+ *
+ * WORKAROUND: Use the non-null assertion operator in your procedures: `ctx.user!.id`
+ * This is safe because the middleware throws an UNAUTHORIZED error if user is null.
  */
-export const protectedProcedure = t.procedure
-  .use(async ({ ctx, next }) => {
-    if (!ctx.user) {
-      throw new TRPCError({
-        code: 'UNAUTHORIZED',
-        message: 'Not authenticated',
-      })
-    }
-
-    return next({
-      ctx: {
-        user: ctx.user, // Prisma User (guaranteed non-null)
-        supabaseUser: ctx.supabaseUser!,
-        prisma: ctx.prisma,
-      },
+export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
+  if (!ctx.user || !ctx.supabaseUser) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'Not authenticated',
     })
+  }
+
+  // Fetch user from database to ensure freshness and proper typing
+  const user = await ctx.prisma.user.findUnique({
+    where: { id: ctx.user.id },
   })
-  .use(errorMiddleware)
+
+  if (!user) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'User not found',
+    })
+  }
+
+  return next({
+    ctx: {
+      user, // Guaranteed non-null at runtime (but TypeScript inference doesn't recognize this)
+      prisma: ctx.prisma,
+      supabase: ctx.supabase,
+      supabaseUser: ctx.supabaseUser,
+    },
+  })
+}).use(errorMiddleware)
 
 /**
  * Admin-only procedure - requires authenticated user with ADMIN role

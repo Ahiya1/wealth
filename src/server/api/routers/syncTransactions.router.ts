@@ -32,7 +32,7 @@ export const syncTransactionsRouter = router({
         where: { id: input.bankConnectionId },
       })
 
-      if (!connection || connection.userId !== ctx.user.id) {
+      if (!connection || connection.userId !== ctx.user!.id) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'Bank connection not found or unauthorized',
@@ -52,7 +52,7 @@ export const syncTransactionsRouter = router({
         // 3. Call import service (from Builder-1)
         const result = await importTransactions(
           input.bankConnectionId,
-          ctx.user.id,
+          ctx.user!.id,
           input.startDate,
           input.endDate,
           ctx.prisma
@@ -147,7 +147,7 @@ export const syncTransactionsRouter = router({
         where: { id: log.bankConnectionId },
       })
 
-      if (!connection || connection.userId !== ctx.user.id) {
+      if (!connection || connection.userId !== ctx.user!.id) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'Access denied',
@@ -182,7 +182,7 @@ export const syncTransactionsRouter = router({
         where: { id: input.bankConnectionId },
       })
 
-      if (!connection || connection.userId !== ctx.user.id) {
+      if (!connection || connection.userId !== ctx.user!.id) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'Access denied',

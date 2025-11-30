@@ -104,7 +104,7 @@ export async function importTransactions(
 
     if (!scrapeResult.success || scrapeResult.transactions.length === 0) {
       console.log('[importTransactions] No transactions found from scraper')
-      return { imported: 0, skipped: 0, categorized: 0, errors: ['No transactions found'] }
+      return { imported: 0, skipped: 0, categorized: 0, alertsTriggered: 0, errors: ['No transactions found'] }
     }
 
     console.log(
@@ -143,7 +143,7 @@ export async function importTransactions(
     )
 
     if (newTransactions.length === 0) {
-      return { imported: 0, skipped: skippedCount, categorized: 0, errors: [] }
+      return { imported: 0, skipped: skippedCount, categorized: 0, alertsTriggered: 0, errors: [] }
     }
 
     // Step 7: Get Miscellaneous category for initial import

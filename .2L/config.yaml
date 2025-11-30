@@ -12,7 +12,9 @@ environments:
     - verbose_logging
     - mock_data
     - debug_mode
+    - wealth_ai_assistant
     description: Local development with Docker Supabase
+    notes: Requires ANTHROPIC_API_KEY in .env.local for AI features
   production:
     url: https://wealth-ta2f.vercel.app
     database: supabase-cloud
@@ -21,9 +23,10 @@ environments:
     - analytics
     - cron_jobs
     - email_notifications
+    - wealth_ai_assistant
 current_environment: development
-current_plan: plan-6
-current_phase: completed
+current_plan: plan-7
+current_phase: planned
 current_iteration: 20
 plans:
   plan-1:
@@ -87,3 +90,18 @@ plans:
     iterations_completed: 4
     total_tests_added: 126
     production_ready: true
+  plan-7:
+    status: IN_PROGRESS
+    created: 2025-11-30 00:00:00+00:00
+    vision_file: plan-7/vision.md
+    master_plan_file: plan-7/master-plan.yaml
+    description: Wealth AI Financial Assistant - ChatGPT-style conversational interface
+      with Claude Sonnet 4.5 for intelligent transaction imports, smart duplicate detection,
+      credit card bill resolution, financial queries, and retroactive data cleanup
+    environment_requirements:
+      - ANTHROPIC_API_KEY must be configured in both .env.local (dev) and .env.production
+      - WEALTH_AI_ENABLED feature flag controls UI visibility
+    master_exploration:
+      num_explorers: 4
+      complexity_level: COMPLEX
+    iterations_planned: 3

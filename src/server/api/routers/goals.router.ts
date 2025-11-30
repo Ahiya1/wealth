@@ -15,7 +15,7 @@ export const goalsRouter = router({
     .query(async ({ ctx, input }) => {
       return ctx.prisma.goal.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           ...(input.includeCompleted ? {} : { isCompleted: false }),
         },
         include: { linkedAccount: true },
@@ -32,7 +32,7 @@ export const goalsRouter = router({
         include: { linkedAccount: true },
       })
 
-      if (!goal || goal.userId !== ctx.user.id) {
+      if (!goal || goal.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -54,7 +54,7 @@ export const goalsRouter = router({
     .mutation(async ({ ctx, input }) => {
       return ctx.prisma.goal.create({
         data: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           name: input.name,
           targetAmount: input.targetAmount,
           currentAmount: input.currentAmount,
@@ -84,7 +84,7 @@ export const goalsRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -117,7 +117,7 @@ export const goalsRouter = router({
         where: { id: input.goalId },
       })
 
-      if (!goal || goal.userId !== ctx.user.id) {
+      if (!goal || goal.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -142,7 +142,7 @@ export const goalsRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -162,7 +162,7 @@ export const goalsRouter = router({
         include: { linkedAccount: true },
       })
 
-      if (!goal || goal.userId !== ctx.user.id) {
+      if (!goal || goal.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -181,7 +181,7 @@ export const goalsRouter = router({
       if (goal.linkedAccountId) {
         const deposits = await ctx.prisma.transaction.aggregate({
           where: {
-            userId: ctx.user.id,
+            userId: ctx.user!.id,
             accountId: goal.linkedAccountId,
             date: { gte: ninetyDaysAgo },
             amount: { gt: 0 }, // Only deposits

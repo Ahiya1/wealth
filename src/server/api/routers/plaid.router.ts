@@ -17,7 +17,7 @@ export const plaidRouter = router({
    */
   createLinkToken: protectedProcedure.mutation(async ({ ctx }) => {
     try {
-      const linkToken = await createLinkToken(ctx.user.id)
+      const linkToken = await createLinkToken(ctx.user!.id)
       return { linkToken }
     } catch (error) {
       console.error('Error creating Plaid Link token:', error)
@@ -55,7 +55,7 @@ export const plaidRouter = router({
         for (const acc of plaidAccounts) {
           const account = await ctx.prisma.account.create({
             data: {
-              userId: ctx.user.id,
+              userId: ctx.user!.id,
               type: mapPlaidAccountType(acc.type, acc.subtype),
               name: acc.name,
               institution: input.institutionName,
@@ -97,7 +97,7 @@ export const plaidRouter = router({
     .mutation(async ({ ctx, input }) => {
       try {
         const result = await syncTransactionsFromPlaid(
-          ctx.user.id,
+          ctx.user!.id,
           input.accountId,
           ctx.prisma
         )
@@ -121,7 +121,7 @@ export const plaidRouter = router({
    */
   syncAllAccounts: protectedProcedure.mutation(async ({ ctx }) => {
     try {
-      const result = await syncAllPlaidAccounts(ctx.user.id, ctx.prisma)
+      const result = await syncAllPlaidAccounts(ctx.user!.id, ctx.prisma)
 
       return {
         success: true,

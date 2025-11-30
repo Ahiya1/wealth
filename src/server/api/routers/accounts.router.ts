@@ -14,7 +14,7 @@ export const accountsRouter = router({
     .query(async ({ ctx, input }) => {
       const accounts = await ctx.prisma.account.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           ...(input.includeInactive ? {} : { isActive: true }),
         },
         orderBy: {
@@ -33,7 +33,7 @@ export const accountsRouter = router({
         where: { id: input.id },
       })
 
-      if (!account || account.userId !== ctx.user.id) {
+      if (!account || account.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -54,7 +54,7 @@ export const accountsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const account = await ctx.prisma.account.create({
         data: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           type: input.type,
           name: input.name,
           institution: input.institution,
@@ -82,7 +82,7 @@ export const accountsRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -111,7 +111,7 @@ export const accountsRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -133,7 +133,7 @@ export const accountsRouter = router({
         where: { id: input.id },
       })
 
-      if (!existing || existing.userId !== ctx.user.id) {
+      if (!existing || existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
@@ -151,7 +151,7 @@ export const accountsRouter = router({
   netWorth: protectedProcedure.query(async ({ ctx }) => {
     const accounts = await ctx.prisma.account.findMany({
       where: {
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         isActive: true,
       },
     })

@@ -12,6 +12,7 @@ import { adminRouter } from './routers/admin.router'
 import { exportsRouter } from './routers/exports.router'
 import { bankConnectionsRouter } from './routers/bankConnections.router'
 import { syncTransactionsRouter } from './routers/syncTransactions.router'
+import { chatRouter } from './routers/chat.router'
 
 export const appRouter = router({
   categories: categoriesRouter,
@@ -27,6 +28,7 @@ export const appRouter = router({
   exports: exportsRouter,
   bankConnections: bankConnectionsRouter,
   syncTransactions: syncTransactionsRouter,
+  chat: chatRouter,
 })
 
 export type AppRouter = typeof appRouter

@@ -11,7 +11,7 @@ export const categoriesRouter = router({
       where: {
         OR: [
           { userId: null, isDefault: true }, // Default categories
-          { userId: ctx.user.id }, // User's custom categories
+          { userId: ctx.user!.id }, // User's custom categories
         ],
         isActive: true,
       },
@@ -46,7 +46,7 @@ export const categoriesRouter = router({
       }
 
       // Verify access: must be default category or belong to user
-      if (category.userId && category.userId !== ctx.user.id) {
+      if (category.userId && category.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' })
       }
 
@@ -67,7 +67,7 @@ export const categoriesRouter = router({
       // Check if name already exists for this user
       const existing = await ctx.prisma.category.findFirst({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           name: input.name,
         },
       })
@@ -89,14 +89,14 @@ export const categoriesRouter = router({
           throw new TRPCError({ code: 'NOT_FOUND', message: 'Parent category not found' })
         }
 
-        if (parent.userId && parent.userId !== ctx.user.id) {
+        if (parent.userId && parent.userId !== ctx.user!.id) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot use this parent category' })
         }
       }
 
       const category = await ctx.prisma.category.create({
         data: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           name: input.name,
           icon: input.icon,
           color: input.color,
@@ -141,7 +141,7 @@ export const categoriesRouter = router({
       }
 
       // Verify ownership
-      if (existing.userId !== ctx.user.id) {
+      if (existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' })
       }
 
@@ -149,7 +149,7 @@ export const categoriesRouter = router({
       if (input.name && input.name !== existing.name) {
         const nameConflict = await ctx.prisma.category.findFirst({
           where: {
-            userId: ctx.user.id,
+            userId: ctx.user!.id,
             name: input.name,
           },
         })
@@ -199,7 +199,7 @@ export const categoriesRouter = router({
       }
 
       // Verify ownership
-      if (existing.userId !== ctx.user.id) {
+      if (existing.userId !== ctx.user!.id) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' })
       }
 

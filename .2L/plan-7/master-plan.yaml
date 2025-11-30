@@ -1,0 +1,266 @@
+plan_id: plan-7
+created_at: 2025-11-30T05:00:00Z
+status: PLANNED
+total_iterations: 3
+
+strategy: |
+  Build a ChatGPT-style AI assistant inside Wealth using Claude Sonnet 4.5 Messages API with Tool Use.
+
+  Key architectural decisions:
+  - Messages API with streaming (NOT Agent SDK) - controlled tool execution with user confirmation
+  - Server-Sent Events via Next.js Route Handler for real-time responses
+  - Claude Vision for PDF parsing (no external PDF library needed)
+  - Leverage existing categorization service and MerchantCategoryCache
+  - Reuse duplicate detection logic from Plan-6
+
+  Risk mitigations:
+  - Rate limiting from Day 1 (10 msg/min, 100/hour, 300/day)
+  - Prompt caching for 50% cost reduction
+  - File size limits (10MB PDF, 5MB CSV/Excel)
+  - User confirmation for batch operations (>5 transactions)
+
+  Estimated total: 45-55 hours across 3 iterations
+
+iterations:
+  - iteration_id: 1
+    global_iteration: 21
+    name: "Chat Foundation & Query Tools"
+    vision: "Get the AI assistant talking and answering questions about financial data"
+    scope: |
+      FEATURES COVERED:
+      - Feature 1: Chat Interface (ChatGPT-style UI with streaming)
+      - Feature 2: Session Persistence (database models, CRUD)
+      - Feature 6: Query Tools (6 read-only financial data tools)
+
+      DELIVERABLES:
+      - Database: ChatSession and ChatMessage Prisma models with indexes
+      - Backend: chat.router.ts with session management and message handling
+      - Backend: chat.service.ts for Claude Messages API orchestration
+      - Backend: chat-tools.service.ts with 6 read-only tools
+      - Backend: /api/chat/stream route for SSE streaming
+      - Frontend: /chat page with ChatPageClient
+      - Frontend: ChatSidebar, ChatMessageList, ChatMessage, ChatInput components
+      - Frontend: StreamingIndicator, SessionListItem components
+      - Config: WEALTH_AI_ENABLED feature flag
+      - Infra: Rate limiting (10 msg/min, 100/hour)
+      - Infra: Prompt caching implementation
+
+      READ-ONLY TOOLS:
+      1. get_transactions - filter by date, category, account, search
+      2. get_spending_summary - totals by category for period
+      3. get_budget_status - current spend vs budget
+      4. get_account_balances - all account balances
+      5. get_categories - list available categories
+      6. search_transactions - free-text search
+
+      SUCCESS CRITERIA:
+      - User can create, list, and delete chat sessions
+      - User can ask: "How much did I spend on groceries last month?"
+      - AI queries financial data via tools and responds accurately
+      - Streaming responses work smoothly (first token <1s)
+      - Mobile responsive design matches existing patterns
+      - Rate limiting blocks abuse attempts
+    status: PENDING
+    dependencies: []
+    estimated_hours: 16-20
+
+  - iteration_id: 2
+    global_iteration: 22
+    name: "File Import & Transaction Creation"
+    vision: "Upload bank statements, get transactions imported automatically"
+    scope: |
+      FEATURES COVERED:
+      - Feature 3: File Upload & Parsing (PDF via Claude Vision, CSV, Excel)
+      - Feature 4: Smart Transaction Comparison (duplicate detection)
+      - Feature 7: Action Tools (create/update transactions)
+      - Feature 8: Auto-Categorization (leverage existing service)
+
+      DELIVERABLES:
+      - Backend: fileParser.service.ts (PDF/CSV/Excel parsing)
+      - Backend: Claude Vision integration for PDF table extraction
+      - Backend: Extend duplicate-detection.service.ts for import comparison
+      - Backend: Write tools in chat-tools.service.ts:
+        * create_transaction - single transaction creation
+        * create_transactions_batch - bulk import (requires confirmation >5)
+        * update_transaction - modify existing transaction
+        * categorize_transactions - bulk re-categorization
+      - Frontend: FileUploadZone component (drag-drop + file picker)
+      - Frontend: TransactionPreview component with status badges
+      - Frontend: ConfirmationDialog for batch operations
+      - Frontend: Markdown rendering (react-markdown + remark-gfm)
+      - Validation: File size limits (10MB PDF, 5MB CSV/Excel)
+      - Validation: Input validation for all write operations
+
+      SUCCESS CRITERIA:
+      - User can drag-drop bank statement PDF into chat
+      - AI extracts transactions with >90% accuracy
+      - Duplicate detection identifies existing transactions (fuzzy matching)
+      - Preview shows: NEW (32), DUPLICATE (6), with clear badges
+      - User can review and confirm before batch import
+      - Transactions auto-categorized using MerchantCategoryCache
+      - Works with Israeli banks: FIBI, Leumi, Hapoalim, Discount
+    status: PENDING
+    dependencies:
+      - iteration_id: 1
+        reason: "Requires chat foundation, tool execution framework"
+    estimated_hours: 18-22
+
+  - iteration_id: 3
+    global_iteration: 23
+    name: "Credit Card Bill Resolution & Polish"
+    vision: "Intelligent credit card bill handling and production polish"
+    scope: |
+      FEATURES COVERED:
+      - Feature 5: Credit Card Bill Resolution (detection, linking, analytics exclusion)
+      - UI Polish: Loading states, error handling, empty states
+      - Session Enhancement: Auto-generated titles, improved context
+      - Mobile: Navigation integration (5th bottom nav item)
+
+      DELIVERABLES:
+      - Database: Transaction model extension (isCreditCardBill, linkedCreditBillId)
+      - Database: "Credit Card Payment" system category (excludeFromAnalytics: true)
+      - Backend: creditCardBill.service.ts for bill detection and linking
+      - Backend: Analytics exclusion for CC Payment category
+      - Backend: Import tools:
+        * parse_file - PDF/CSV/Excel parsing with hints
+        * compare_with_existing - deduplication comparison
+        * detect_credit_card_bills - bill detection heuristics
+        * link_credit_to_bill - link itemized transactions to bill
+      - Frontend: Bill resolution UI (side-by-side comparison)
+      - Frontend: Session title auto-generation
+      - Frontend: Improved error handling and edge case UI
+      - Navigation: Add "Chat" to bottom nav and sidebar
+      - Testing: E2E tests for all major flows
+
+      CREDIT CARD BILL FLOW:
+      1. AI detects CC bill in bank statement (pattern: Visa Cal, round amount, recurring date)
+      2. Creates transaction with "Credit Card Payment" category (excluded from analytics)
+      3. Prompts user: "Do you have the itemized statement?"
+      4. User uploads CC statement → AI parses itemized transactions
+      5. AI links itemized transactions to bill → no double-counting
+      6. Amount mismatch handling (fees, interest)
+
+      SUCCESS CRITERIA:
+      - AI detects credit card bill transactions automatically
+      - AI prompts user for itemized statement when bill detected
+      - Itemized transactions link to bill (visible in UI)
+      - Analytics exclude CC Payment category (no double-counting)
+      - Amount mismatch handling works (5% tolerance for fees/interest)
+      - Chat appears in navigation (bottom nav on mobile, sidebar on desktop)
+      - All error states have clear, actionable messages
+    status: PENDING
+    dependencies:
+      - iteration_id: 1
+        reason: "Requires chat foundation"
+      - iteration_id: 2
+        reason: "Requires file import infrastructure"
+    estimated_hours: 12-16
+
+complexity_assessment:
+  level: COMPLEX
+  rationale: |
+    - 8 must-have features with varied complexity
+    - Novel streaming implementation for this codebase
+    - Claude Vision PDF parsing (untested for Israeli banks)
+    - Multi-step workflows with tool orchestration
+    - Complex business logic for CC bill linking
+
+  feature_complexity:
+    chat_interface: MEDIUM
+    session_persistence: LOW
+    file_upload_parsing: HIGH
+    transaction_comparison: MEDIUM-HIGH
+    credit_card_resolution: HIGH
+    query_tools: LOW-MEDIUM
+    action_tools: MEDIUM-HIGH
+    auto_categorization: LOW
+
+risk_mitigation:
+  - risk: "Claude Vision PDF parsing accuracy for Israeli banks"
+    impact: HIGH
+    mitigation: |
+      - Test extensively with real bank statements (FIBI, Leumi, Hapoalim)
+      - Always show preview before import (user confirmation required)
+      - Confidence scoring for parsed transactions
+      - Allow manual correction during review
+    iteration: 2
+
+  - risk: "API cost runaway from heavy usage or abuse"
+    impact: HIGH
+    mitigation: |
+      - Rate limiting from Day 1 (10 msg/min, 100/hour, 300/day)
+      - Prompt caching (50% cost reduction on system prompt)
+      - Token tracking in ChatMessage model
+      - Cost alerts at $20/day threshold
+    iteration: 1
+
+  - risk: "Streaming connection drops on mobile networks"
+    impact: MEDIUM
+    mitigation: |
+      - Client-side timeout detection (30 seconds)
+      - Retry logic with exponential backoff
+      - Store partial responses in database
+      - "Retry" button on failed responses
+    iteration: 1
+
+  - risk: "Context window overflow in long conversations"
+    impact: MEDIUM
+    mitigation: |
+      - Smart truncation (keep last 40K tokens)
+      - Token counting on message insert
+      - User notification when context truncated
+      - Option to start new session
+    iteration: 1
+
+performance_targets:
+  first_token_latency: "<1s (p95)"
+  full_response_time: "<8s (p95)"
+  database_queries: "<500ms (p95)"
+  session_load: "<200ms (p95)"
+  pdf_processing: "<15s for 2MB file (p95)"
+  batch_import: "<3s for 50 transactions (p95)"
+  api_cost: "<$30/day for 100 users"
+  cache_hit_rate: ">60% for categorization"
+
+dependencies_to_install:
+  production: []  # No new production dependencies!
+  optional:
+    - react-markdown: "^9.0.0"  # For markdown rendering in AI responses
+    - remark-gfm: "^4.0.0"  # GitHub Flavored Markdown support
+
+files_to_create:
+  database:
+    - prisma/schema.prisma  # Extend with ChatSession, ChatMessage models
+  backend:
+    - src/server/api/routers/chat.router.ts
+    - src/server/services/chat.service.ts
+    - src/server/services/chat-tools.service.ts
+    - src/server/services/creditCardBill.service.ts
+    - src/lib/fileParser.service.ts
+    - src/app/api/chat/stream/route.ts
+  frontend:
+    - src/app/(dashboard)/chat/page.tsx
+    - src/components/chat/ChatPageClient.tsx
+    - src/components/chat/ChatSidebar.tsx
+    - src/components/chat/ChatMessageList.tsx
+    - src/components/chat/ChatMessage.tsx
+    - src/components/chat/ChatInput.tsx
+    - src/components/chat/FileUploadZone.tsx
+    - src/components/chat/TransactionPreview.tsx
+    - src/components/chat/ConfirmationDialog.tsx
+    - src/components/chat/StreamingIndicator.tsx
+    - src/components/chat/SessionListItem.tsx
+    - src/components/chat/MarkdownRenderer.tsx
+
+files_to_modify:
+  - src/server/api/root.ts  # Add chat router
+  - prisma/schema.prisma  # Add Transaction CC fields
+  - src/server/services/categorize.service.ts  # Export for chat tools
+  - src/lib/services/duplicate-detection.service.ts  # Extend for import
+  - src/server/api/routers/analytics.router.ts  # Exclude CC Payment
+  - src/components/dashboard/DashboardSidebar.tsx  # Add Chat nav
+  - src/lib/mobile-navigation.ts  # Add Chat to bottom nav
+  - .env.example  # Document WEALTH_AI_ENABLED
+
+estimated_new_code_lines: 3000-4000
+estimated_modified_code_lines: 300-400

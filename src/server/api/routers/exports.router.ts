@@ -42,7 +42,7 @@ export const exportsRouter = router({
       // Fetch transactions with filters
       const transactions = await ctx.prisma.transaction.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           ...(input.startDate && input.endDate && {
             date: {
               gte: input.startDate,
@@ -110,7 +110,7 @@ export const exportsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const budgets = await ctx.prisma.budget.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
         },
         include: {
           category: true,
@@ -125,7 +125,7 @@ export const exportsRouter = router({
         budgets.map(async (budget) => {
           const spent = await ctx.prisma.transaction.aggregate({
             where: {
-              userId: ctx.user.id,
+              userId: ctx.user!.id,
               categoryId: budget.categoryId,
               date: {
                 gte: new Date(budget.month + '-01'),
@@ -202,7 +202,7 @@ export const exportsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const goals = await ctx.prisma.goal.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
         },
         include: {
           linkedAccount: true,
@@ -276,7 +276,7 @@ export const exportsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const accounts = await ctx.prisma.account.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
         },
         orderBy: {
           name: 'asc',
@@ -327,7 +327,7 @@ export const exportsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const recurringTransactions = await ctx.prisma.recurringTransaction.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
         },
         include: {
           category: true,
@@ -379,7 +379,7 @@ export const exportsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const categories = await ctx.prisma.category.findMany({
         where: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
         },
         include: {
           parent: true,
@@ -434,32 +434,32 @@ export const exportsRouter = router({
       const [transactions, budgets, goals, accounts, recurringTransactions, categories] =
         await Promise.all([
           ctx.prisma.transaction.findMany({
-            where: { userId: ctx.user.id },
+            where: { userId: ctx.user!.id },
             include: { category: true, account: true },
             orderBy: { date: 'desc' },
             take: 10000,
           }),
           ctx.prisma.budget.findMany({
-            where: { userId: ctx.user.id },
+            where: { userId: ctx.user!.id },
             include: { category: true },
             orderBy: { month: 'desc' },
           }),
           ctx.prisma.goal.findMany({
-            where: { userId: ctx.user.id },
+            where: { userId: ctx.user!.id },
             include: { linkedAccount: true },
             orderBy: { createdAt: 'desc' },
           }),
           ctx.prisma.account.findMany({
-            where: { userId: ctx.user.id },
+            where: { userId: ctx.user!.id },
             orderBy: { name: 'asc' },
           }),
           ctx.prisma.recurringTransaction.findMany({
-            where: { userId: ctx.user.id },
+            where: { userId: ctx.user!.id },
             include: { category: true, account: true },
             orderBy: { nextScheduledDate: 'asc' },
           }),
           ctx.prisma.category.findMany({
-            where: { userId: ctx.user.id },
+            where: { userId: ctx.user!.id },
             include: { parent: true },
             orderBy: { name: 'asc' },
           }),
@@ -470,7 +470,7 @@ export const exportsRouter = router({
         budgets.map(async (budget) => {
           const spent = await ctx.prisma.transaction.aggregate({
             where: {
-              userId: ctx.user.id,
+              userId: ctx.user!.id,
               categoryId: budget.categoryId,
               date: {
                 gte: new Date(budget.month + '-01'),
@@ -543,7 +543,7 @@ export const exportsRouter = router({
       }
 
       const aiContextJSON = generateAIContext({
-        user: { currency: ctx.user.currency || 'NIS', timezone: 'America/New_York' },
+        user: { currency: ctx.user!.currency || 'NIS', timezone: 'America/New_York' },
         categories,
         statistics: recordCounts,
         dateRange,
@@ -551,8 +551,8 @@ export const exportsRouter = router({
 
       const readmeMD = generateReadme({
         user: {
-          email: ctx.user.email || 'user@example.com',
-          currency: ctx.user.currency || 'NIS',
+          email: ctx.user!.email || 'user@example.com',
+          currency: ctx.user!.currency || 'NIS',
           timezone: 'America/New_York',
         },
         statistics: recordCounts,
@@ -566,8 +566,8 @@ export const exportsRouter = router({
         'ai-context.json': aiContextJSON,
         'summary.json': generateSummary({
           user: {
-            email: ctx.user.email || 'user@example.com',
-            currency: ctx.user.currency || 'NIS',
+            email: ctx.user!.email || 'user@example.com',
+            currency: ctx.user!.currency || 'NIS',
             timezone: 'America/New_York',
           },
           recordCounts,
@@ -590,7 +590,7 @@ export const exportsRouter = router({
       try {
         if (process.env.BLOB_READ_WRITE_TOKEN) {
           const timestamp = format(new Date(), 'yyyy-MM-dd-HH-mm-ss')
-          const path = `exports/${ctx.user.id}/complete-${timestamp}.zip`
+          const path = `exports/${ctx.user!.id}/complete-${timestamp}.zip`
 
           const blob = await put(path, zipBuffer, {
             access: 'public',
@@ -610,7 +610,7 @@ export const exportsRouter = router({
       // Step 10: Record to ExportHistory
       await ctx.prisma.exportHistory.create({
         data: {
-          userId: ctx.user.id,
+          userId: ctx.user!.id,
           exportType: 'COMPLETE',
           format: 'ZIP',
           dataType: null,
@@ -640,7 +640,7 @@ export const exportsRouter = router({
   getExportHistory: protectedProcedure
     .query(async ({ ctx }) => {
       const history = await ctx.prisma.exportHistory.findMany({
-        where: { userId: ctx.user.id },
+        where: { userId: ctx.user!.id },
         orderBy: { createdAt: 'desc' },
         take: 10, // Last 10 exports
       })
@@ -672,7 +672,7 @@ export const exportsRouter = router({
       }
 
       // Verify ownership
-      if (exportRecord.userId !== ctx.user.id) {
+      if (exportRecord.userId !== ctx.user!.id) {
         throw new Error('Unauthorized')
       }
 
