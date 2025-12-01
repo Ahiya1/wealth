@@ -66,10 +66,10 @@ export function RecurringTransactionList() {
   }
 
   const statusColors = {
-    ACTIVE: 'bg-green-100 text-green-800',
-    PAUSED: 'bg-yellow-100 text-yellow-800',
-    COMPLETED: 'bg-blue-100 text-blue-800',
-    CANCELLED: 'bg-gray-100 text-gray-800',
+    ACTIVE: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
+    PAUSED: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400',
+    COMPLETED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
+    CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400',
   }
 
   if (isLoading) {
@@ -102,7 +102,7 @@ export function RecurringTransactionList() {
               </div>
               <div className="text-right">
                 <p
-                  className={`text-xl font-semibold ${Number(recurring.amount) < 0 ? 'text-red-600' : 'text-green-600'}`}
+                  className={`text-xl font-semibold ${Number(recurring.amount) < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}
                 >
                   {Number(recurring.amount) < 0 ? '-' : '+'}
                   {formatCurrency(Math.abs(Number(recurring.amount)))}
@@ -143,7 +143,7 @@ export function RecurringTransactionList() {
               <p className="text-sm text-warm-gray-600 mb-4 italic">{recurring.notes}</p>
             )}
 
-            <div className="flex gap-2 justify-end border-t border-warm-gray-200 pt-4">
+            <div className="flex gap-2 justify-end border-t border-warm-gray-200 dark:border-warm-gray-700 pt-4">
               {recurring.status === 'ACTIVE' ? (
                 <Button
                   variant="outline"
@@ -179,7 +179,7 @@ export function RecurringTransactionList() {
                   }
                 }}
                 disabled={deleteMutation.isPending}
-                className="text-red-600 hover:text-red-700"
+                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete

@@ -29,11 +29,11 @@ export function OnboardingStep3Start({ onNext, onBack }: OnboardingStepProps) {
   return (
     <div className="space-y-6 py-4">
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-sage-600 text-center">
+        <h2 className="text-2xl font-bold text-sage-600 dark:text-sage-400 text-center">
           Recommended Next Steps
         </h2>
 
-        <p className="text-center text-warm-gray-600 max-w-md mx-auto">
+        <p className="text-center text-warm-gray-600 dark:text-warm-gray-400 max-w-md mx-auto">
           Here&apos;s how to get started with tracking your finances
         </p>
 
@@ -43,18 +43,18 @@ export function OnboardingStep3Start({ onNext, onBack }: OnboardingStepProps) {
             return (
               <div
                 key={action.title}
-                className="rounded-lg border border-warm-gray-200 bg-white p-4 hover:border-sage-300 transition-colors"
+                className="rounded-lg border border-warm-gray-200 dark:border-warm-gray-700 bg-white dark:bg-warm-gray-800 p-4 hover:border-sage-300 dark:hover:border-sage-600 transition-colors"
               >
                 <div className="flex items-start gap-3">
-                  <Icon className="h-5 w-5 text-sage-600 mt-0.5" />
+                  <Icon className="h-5 w-5 text-sage-600 dark:text-sage-400 mt-0.5" />
                   <div className="flex-1">
-                    <h3 className="font-semibold text-sm text-warm-gray-900">
+                    <h3 className="font-semibold text-sm text-warm-gray-900 dark:text-warm-gray-100">
                       {action.title}
                     </h3>
-                    <p className="text-xs text-warm-gray-600 mt-1">
+                    <p className="text-xs text-warm-gray-600 dark:text-warm-gray-400 mt-1">
                       {action.description}
                     </p>
-                    <p className="text-xs text-sage-600 mt-2 font-medium">
+                    <p className="text-xs text-sage-600 dark:text-sage-400 mt-2 font-medium">
                       {action.action}
                     </p>
                   </div>

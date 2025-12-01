@@ -43,8 +43,8 @@ export default function AccountOverviewPage() {
         <Breadcrumb pathname="/account" />
 
         <div>
-          <h1 className="text-3xl font-serif font-bold text-warm-gray-900">Account</h1>
-          <p className="text-warm-gray-600 mt-2 leading-relaxed">
+          <h1 className="text-3xl font-serif font-bold text-warm-gray-900 dark:text-warm-gray-100">Account</h1>
+          <p className="text-warm-gray-600 dark:text-warm-gray-400 mt-2 leading-relaxed">
             Manage your personal information and account settings
           </p>
         </div>
@@ -57,15 +57,15 @@ export default function AccountOverviewPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-sage-100 text-sage-700 font-semibold text-xl">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-sage-100 dark:bg-sage-900/30 text-sage-700 dark:text-sage-400 font-semibold text-xl">
               {userData?.email?.[0]?.toUpperCase() || 'U'}
             </div>
             <div>
-              <p className="font-semibold text-lg text-warm-gray-900">
+              <p className="font-semibold text-lg text-warm-gray-900 dark:text-warm-gray-100">
                 {userData?.name || 'User'}
               </p>
-              <p className="text-sm text-warm-gray-600">{userData?.email}</p>
-              <p className="text-xs text-warm-gray-500 mt-1">
+              <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400">{userData?.email}</p>
+              <p className="text-xs text-warm-gray-500 dark:text-warm-gray-500 mt-1">
                 Tier: <span className="font-medium">{userData?.subscriptionTier || 'FREE'}</span>
               </p>
             </div>
@@ -75,7 +75,7 @@ export default function AccountOverviewPage() {
 
         {/* Account Sections */}
         <div className="space-y-4">
-          <h2 className="text-lg font-serif font-semibold text-warm-gray-900">
+          <h2 className="text-lg font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
             Account Settings
           </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -85,16 +85,16 @@ export default function AccountOverviewPage() {
               <Link
                 key={section.href}
                 href={section.href}
-                className="flex items-start gap-4 rounded-lg border border-warm-gray-200 bg-white p-4 hover:border-sage-300 hover:shadow-sm transition-all"
+                className="flex items-start gap-4 rounded-lg border border-warm-gray-200 dark:border-warm-gray-700 bg-white dark:bg-warm-gray-800 p-4 hover:border-sage-300 dark:hover:border-sage-600 hover:shadow-sm transition-all"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sage-50 text-sage-700">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sage-50 dark:bg-sage-900/30 text-sage-700 dark:text-sage-400">
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-serif font-semibold text-warm-gray-900">
+                  <h3 className="font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
                     {section.title}
                   </h3>
-                  <p className="text-sm text-warm-gray-600 mt-1 leading-relaxed">
+                  <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mt-1 leading-relaxed">
                     {section.description}
                   </p>
                 </div>

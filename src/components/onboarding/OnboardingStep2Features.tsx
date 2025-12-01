@@ -34,10 +34,10 @@ export function OnboardingStep2Features({
   return (
     <div className="space-y-6 py-4">
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-sage-600 text-center">
+        <h2 className="text-2xl font-bold text-sage-600 dark:text-sage-400 text-center">
           Your Dashboard Sections
         </h2>
-        <p className="text-center text-warm-gray-600 text-sm">
+        <p className="text-center text-warm-gray-600 dark:text-warm-gray-400 text-sm">
           Navigate between these sections using the sidebar
         </p>
 
@@ -47,13 +47,13 @@ export function OnboardingStep2Features({
             return (
               <div
                 key={feature.title}
-                className="rounded-lg border border-warm-gray-200 bg-white p-4 space-y-2"
+                className="rounded-lg border border-warm-gray-200 dark:border-warm-gray-700 bg-white dark:bg-warm-gray-800 p-4 space-y-2"
               >
-                <Icon className="h-6 w-6 text-sage-600" />
-                <h3 className="font-semibold text-sm text-warm-gray-900">
+                <Icon className="h-6 w-6 text-sage-600 dark:text-sage-400" />
+                <h3 className="font-semibold text-sm text-warm-gray-900 dark:text-warm-gray-100">
                   {feature.title}
                 </h3>
-                <p className="text-xs text-warm-gray-600">
+                <p className="text-xs text-warm-gray-600 dark:text-warm-gray-400">
                   {feature.description}
                 </p>
               </div>
