@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy and Run Migrations
+    name: Run Migrations
     runs-on: ubuntu-latest
 
     steps:
@@ -30,24 +30,24 @@ jobs:
           DIRECT_URL: ${{ secrets.DIRECT_URL }}
         run: |
           echo "Running Prisma migrations on production database..."
+
+          # Check migration status
+          MIGRATION_STATUS=$(npx prisma migrate status --schema=prisma/schema.prisma 2>&1) || true
+          echo "$MIGRATION_STATUS"
+
+          # If database has tables but no migration history, baseline it
+          if echo "$MIGRATION_STATUS" | grep -q "Database schema is not empty"; then
+            echo "Baselining existing database..."
+            npx prisma migrate resolve --applied 0_init --schema=prisma/schema.prisma
+          fi
+
+          # Apply any pending migrations
           npx prisma migrate deploy --schema=prisma/schema.prisma
 
       - name: Generate Prisma Client
         run: npx prisma generate --schema=prisma/schema.prisma
 
-      - name: Deploy to Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-          npm install -g vercel
-          vercel pull --yes --environment=production --token=$VERCEL_TOKEN
-          vercel build --prod --token=$VERCEL_TOKEN
-          vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
-
       - name: Deployment Summary
         run: |
-          echo "✅ Deployment completed successfully"
-          echo "📦 Migrations applied to production database"
-          echo "🚀 Application deployed to Vercel"
+          echo "✅ Database migrations completed"
+          echo "📦 Vercel will auto-deploy from this push"
