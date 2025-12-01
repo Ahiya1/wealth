@@ -35,10 +35,12 @@ jobs:
           MIGRATION_STATUS=$(npx prisma migrate status --schema=prisma/schema.prisma 2>&1) || true
           echo "$MIGRATION_STATUS"
 
-          # If database has tables but no migration history, baseline it
-          if echo "$MIGRATION_STATUS" | grep -q "Database schema is not empty"; then
-            echo "Baselining existing database..."
-            npx prisma migrate resolve --applied 0_init --schema=prisma/schema.prisma
+          # If 0_init hasn't been applied yet, baseline it (mark as applied without running)
+          if echo "$MIGRATION_STATUS" | grep -q "0_init"; then
+            if echo "$MIGRATION_STATUS" | grep -q "not yet been applied"; then
+              echo "Baselining existing database with 0_init..."
+              npx prisma migrate resolve --applied 0_init --schema=prisma/schema.prisma
+            fi
           fi
 
           # Apply any pending migrations
