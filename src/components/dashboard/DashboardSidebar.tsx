@@ -19,6 +19,7 @@ import {
   Info,
   Menu,
   X,
+  MessageCircle,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -56,6 +57,11 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
       title: 'Dashboard',
       href: '/dashboard',
       icon: LayoutDashboard,
+    },
+    {
+      title: 'Chat',
+      href: '/chat',
+      icon: MessageCircle,
     },
     {
       title: 'Accounts',

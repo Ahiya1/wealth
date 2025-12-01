@@ -7,6 +7,7 @@ import { startOfMonth, endOfMonth, format } from 'date-fns'
 import { parseFile } from '@/lib/fileParser.service'
 import type { FileType } from '@/lib/fileParser.service'
 import { isDuplicate } from '@/lib/services/duplicate-detection.service'
+import { detectCreditCardBills } from '@/lib/services/cc-bill-detection.service'
 import { categorizeTransactions } from '@/server/services/categorize.service'
 
 /**
@@ -662,22 +663,39 @@ async function executeTool_parseFile(
   input: z.infer<typeof toolSchemas.parse_file>
 ) {
   try {
-    const transactions = await parseFile(
+    const allTransactions = await parseFile(
       input.base64Data,
       input.fileType as FileType,
       input.hint
     )
 
+    // Detect and separate credit card bills from regular transactions
+    const { ccBills, regular } = detectCreditCardBills(allTransactions)
+
+    // Build warning message if CC bills detected
+    let warning: string | undefined
+    if (ccBills.length > 0) {
+      warning = `Detected ${ccBills.length} credit card bill payment${ccBills.length > 1 ? 's' : ''} (${ccBills.map((b) => b.payee).join(', ')}). These have been excluded to prevent double-counting your expenses. Only the ${regular.length} regular transactions will be imported.`
+    }
+
     return {
       success: true,
-      count: transactions.length,
-      transactions: transactions.map((t) => ({
+      count: regular.length,
+      transactions: regular.map((t) => ({
         date: t.date,
         amount: t.amount,
         payee: t.payee,
         description: t.description,
         reference: t.reference,
       })),
+      creditCardBills: ccBills.map((t) => ({
+        date: t.date,
+        amount: t.amount,
+        payee: t.payee,
+        description: t.description,
+        reference: t.reference,
+      })),
+      warning,
     }
   } catch (error) {
     return {

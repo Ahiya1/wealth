@@ -10,6 +10,21 @@ const claude = new Anthropic({
 })
 
 // ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+function generateTitleFromMessage(message: string): string {
+  const cleaned = message.trim().replace(/\s+/g, ' ')
+  if (cleaned.length <= 50) {
+    return cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
+  }
+  const truncated = cleaned.substring(0, 50)
+  const lastSpace = truncated.lastIndexOf(' ')
+  const title = lastSpace > 0 ? truncated.substring(0, lastSpace) : truncated
+  return title.charAt(0).toUpperCase() + title.slice(1) + '...'
+}
+
+// ============================================================================
 // RATE LIMITING
 // ============================================================================
 
@@ -279,6 +294,27 @@ export async function POST(req: NextRequest) {
                     },
                   })
 
+                  // Auto-generate session title after first exchange
+                  const messageCount = await prisma.chatMessage.count({
+                    where: { sessionId }
+                  })
+
+                  if (messageCount === 2) {
+                    // Get first user message
+                    const firstMessage = await prisma.chatMessage.findFirst({
+                      where: { sessionId, role: 'user' },
+                      orderBy: { createdAt: 'asc' },
+                    })
+
+                    if (firstMessage) {
+                      const title = generateTitleFromMessage(firstMessage.content)
+                      await prisma.chatSession.update({
+                        where: { id: sessionId },
+                        data: { title },
+                      })
+                    }
+                  }
+
                   // Update session timestamp
                   await prisma.chatSession.update({
                     where: { id: sessionId },
@@ -304,6 +340,27 @@ export async function POST(req: NextRequest) {
                 content: fullContent,
               },
             })
+
+            // Auto-generate session title after first exchange
+            const messageCount = await prisma.chatMessage.count({
+              where: { sessionId }
+            })
+
+            if (messageCount === 2) {
+              // Get first user message
+              const firstMessage = await prisma.chatMessage.findFirst({
+                where: { sessionId, role: 'user' },
+                orderBy: { createdAt: 'asc' },
+              })
+
+              if (firstMessage) {
+                const title = generateTitleFromMessage(firstMessage.content)
+                await prisma.chatSession.update({
+                  where: { id: sessionId },
+                  data: { title },
+                })
+              }
+            }
 
             // Update session timestamp
             await prisma.chatSession.update({

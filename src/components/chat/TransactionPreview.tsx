@@ -21,6 +21,7 @@ interface TransactionPreviewProps {
   onConfirm: () => void
   onCancel: () => void
   isProcessing?: boolean
+  creditCardBills?: Transaction[]
 }
 
 export function TransactionPreview({
@@ -28,6 +29,7 @@ export function TransactionPreview({
   onConfirm,
   onCancel,
   isProcessing = false,
+  creditCardBills,
 }: TransactionPreviewProps) {
   const summary = {
     new: transactions.filter((t) => t.status === 'new').length,
@@ -65,6 +67,27 @@ export function TransactionPreview({
       </CardHeader>
 
       <CardContent>
+        {/* Credit Card Bills Warning */}
+        {creditCardBills && creditCardBills.length > 0 && (
+          <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
+            <h4 className="font-medium text-amber-800 dark:text-amber-200">Credit Card Bills Detected</h4>
+            <p className="text-sm text-amber-600 dark:text-amber-400">
+              {creditCardBills.length} transaction(s) appear to be credit card bill payments.
+              These are excluded to prevent double-counting.
+            </p>
+            <details className="mt-2">
+              <summary className="text-sm text-amber-700 dark:text-amber-300 cursor-pointer">View excluded bills</summary>
+              <ul className="mt-2 text-sm space-y-1">
+                {creditCardBills.map((bill, i) => (
+                  <li key={i} className="text-amber-600 dark:text-amber-400">
+                    {bill.payee}: ₪{Math.abs(Number(bill.amount)).toFixed(2)}
+                  </li>
+                ))}
+              </ul>
+            </details>
+          </div>
+        )}
+
         {/* Summary */}
         <div className="mb-4 p-3 bg-warm-gray-50 dark:bg-warm-gray-800 rounded-lg">
           <p className="text-sm text-muted-foreground">

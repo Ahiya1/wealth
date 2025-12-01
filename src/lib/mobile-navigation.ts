@@ -15,6 +15,7 @@ import {
   Wallet,
   Settings,
   Shield,
+  MessageCircle,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -46,9 +47,9 @@ export const primaryNavItems: NavigationItem[] = [
     label: 'Budgets',
   },
   {
-    href: '/goals',
-    icon: Target,
-    label: 'Goals',
+    href: '/chat',
+    icon: MessageCircle,
+    label: 'Chat',
   },
 ]
 
@@ -57,6 +58,11 @@ export const primaryNavItems: NavigationItem[] = [
  * These appear when user taps "More" button
  */
 export const overflowNavItems: NavigationItem[] = [
+  {
+    href: '/goals',
+    icon: Target,
+    label: 'Goals',
+  },
   {
     href: '/recurring',
     icon: Calendar,

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { trpc } from '@/lib/trpc'
+import { toast } from 'sonner'
 import { ChatSidebar } from './ChatSidebar'
 import { ChatMessageList } from './ChatMessageList'
 import { ChatInput } from './ChatInput'
@@ -46,6 +47,11 @@ export function ChatPageClient() {
     onSuccess: (newSession) => {
       setActiveSessionId(newSession.id)
       utils.chat.listSessions.invalidate()
+    },
+    onError: (error) => {
+      toast.error('Failed to create chat session', {
+        description: error.message,
+      })
     },
   })
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, KeyboardEvent } from 'react'
-import { Send, StopCircle } from 'lucide-react'
+import { Send, StopCircle, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { FileUploadZone } from './FileUploadZone'
@@ -168,8 +168,11 @@ export function ChatInput({
   return (
     <div className="border-t border-warm-gray-200 dark:border-warm-gray-700 bg-white dark:bg-warm-gray-900 p-4 sm:p-6">
       {error && (
-        <div className="mb-3 rounded-lg border border-terracotta-200 bg-terracotta-50 dark:bg-terracotta-900/20 dark:border-terracotta-700 p-3">
-          <p className="text-sm text-terracotta-700 dark:text-terracotta-400">{error}</p>
+        <div className="mb-3 rounded-lg border border-destructive/50 bg-destructive/10 p-3 flex items-center justify-between">
+          <p className="text-sm text-destructive flex-1">{error}</p>
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setError(null)}>
+            <X className="h-4 w-4" />
+          </Button>
         </div>
       )}
 
