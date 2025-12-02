@@ -134,7 +134,7 @@
     --secondary-foreground: 24 6% 96%;
 
     --muted: 24 9% 16%;
-    --muted-foreground: 24 4% 66%;       /* Medium warm-gray */
+    --muted-foreground: 24 6% 75%;       /* Lighter warm-gray for WCAG AA compliance */
 
     --accent: 140 10% 92%;               /* Light sage accent */
     --accent-foreground: 140 15% 27%;

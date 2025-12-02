@@ -35,7 +35,7 @@ export function BudgetAlertsCard() {
           <CardTitle>Budget Alerts</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground dark:text-warm-gray-400">
             <CheckCircle className="h-4 w-4 text-sage-600" />
             <span>All budgets are on track</span>
           </div>

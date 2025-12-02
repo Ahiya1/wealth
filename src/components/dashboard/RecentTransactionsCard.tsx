@@ -18,7 +18,7 @@ export function RecentTransactionsCard() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Recent Transactions</CardTitle>
-          <Receipt className="h-4 w-4 text-muted-foreground" />
+          <Receipt className="h-4 w-4 text-muted-foreground dark:text-warm-gray-400" />
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -78,7 +78,7 @@ export function RecentTransactionsCard() {
               <div key={txn.id} className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-warm-gray-900 dark:text-warm-gray-100 truncate">{txn.payee}</p>
-                  <p className="text-xs text-warm-gray-500 dark:text-warm-gray-500">
+                  <p className="text-xs text-warm-gray-500 dark:text-warm-gray-400">
                     {format(new Date(txn.date), 'MMM d, yyyy')} · {txn.category.name}
                   </p>
                 </div>

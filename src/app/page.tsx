@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { PageTransition } from '@/components/ui/page-transition'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Heart, TrendingUp, Target, Sparkles, Shield, Lock, Github } from 'lucide-react'
+import { Bot, Heart, TrendingUp, Target, Sparkles, Shield, Lock, Github } from 'lucide-react'
 
 export default async function HomePage() {
   const supabase = createClient()
@@ -69,8 +69,23 @@ export default async function HomePage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-              {/* Feature 1: Accounts */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 md:gap-8">
+              {/* Feature 1: AI Assistant */}
+              <Card className="border-sage-200 dark:border-warm-gray-700 hover:shadow-lg transition-shadow">
+                <CardContent className="p-6 text-center space-y-4">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-sage-50 dark:bg-sage-900/30 flex items-center justify-center">
+                    <Bot className="h-6 w-6 text-sage-600 dark:text-sage-400" />
+                  </div>
+                  <h3 className="text-xl font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
+                    AI Assistant
+                  </h3>
+                  <p className="text-warm-gray-600 dark:text-warm-gray-400 leading-relaxed">
+                    Chat naturally about your finances. Import bank statements, categorize transactions, and get insights automatically.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Feature 2: Accounts */}
               <Card className="border-sage-200 dark:border-warm-gray-700 hover:shadow-lg transition-shadow">
                 <CardContent className="p-6 text-center space-y-4">
                   <div className="mx-auto w-12 h-12 rounded-full bg-sage-50 dark:bg-sage-900/30 flex items-center justify-center">
@@ -85,7 +100,7 @@ export default async function HomePage() {
                 </CardContent>
               </Card>
 
-              {/* Feature 2: Transactions */}
+              {/* Feature 3: Transactions */}
               <Card className="border-sage-200 dark:border-warm-gray-700 hover:shadow-lg transition-shadow">
                 <CardContent className="p-6 text-center space-y-4">
                   <div className="mx-auto w-12 h-12 rounded-full bg-sage-50 dark:bg-sage-900/30 flex items-center justify-center">
@@ -100,7 +115,7 @@ export default async function HomePage() {
                 </CardContent>
               </Card>
 
-              {/* Feature 3: Budgets */}
+              {/* Feature 4: Budgets */}
               <Card className="border-sage-200 dark:border-warm-gray-700 hover:shadow-lg transition-shadow">
                 <CardContent className="p-6 text-center space-y-4">
                   <div className="mx-auto w-12 h-12 rounded-full bg-sage-50 dark:bg-sage-900/30 flex items-center justify-center">
@@ -115,7 +130,7 @@ export default async function HomePage() {
                 </CardContent>
               </Card>
 
-              {/* Feature 4: Goals & Analytics */}
+              {/* Feature 5: Goals & Analytics */}
               <Card className="border-sage-200 dark:border-warm-gray-700 hover:shadow-lg transition-shadow">
                 <CardContent className="p-6 text-center space-y-4">
                   <div className="mx-auto w-12 h-12 rounded-full bg-sage-50 dark:bg-sage-900/30 flex items-center justify-center">

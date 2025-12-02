@@ -63,7 +63,7 @@ export function FinancialHealthIndicator() {
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex flex-col gap-1">
           <CardTitle className="text-lg font-serif">Financial Health</CardTitle>
-          <div className="text-xs text-muted-foreground">{syncStatus}</div>
+          <div className="text-xs text-muted-foreground dark:text-warm-gray-400">{syncStatus}</div>
         </div>
         <Target className="h-5 w-5 text-sage-500 dark:text-sage-400" />
       </CardHeader>

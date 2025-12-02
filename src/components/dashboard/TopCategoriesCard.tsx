@@ -14,7 +14,7 @@ export function TopCategoriesCard() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Top Spending</CardTitle>
-          <PieChart className="h-4 w-4 text-muted-foreground" />
+          <PieChart className="h-4 w-4 text-muted-foreground dark:text-warm-gray-400" />
         </CardHeader>
         <CardContent>
           <Skeleton className="h-20 w-full" />
@@ -30,10 +30,10 @@ export function TopCategoriesCard() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Top Spending</CardTitle>
-          <PieChart className="h-4 w-4 text-muted-foreground" />
+          <PieChart className="h-4 w-4 text-muted-foreground dark:text-warm-gray-400" />
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">No expenses this month</p>
+          <p className="text-sm text-muted-foreground dark:text-warm-gray-400">No expenses this month</p>
         </CardContent>
       </Card>
     )
@@ -49,7 +49,7 @@ export function TopCategoriesCard() {
         <div className="space-y-2">
           {categories.map((cat, index) => (
             <div key={index} className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{cat.category}</span>
+              <span className="text-muted-foreground dark:text-warm-gray-400">{cat.category}</span>
               <span className="font-medium">{formatCurrency(cat.amount)}</span>
             </div>
           ))}

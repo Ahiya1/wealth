@@ -1,0 +1,77 @@
+plan_id: plan-8
+created_at: 2025-12-02T02:20:00+02:00
+status: PLANNED
+total_iterations: 1
+complexity: SIMPLE
+
+strategy: |
+  Single-iteration focused CSS fix + landing page update.
+
+  Two-pronged dark mode approach:
+  1. Global fix: Update --muted-foreground CSS variable from 24 4% 66% to 24 6% 75%
+  2. Safety net: Add explicit dark:text-warm-gray-300/400 overrides to critical components
+
+  Landing page: Add AI Assistant as first feature in the grid to maximize visibility.
+
+  All 3 master explorers agree this is SIMPLE complexity requiring 1 iteration.
+
+key_findings:
+  root_cause: "--muted-foreground dark mode value (24 4% 66%) provides ~3.5:1 contrast, below WCAG AA 4.5:1"
+  files_affected: 9
+  pattern: "Global CSS fix + per-component overrides for critical paths"
+  chat_already_fixed: "ChatMessage.tsx already has proper dark mode values"
+
+iterations:
+  - iteration_id: 1
+    global_iteration: 24
+    name: "UI Audit & Dark Mode Fix"
+    vision: "Fix dark mode contrast issues and add AI assistant to landing page"
+    scope: |
+      1. Update --muted-foreground in globals.css dark mode section
+      2. Add dark:text-warm-gray-300/400 overrides to dashboard components:
+         - NetWorthCard.tsx (3 instances)
+         - TopCategoriesCard.tsx (4 instances)
+         - FinancialHealthIndicator.tsx (2 instances)
+         - RecentTransactionsCard.tsx (1 instance)
+         - BudgetAlertsCard.tsx (1 instance)
+      3. Review chat components (may already be fixed)
+      4. Add AI Assistant feature section to landing page (first position)
+      5. Verify WCAG AA compliance
+    status: PENDING
+    dependencies: []
+
+builder_breakdown:
+  builder_1:
+    name: "Global CSS & Dashboard Components Fix"
+    files:
+      - src/app/globals.css
+      - src/components/dashboard/NetWorthCard.tsx
+      - src/components/dashboard/TopCategoriesCard.tsx
+      - src/components/dashboard/FinancialHealthIndicator.tsx
+      - src/components/dashboard/RecentTransactionsCard.tsx
+      - src/components/dashboard/BudgetAlertsCard.tsx
+    complexity: LOW
+
+  builder_2:
+    name: "Chat Components Review & Fix"
+    files:
+      - src/components/chat/ChatMessage.tsx
+      - src/components/chat/ChatInput.tsx
+    complexity: LOW
+    notes: "May require minimal changes - ChatMessage.tsx already has dark:text-warm-gray-500"
+
+  builder_3:
+    name: "Landing Page AI Feature Section"
+    files:
+      - src/app/page.tsx
+    complexity: MEDIUM
+    notes: "Add AI Assistant as first feature card, use MessageSquare or Bot icon"
+
+success_criteria:
+  - "All page titles visible in dark mode"
+  - "All section headers readable"
+  - "All muted text has sufficient contrast (WCAG AA: 4.5:1)"
+  - "AI Assistant feature prominently displayed on landing page"
+  - "No light mode regression"
+  - "TypeScript compilation passes"
+  - "Build succeeds"
