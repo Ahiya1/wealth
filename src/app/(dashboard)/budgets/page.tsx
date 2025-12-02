@@ -75,7 +75,7 @@ export default function BudgetsPage() {
         </ExportButton>
 
         {budgetCount === 0 && (
-          <p className="text-sm text-warm-gray-600">
+          <p className="text-sm text-muted-foreground">
             No budgets to export
           </p>
         )}
@@ -85,29 +85,29 @@ export default function BudgetsPage() {
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-warm-gray-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total Budgeted
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold tabular-nums text-warm-gray-900">{formatCurrency(summary.totalBudgeted)}</p>
+              <p className="text-2xl font-bold tabular-nums text-foreground">{formatCurrency(summary.totalBudgeted)}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-warm-gray-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total Spent
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold tabular-nums text-warm-gray-900">{formatCurrency(summary.totalSpent)}</p>
+              <p className="text-2xl font-bold tabular-nums text-foreground">{formatCurrency(summary.totalSpent)}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-warm-gray-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Remaining
               </CardTitle>
             </CardHeader>
@@ -124,7 +124,7 @@ export default function BudgetsPage() {
 
           <Card className="md:col-span-1">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-warm-gray-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Overall Progress
               </CardTitle>
             </CardHeader>

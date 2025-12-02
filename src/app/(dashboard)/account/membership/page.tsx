@@ -18,8 +18,8 @@ export default function MembershipPage() {
         <Breadcrumb pathname="/account/membership" />
 
         <div>
-          <h1 className="text-3xl font-serif font-bold text-warm-gray-900">Membership</h1>
-          <p className="text-warm-gray-600 mt-2 leading-relaxed">
+          <h1 className="text-3xl font-serif font-bold text-foreground">Membership</h1>
+          <p className="text-muted-foreground mt-2 leading-relaxed">
             Manage your subscription and billing information
           </p>
         </div>
@@ -43,8 +43,8 @@ export default function MembershipPage() {
               <div className="flex items-start gap-3">
                 <Crown className="h-5 w-5 text-gold mt-0.5" />
                 <div>
-                  <h4 className="font-serif font-semibold text-warm-gray-900">Premium Member</h4>
-                  <p className="text-sm text-warm-gray-600 mt-1 leading-relaxed">
+                  <h4 className="font-serif font-semibold text-foreground">Premium Member</h4>
+                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
                     Thank you for supporting Wealth!
                   </p>
                 </div>
@@ -53,8 +53,8 @@ export default function MembershipPage() {
           ) : (
             <div className="rounded-lg border border-dashed border-warm-gray-300 p-6 text-center">
               <Crown className="h-12 w-12 text-warm-gray-400 mx-auto mb-3" />
-              <h4 className="font-serif font-semibold text-warm-gray-900 mb-2">Upgrade to Premium</h4>
-              <p className="text-sm text-warm-gray-600 mb-4 leading-relaxed">
+              <h4 className="font-serif font-semibold text-foreground mb-2">Upgrade to Premium</h4>
+              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
                 Unlock advanced features and priority support
               </p>
               <Button disabled variant="default">
@@ -102,7 +102,7 @@ export default function MembershipPage() {
         </CardHeader>
         <CardContent>
           <div className="rounded-lg border border-dashed border-warm-gray-300 p-6 text-center">
-            <p className="text-sm text-warm-gray-600">
+            <p className="text-sm text-muted-foreground">
               Billing management coming soon
             </p>
           </div>

@@ -49,7 +49,7 @@ export function TransactionPreview({
             {summary.duplicate > 0 && (
               <Badge
                 variant="outline"
-                className="border-warm-gray-400 text-warm-gray-600"
+                className="border-warm-gray-400 text-muted-foreground"
               >
                 {summary.duplicate} DUPLICATE
               </Badge>

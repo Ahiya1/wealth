@@ -61,8 +61,8 @@ export default function DataSettingsPage() {
         <Breadcrumb pathname="/settings/data" />
 
         <div>
-          <h1 className="text-3xl font-serif font-bold text-warm-gray-900">Data & Export</h1>
-          <p className="text-warm-gray-600 mt-2 leading-relaxed">
+          <h1 className="text-3xl font-serif font-bold text-foreground">Data & Export</h1>
+          <p className="text-muted-foreground mt-2 leading-relaxed">
             Export your financial data in multiple formats
           </p>
         </div>
@@ -70,8 +70,8 @@ export default function DataSettingsPage() {
         {/* Quick Exports Section */}
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-serif font-semibold text-warm-gray-900">Quick Exports</h2>
-            <p className="text-sm text-warm-gray-600 mt-1 leading-relaxed">
+            <h2 className="text-xl font-serif font-semibold text-foreground">Quick Exports</h2>
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
               Export individual data types in your preferred format
             </p>
           </div>
@@ -93,8 +93,8 @@ export default function DataSettingsPage() {
         {/* Complete Export Section */}
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-serif font-semibold text-warm-gray-900">Complete Export</h2>
-            <p className="text-sm text-warm-gray-600 mt-1 leading-relaxed">
+            <h2 className="text-xl font-serif font-semibold text-foreground">Complete Export</h2>
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
               Download all your data in one organized package
             </p>
           </div>
@@ -105,8 +105,8 @@ export default function DataSettingsPage() {
         {/* Export History Section */}
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-serif font-semibold text-warm-gray-900">Export History</h2>
-            <p className="text-sm text-warm-gray-600 mt-1 leading-relaxed">
+            <h2 className="text-xl font-serif font-semibold text-foreground">Export History</h2>
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
               Access your recent exports (30-day retention)
             </p>
           </div>

@@ -30,7 +30,7 @@ export function Breadcrumb({ pathname }: BreadcrumbProps) {
             ) : (
               <Link
                 href={href}
-                className="hover:text-warm-gray-900 dark:hover:text-warm-gray-100 transition-colors"
+                className="hover:text-foreground dark:hover:text-warm-gray-100 transition-colors"
               >
                 {label}
               </Link>

@@ -15,7 +15,7 @@ export default function AccountSettingsRedirectPage() {
     <PageTransition>
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <p className="text-warm-gray-600 leading-relaxed">Redirecting to account settings...</p>
+          <p className="text-muted-foreground leading-relaxed">Redirecting to account settings...</p>
         </div>
       </div>
     </PageTransition>

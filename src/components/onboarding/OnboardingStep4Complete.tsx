@@ -29,7 +29,7 @@ export function OnboardingStep4Complete({
         </div>
 
         <div className="mt-6 rounded-lg bg-warm-gray-100 p-4 text-left">
-          <h3 className="font-semibold text-sm text-warm-gray-900 mb-2">
+          <h3 className="font-semibold text-sm text-foreground mb-2">
             Next steps:
           </h3>
           <ul className="space-y-1 text-sm text-warm-gray-700">

@@ -95,8 +95,8 @@ export function CompleteExportSection() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="rounded-lg border border-warm-gray-200 bg-warm-gray-50 p-4">
-          <h4 className="font-serif font-medium text-warm-gray-900 mb-2">Package Includes:</h4>
-          <ul className="text-sm text-warm-gray-600 space-y-1">
+          <h4 className="font-serif font-medium text-foreground mb-2">Package Includes:</h4>
+          <ul className="text-sm text-muted-foreground space-y-1">
             <li>• All transactions, budgets, goals, accounts, and recurring transactions</li>
             <li>• README with AI analysis instructions</li>
             <li>• AI context with field descriptions and prompts</li>
@@ -107,7 +107,7 @@ export function CompleteExportSection() {
         {exportMutation.isPending && (
           <div className="space-y-2">
             <Progress value={progress} />
-            <p className="text-sm text-warm-gray-600 text-center">
+            <p className="text-sm text-muted-foreground text-center">
               {progressLabel}
             </p>
           </div>

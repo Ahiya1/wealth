@@ -45,7 +45,7 @@ export function EncouragingProgress({
   return (
     <div className={cn('space-y-2', className)}>
       <div className="flex items-center justify-between text-sm">
-        <span className="text-warm-gray-600">{getMessage()}</span>
+        <span className="text-muted-foreground">{getMessage()}</span>
         <span className="font-medium tabular-nums text-warm-gray-700">
           {Math.round(percentage)}%
         </span>

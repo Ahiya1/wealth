@@ -123,7 +123,7 @@ export function UserListTable() {
           {/* Active Filters Display */}
           {(debouncedSearch || roleFilter !== 'ALL' || tierFilter !== 'ALL') && (
             <div className="mt-3 flex items-center gap-2 text-sm">
-              <span className="text-warm-gray-600">Active filters:</span>
+              <span className="text-muted-foreground">Active filters:</span>
               {debouncedSearch && (
                 <Badge variant="outline">Search: {debouncedSearch}</Badge>
               )}
@@ -198,10 +198,10 @@ export function UserListTable() {
                         key={user.id}
                         className="border-b border-warm-gray-100 hover:bg-warm-gray-50 transition-colors"
                       >
-                        <td className="py-3 text-sm text-warm-gray-900">
+                        <td className="py-3 text-sm text-foreground">
                           {user.email}
                         </td>
-                        <td className="py-3 text-sm text-warm-gray-900">
+                        <td className="py-3 text-sm text-foreground">
                           {user.name || (
                             <span className="text-warm-gray-400 italic">No name</span>
                           )}
@@ -236,7 +236,7 @@ export function UserListTable() {
                             </Badge>
                           )}
                         </td>
-                        <td className="py-3 text-sm text-warm-gray-900">
+                        <td className="py-3 text-sm text-foreground">
                           {user.transactionCount.toLocaleString()}
                         </td>
                         <td className="py-3 text-sm text-warm-gray-700">

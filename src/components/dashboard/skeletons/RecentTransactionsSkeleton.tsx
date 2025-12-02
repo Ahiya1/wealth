@@ -4,7 +4,7 @@ export function RecentTransactionsSkeleton() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-warm-gray-900">Recent Transactions</CardTitle>
+        <CardTitle className="text-foreground">Recent Transactions</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">

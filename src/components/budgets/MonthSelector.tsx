@@ -46,7 +46,7 @@ export function MonthSelector({ selectedMonth, onMonthChange }: MonthSelectorPro
           <ChevronLeft className="h-4 w-4" />
           <span className="sr-only">Previous month</span>
         </Button>
-        <h2 className="text-2xl font-serif font-bold text-warm-gray-900">{format(currentDate, 'MMMM yyyy')}</h2>
+        <h2 className="text-2xl font-serif font-bold text-foreground">{format(currentDate, 'MMMM yyyy')}</h2>
         <Button
           variant="outline"
           size="icon"

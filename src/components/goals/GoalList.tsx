@@ -87,7 +87,7 @@ export function GoalList({ includeCompleted = false }: GoalListProps) {
       <div className="space-y-6">
         {activeGoals.length > 0 && (
           <div>
-            <h2 className="mb-4 text-xl font-semibold text-warm-gray-900">Active Goals</h2>
+            <h2 className="mb-4 text-xl font-semibold text-foreground">Active Goals</h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {activeGoals.map((goal) => (
                 <GoalCard
@@ -103,7 +103,7 @@ export function GoalList({ includeCompleted = false }: GoalListProps) {
 
         {includeCompleted && completedGoals.length > 0 && (
           <div>
-            <h2 className="mb-4 text-xl font-semibold text-warm-gray-900">Completed Goals</h2>
+            <h2 className="mb-4 text-xl font-semibold text-foreground">Completed Goals</h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {completedGoals.map((goal) => (
                 <GoalCard

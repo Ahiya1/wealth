@@ -10,8 +10,8 @@ export default function SignInPage() {
     <PageTransition>
       <div className="space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-serif font-bold text-warm-gray-900">Welcome Back</h1>
-          <p className="mt-2 text-sm text-warm-gray-600">
+          <h1 className="text-3xl font-serif font-bold text-foreground">Welcome Back</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
             Sign in to your account to continue
           </p>
         </div>
@@ -21,7 +21,7 @@ export default function SignInPage() {
         </Suspense>
 
         <div className="text-center text-sm">
-          <span className="text-warm-gray-600">Don&apos;t have an account? </span>
+          <span className="text-muted-foreground">Don&apos;t have an account? </span>
           <Link href="/signup" className="text-sage-600 hover:underline font-medium">
             Sign up
           </Link>

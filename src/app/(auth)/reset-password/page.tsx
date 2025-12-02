@@ -9,8 +9,8 @@ export default function ResetPasswordPage() {
     <PageTransition>
       <div className="space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-serif font-bold text-warm-gray-900">Reset Password</h1>
-          <p className="mt-2 text-sm text-warm-gray-600">
+          <h1 className="text-3xl font-serif font-bold text-foreground">Reset Password</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
             Enter your email to receive a password reset link
           </p>
         </div>

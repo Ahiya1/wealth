@@ -42,10 +42,10 @@ export default function RecurringTransactionsPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-serif font-bold text-warm-gray-900">
+            <h1 className="text-3xl font-serif font-bold text-foreground">
               Recurring Transactions
             </h1>
-            <p className="text-warm-gray-600 mt-2 leading-relaxed">
+            <p className="text-muted-foreground mt-2 leading-relaxed">
               Manage automatic recurring income and expenses
             </p>
           </div>

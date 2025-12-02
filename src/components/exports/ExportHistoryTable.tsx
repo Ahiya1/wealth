@@ -55,7 +55,7 @@ export function ExportHistoryTable() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-warm-gray-600 text-center py-8">
+          <p className="text-sm text-muted-foreground text-center py-8">
             No exports yet. Generate your first export above!
           </p>
         </CardContent>
@@ -79,12 +79,12 @@ export function ExportHistoryTable() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-warm-gray-200">
-                <th className="text-left py-3 px-4 font-serif font-medium text-warm-gray-900">Type</th>
-                <th className="text-left py-3 px-4 font-serif font-medium text-warm-gray-900">Format</th>
-                <th className="text-right py-3 px-4 font-serif font-medium text-warm-gray-900">Records</th>
-                <th className="text-right py-3 px-4 font-serif font-medium text-warm-gray-900">Size</th>
-                <th className="text-left py-3 px-4 font-serif font-medium text-warm-gray-900">Date</th>
-                <th className="text-right py-3 px-4 font-serif font-medium text-warm-gray-900">Actions</th>
+                <th className="text-left py-3 px-4 font-serif font-medium text-foreground">Type</th>
+                <th className="text-left py-3 px-4 font-serif font-medium text-foreground">Format</th>
+                <th className="text-right py-3 px-4 font-serif font-medium text-foreground">Records</th>
+                <th className="text-right py-3 px-4 font-serif font-medium text-foreground">Size</th>
+                <th className="text-left py-3 px-4 font-serif font-medium text-foreground">Date</th>
+                <th className="text-right py-3 px-4 font-serif font-medium text-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>

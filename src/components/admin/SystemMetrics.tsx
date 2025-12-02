@@ -14,7 +14,7 @@ export function SystemMetrics() {
         {[...Array(8)].map((_, i) => (
           <Card key={i}>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-warm-gray-600">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Loading...
               </CardTitle>
             </CardHeader>
@@ -98,7 +98,7 @@ export function SystemMetrics() {
       value: metrics.freeCount.toLocaleString(),
       icon: DollarSign,
       description: `${((metrics.freeCount / metrics.totalUsers) * 100).toFixed(1)}% of users`,
-      iconColor: 'text-warm-gray-600',
+      iconColor: 'text-muted-foreground',
     },
     {
       title: 'Activity Rate',
@@ -122,10 +122,10 @@ export function SystemMetrics() {
               <Icon className={`h-5 w-5 ${metric.iconColor}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-warm-gray-900">
+              <div className="text-2xl font-bold text-foreground">
                 {metric.value}
               </div>
-              <p className="text-xs text-warm-gray-600 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 {metric.description}
               </p>
             </CardContent>

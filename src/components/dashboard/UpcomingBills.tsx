@@ -37,7 +37,7 @@ export function UpcomingBills({ days = 30 }: UpcomingBillsProps) {
         <CardContent>
           <div className="text-center py-8">
             <Calendar className="h-12 w-12 text-warm-gray-400 mx-auto mb-3" />
-            <p className="text-sm text-warm-gray-600">No upcoming bills in the next {days} days</p>
+            <p className="text-sm text-muted-foreground">No upcoming bills in the next {days} days</p>
           </div>
         </CardContent>
       </Card>
@@ -106,13 +106,13 @@ export function UpcomingBills({ days = 30 }: UpcomingBillsProps) {
                             ? 'text-orange-600'
                             : isDueSoon
                               ? 'text-yellow-600'
-                              : 'text-warm-gray-600'
+                              : 'text-muted-foreground'
                       }`}
                     />
                   </div>
                   <div>
-                    <p className="font-medium text-warm-gray-900">{recurring.payee}</p>
-                    <p className="text-sm text-warm-gray-600">
+                    <p className="font-medium text-foreground">{recurring.payee}</p>
+                    <p className="text-sm text-muted-foreground">
                       {isOverdue
                         ? `Overdue by ${Math.abs(daysUntil)} day${Math.abs(daysUntil) !== 1 ? 's' : ''}`
                         : isDueToday
@@ -128,7 +128,7 @@ export function UpcomingBills({ days = 30 }: UpcomingBillsProps) {
                     {Number(recurring.amount) < 0 ? '-' : '+'}
                     {formatCurrency(Math.abs(Number(recurring.amount)))}
                   </p>
-                  <p className="text-xs text-warm-gray-600">
+                  <p className="text-xs text-muted-foreground">
                     {format(new Date(recurring.nextScheduledDate), 'MMM d')}
                   </p>
                 </div>

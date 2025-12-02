@@ -17,8 +17,8 @@ export default function PreferencesPage() {
         <Breadcrumb pathname="/account/preferences" />
 
         <div>
-          <h1 className="text-3xl font-serif font-bold text-warm-gray-900">Preferences</h1>
-          <p className="text-warm-gray-600 mt-2 leading-relaxed">
+          <h1 className="text-3xl font-serif font-bold text-foreground">Preferences</h1>
+          <p className="text-muted-foreground mt-2 leading-relaxed">
             Configure your personal preferences and settings
           </p>
         </div>
@@ -63,7 +63,7 @@ export default function PreferencesPage() {
         </CardHeader>
         <CardContent>
           <div className="rounded-lg border border-dashed border-warm-gray-300 p-6 text-center">
-            <p className="text-sm text-warm-gray-600 mb-3">
+            <p className="text-sm text-muted-foreground mb-3">
               Notification preferences coming soon
             </p>
             <p className="text-xs text-warm-gray-500">
@@ -86,7 +86,7 @@ export default function PreferencesPage() {
         </CardHeader>
         <CardContent>
           <div className="rounded-lg border border-dashed border-warm-gray-300 p-6 text-center">
-            <p className="text-sm text-warm-gray-600 mb-3">
+            <p className="text-sm text-muted-foreground mb-3">
               Language and localization settings coming soon
             </p>
             <p className="text-xs text-warm-gray-500">

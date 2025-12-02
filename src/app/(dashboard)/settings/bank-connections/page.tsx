@@ -90,7 +90,7 @@ export default function BankConnectionsPage() {
 
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-serif font-bold text-warm-gray-900">Bank Connections</h1>
+            <h1 className="text-3xl font-serif font-bold text-foreground">Bank Connections</h1>
             <p className="text-muted-foreground mt-2 leading-relaxed">
               Connect your Israeli bank accounts for automatic transaction sync
             </p>
@@ -106,7 +106,7 @@ export default function BankConnectionsPage() {
         {isLoading && (
           <Card>
             <CardContent className="py-12">
-              <div className="text-center text-warm-gray-600">Loading connections...</div>
+              <div className="text-center text-muted-foreground">Loading connections...</div>
             </CardContent>
           </Card>
         )}
@@ -121,7 +121,7 @@ export default function BankConnectionsPage() {
                     <Landmark className="h-6 w-6 text-sage-600 dark:text-sage-400" />
                   </div>
                 </div>
-                <h3 className="text-lg font-serif font-semibold text-warm-gray-900 mb-2">
+                <h3 className="text-lg font-serif font-semibold text-foreground mb-2">
                   No bank connections
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
@@ -162,7 +162,7 @@ export default function BankConnectionsPage() {
                         onClick={() => setDeleteId(connection.id)}
                         disabled={deleteMutation.isPending}
                       >
-                        <Trash2 className="h-4 w-4 text-warm-gray-600 hover:text-red-600" />
+                        <Trash2 className="h-4 w-4 text-muted-foreground hover:text-red-600" />
                       </Button>
                     </div>
                   </div>

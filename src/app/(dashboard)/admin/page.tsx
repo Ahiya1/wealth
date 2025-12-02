@@ -15,10 +15,10 @@ export default function AdminDashboardPage() {
         <Breadcrumb pathname="/admin" />
 
         <div className="mb-6">
-          <h1 className="text-3xl font-bold font-serif text-warm-gray-900">
+          <h1 className="text-3xl font-bold font-serif text-foreground">
             Admin Dashboard
           </h1>
-          <p className="text-warm-gray-600 mt-1">
+          <p className="text-muted-foreground mt-1">
             System-wide metrics and user management
           </p>
         </div>

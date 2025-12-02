@@ -52,7 +52,7 @@ export const MonthOverMonthChart = memo(function MonthOverMonthChart({ data }: M
           const formatted = Number(entry.value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
           return (
             <div key={index} className="flex items-center justify-between gap-4">
-              <span className="text-sm text-warm-gray-600">{entry.name}:</span>
+              <span className="text-sm text-muted-foreground">{entry.name}:</span>
               <span className="text-sm font-bold text-sage-600 tabular-nums">
                 {formatted} ₪
               </span>

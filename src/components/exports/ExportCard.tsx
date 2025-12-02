@@ -79,7 +79,7 @@ export function ExportCard({ title, description, icon, recordCount, dataType }: 
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="text-sm text-warm-gray-600">
+        <div className="text-sm text-muted-foreground">
           {recordCount > 0 ? `${recordCount} records available` : 'Export available'}
         </div>
 

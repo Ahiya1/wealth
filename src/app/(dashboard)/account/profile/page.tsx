@@ -12,7 +12,7 @@ export default function ProfilePage() {
         <Breadcrumb pathname="/account/profile" />
 
         <div>
-          <h1 className="text-3xl font-serif font-bold text-warm-gray-900 dark:text-warm-gray-50">Profile</h1>
+          <h1 className="text-3xl font-serif font-bold text-foreground dark:text-warm-gray-50">Profile</h1>
           <p className="text-muted-foreground mt-2 leading-relaxed">
             Manage your personal information and contact details
           </p>

@@ -12,7 +12,7 @@ export default function AppearanceSettingsPage() {
         <Breadcrumb pathname="/settings/appearance" />
 
         <div>
-          <h1 className="text-3xl font-serif font-bold text-warm-gray-900 dark:text-warm-gray-50">Appearance</h1>
+          <h1 className="text-3xl font-serif font-bold text-foreground dark:text-warm-gray-50">Appearance</h1>
           <p className="text-muted-foreground mt-2 leading-relaxed">
             Customize how Wealth looks on your device
           </p>
@@ -22,14 +22,14 @@ export default function AppearanceSettingsPage() {
 
         <div className="space-y-4">
           <div>
-            <h3 className="text-lg font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-50">Theme</h3>
+            <h3 className="text-lg font-serif font-semibold text-foreground dark:text-warm-gray-50">Theme</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Select your preferred color scheme
             </p>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-warm-gray-900 dark:text-warm-gray-50">Color Mode</p>
+              <p className="font-medium text-foreground dark:text-warm-gray-50">Color Mode</p>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Choose between light and dark themes
               </p>

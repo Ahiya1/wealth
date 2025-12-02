@@ -200,7 +200,7 @@ export function RecurringTransactionForm({ onSuccess }: RecurringTransactionForm
       <div className="space-y-2">
         <Label htmlFor="endDate">End Date (Optional)</Label>
         <Input id="endDate" type="date" {...register('endDate')} />
-        <p className="text-xs text-warm-gray-600">Leave blank for no end date</p>
+        <p className="text-xs text-muted-foreground">Leave blank for no end date</p>
         {errors.endDate && <p className="text-sm text-red-500">{errors.endDate.message}</p>}
       </div>
 
@@ -217,7 +217,7 @@ export function RecurringTransactionForm({ onSuccess }: RecurringTransactionForm
             {...register('dayOfMonth', { valueAsNumber: true })}
             placeholder="e.g., 1-31, or -1 for last day"
           />
-          <p className="text-xs text-warm-gray-600">
+          <p className="text-xs text-muted-foreground">
             Leave blank to use start date&apos;s day. Use -1 for last day of month.
           </p>
           {errors.dayOfMonth && (
@@ -244,7 +244,7 @@ export function RecurringTransactionForm({ onSuccess }: RecurringTransactionForm
               <SelectItem value="6">Saturday</SelectItem>
             </SelectContent>
           </Select>
-          <p className="text-xs text-warm-gray-600">
+          <p className="text-xs text-muted-foreground">
             Leave blank to use start date&apos;s day of week.
           </p>
         </div>

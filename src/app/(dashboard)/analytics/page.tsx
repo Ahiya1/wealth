@@ -166,8 +166,8 @@ export default function AnalyticsPage() {
             {/* Date Range Selector */}
             <Card className="border-sage-200">
               <CardHeader>
-                <CardTitle className="text-warm-gray-900">Date Range</CardTitle>
-                <CardDescription className="text-warm-gray-600">Select the period you want to analyze</CardDescription>
+                <CardTitle className="text-foreground">Date Range</CardTitle>
+                <CardDescription className="text-muted-foreground">Select the period you want to analyze</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2">
@@ -193,7 +193,7 @@ export default function AnalyticsPage() {
                     Last Year
                   </Button>
                 </div>
-                <p className="text-sm text-warm-gray-600 mt-2">
+                <p className="text-sm text-muted-foreground mt-2">
                   Showing data from {format(dateRange.startDate, 'MMM d, yyyy')} to {format(dateRange.endDate, 'MMM d, yyyy')}
                 </p>
               </CardContent>
@@ -208,7 +208,7 @@ export default function AnalyticsPage() {
                       <TrendingUp className="h-5 w-5 text-sage-600" />
                     </div>
                     <div>
-                      <p className="font-serif text-lg text-warm-gray-900 mb-1">You&apos;re doing great!</p>
+                      <p className="font-serif text-lg text-foreground mb-1">You&apos;re doing great!</p>
                       <p className="text-warm-gray-700">Keep tracking your transactions to gain deeper insights into your spending patterns.</p>
                     </div>
                   </div>
@@ -219,8 +219,8 @@ export default function AnalyticsPage() {
             {/* Net Worth Over Time */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-warm-gray-900">Net Worth</CardTitle>
-                <CardDescription className="text-warm-gray-600">Your total net worth over time</CardDescription>
+                <CardTitle className="text-foreground">Net Worth</CardTitle>
+                <CardDescription className="text-muted-foreground">Your total net worth over time</CardDescription>
               </CardHeader>
               <CardContent>
                 <NetWorthChart data={netWorthHistory || []} />
@@ -230,8 +230,8 @@ export default function AnalyticsPage() {
             {/* Month-over-Month Comparison */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-warm-gray-900">Income vs Expenses</CardTitle>
-                <CardDescription className="text-warm-gray-600">Month-over-month comparison of income and expenses</CardDescription>
+                <CardTitle className="text-foreground">Income vs Expenses</CardTitle>
+                <CardDescription className="text-muted-foreground">Month-over-month comparison of income and expenses</CardDescription>
               </CardHeader>
               <CardContent>
                 <MonthOverMonthChart data={monthOverMonth || []} />
@@ -243,8 +243,8 @@ export default function AnalyticsPage() {
               {/* Spending by Category */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-warm-gray-900">Spending by Category</CardTitle>
-                  <CardDescription className="text-warm-gray-600">Where your money goes</CardDescription>
+                  <CardTitle className="text-foreground">Spending by Category</CardTitle>
+                  <CardDescription className="text-muted-foreground">Where your money goes</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <SpendingByCategoryChart data={spendingByCategory || []} />
@@ -254,8 +254,8 @@ export default function AnalyticsPage() {
               {/* Income Sources */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-warm-gray-900">Income Sources</CardTitle>
-                  <CardDescription className="text-warm-gray-600">Where your income comes from</CardDescription>
+                  <CardTitle className="text-foreground">Income Sources</CardTitle>
+                  <CardDescription className="text-muted-foreground">Where your income comes from</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <IncomeSourcesChart data={incomeSources || []} />
@@ -266,8 +266,8 @@ export default function AnalyticsPage() {
             {/* Spending Trends */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-warm-gray-900">Spending Trends</CardTitle>
-                <CardDescription className="text-warm-gray-600">Your spending over time</CardDescription>
+                <CardTitle className="text-foreground">Spending Trends</CardTitle>
+                <CardDescription className="text-muted-foreground">Your spending over time</CardDescription>
               </CardHeader>
               <CardContent>
                 <SpendingTrendsChart data={spendingTrends || []} />

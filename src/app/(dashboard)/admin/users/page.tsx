@@ -15,10 +15,10 @@ export default function AdminUsersPage() {
         <Breadcrumb pathname="/admin/users" />
 
         <div className="mb-6">
-          <h1 className="text-3xl font-bold font-serif text-warm-gray-900">
+          <h1 className="text-3xl font-bold font-serif text-foreground">
             User Management
           </h1>
-          <p className="text-warm-gray-600 mt-1">
+          <p className="text-muted-foreground mt-1">
             Search, filter, and view user information
           </p>
         </div>

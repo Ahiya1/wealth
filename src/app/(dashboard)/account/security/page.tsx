@@ -15,7 +15,7 @@ export default function SecurityPage() {
         <Breadcrumb pathname="/account/security" />
 
         <div>
-          <h1 className="text-3xl font-serif font-bold text-warm-gray-900 dark:text-warm-gray-50">Security</h1>
+          <h1 className="text-3xl font-serif font-bold text-foreground dark:text-warm-gray-50">Security</h1>
           <p className="text-muted-foreground mt-2 leading-relaxed">
             Manage your account security and authentication settings
           </p>
@@ -36,7 +36,7 @@ export default function SecurityPage() {
         </CardHeader>
         <CardContent>
           <div className="rounded-lg border border-dashed border-warm-gray-300 p-6 text-center">
-            <p className="text-sm text-warm-gray-600 mb-3">
+            <p className="text-sm text-muted-foreground mb-3">
               Password management is handled by Supabase Auth
             </p>
             <Button disabled variant="outline">
@@ -59,7 +59,7 @@ export default function SecurityPage() {
         </CardHeader>
         <CardContent>
           <div className="rounded-lg border border-dashed border-warm-gray-300 p-6 text-center">
-            <p className="text-sm text-warm-gray-600 mb-3">
+            <p className="text-sm text-muted-foreground mb-3">
               Two-factor authentication coming in a future update
             </p>
             <Button disabled variant="outline">
@@ -79,7 +79,7 @@ export default function SecurityPage() {
         </CardHeader>
         <CardContent>
           <div className="rounded-lg border border-dashed border-warm-gray-300 p-6 text-center">
-            <p className="text-sm text-warm-gray-600">
+            <p className="text-sm text-muted-foreground">
               Session management coming soon
             </p>
           </div>

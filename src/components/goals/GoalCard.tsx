@@ -35,7 +35,7 @@ const GOAL_TYPE_CONFIG = {
     icon: TrendingDown,
     label: 'Debt Payoff',
     bgColor: 'bg-warm-gray-50',
-    iconColor: 'text-warm-gray-600',
+    iconColor: 'text-muted-foreground',
   },
   INVESTMENT: {
     icon: TrendingUp,
@@ -76,7 +76,7 @@ export const GoalCard = memo(function GoalCard({ goal, onEdit, onDelete }: GoalC
 
     const getStatusColor = () => {
       if (goal.isCompleted) return 'text-sage-600'
-      if (daysRemaining < 30) return 'text-warm-gray-600'
+      if (daysRemaining < 30) return 'text-muted-foreground'
       if (daysRemaining < 0) return 'text-coral'
       return 'text-warm-gray-500'
     }
@@ -108,20 +108,20 @@ export const GoalCard = memo(function GoalCard({ goal, onEdit, onDelete }: GoalC
               <CardTitle className="text-lg">
                 <Link
                   href={`/goals/${goal.id}`}
-                  className="hover:underline text-warm-gray-900"
+                  className="hover:underline text-foreground"
                 >
                   {goal.name}
                 </Link>
               </CardTitle>
-              <p className="text-sm text-warm-gray-600">{config.label}</p>
+              <p className="text-sm text-muted-foreground">{config.label}</p>
             </div>
           </div>
           <div className="flex gap-1">
             <Button variant="ghost" size="icon" onClick={onEdit}>
-              <Edit className="h-4 w-4 text-warm-gray-600" />
+              <Edit className="h-4 w-4 text-muted-foreground" />
             </Button>
             <Button variant="ghost" size="icon" onClick={onDelete}>
-              <Trash2 className="h-4 w-4 text-warm-gray-600" />
+              <Trash2 className="h-4 w-4 text-muted-foreground" />
             </Button>
           </div>
         </div>
@@ -137,7 +137,7 @@ export const GoalCard = memo(function GoalCard({ goal, onEdit, onDelete }: GoalC
 
         {/* Amounts */}
         <div className="text-center space-y-1">
-          <p className="text-sm text-warm-gray-600">
+          <p className="text-sm text-muted-foreground">
             {formatCurrency(calculations.currentAmount)} of {formatCurrency(calculations.targetAmount)}
           </p>
           <p className="text-xs text-warm-gray-500">
@@ -157,7 +157,7 @@ export const GoalCard = memo(function GoalCard({ goal, onEdit, onDelete }: GoalC
                 {calculations.encouragingMessage}
               </p>
             </div>
-            <p className="text-xs text-warm-gray-600">
+            <p className="text-xs text-muted-foreground">
               Completed on {calculations.formattedCompleted || 'Unknown'}
             </p>
           </motion.div>
