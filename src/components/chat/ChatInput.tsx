@@ -10,7 +10,7 @@ interface ChatInputProps {
   sessionId: string | null
   onMessageSent: () => void
   onStreamingUpdate?: (text: string) => void
-  onStreamingStart?: () => void
+  onStreamingStart?: (userMessage: string) => void
   onStreamingEnd?: () => void
   disabled?: boolean
 }
@@ -49,13 +49,13 @@ export function ChatInput({
   const handleSend = async () => {
     if ((!input.trim() && !uploadedFile) || !sessionId || isStreaming) return
 
-    const userMessage = input.trim()
+    const userMessage = input.trim() || 'I uploaded a file. Please analyze it.'
     const fileData = uploadedFile
     setInput('')
     setUploadedFile(null)
     setError(null)
     setIsStreaming(true)
-    onStreamingStart?.()
+    onStreamingStart?.(userMessage)
 
     try {
       abortControllerRef.current = new AbortController()
@@ -70,7 +70,7 @@ export function ChatInput({
         fileType?: string
       } = {
         sessionId,
-        message: userMessage || 'I uploaded a file. Please analyze it.',
+        message: userMessage,
       }
 
       if (fileData) {

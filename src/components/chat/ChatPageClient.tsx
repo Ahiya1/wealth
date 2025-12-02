@@ -96,12 +96,22 @@ export function ChatPageClient() {
     }
   }
 
-  const handleStreamingStart = () => {
-    // Add optimistic streaming message
+  const handleStreamingStart = (userMessage: string) => {
+    // Add optimistic user message first
+    const userMessageId = `user-${Date.now()}`
+    const optimisticUserMessage: ChatMessage = {
+      id: userMessageId,
+      sessionId: activeSessionId!,
+      role: 'user',
+      content: userMessage,
+      createdAt: new Date(),
+    }
+
+    // Add optimistic streaming message for assistant
     const streamingId = `streaming-${Date.now()}`
     setStreamingMessageId(streamingId)
 
-    const optimisticMessage: ChatMessage = {
+    const optimisticAssistantMessage: ChatMessage = {
       id: streamingId,
       sessionId: activeSessionId!,
       role: 'assistant',
@@ -109,7 +119,7 @@ export function ChatPageClient() {
       createdAt: new Date(),
     }
 
-    setLocalMessages((prev) => [...prev, optimisticMessage])
+    setLocalMessages((prev) => [...prev, optimisticUserMessage, optimisticAssistantMessage])
   }
 
   const handleStreamingUpdate = (text: string) => {
@@ -130,6 +140,8 @@ export function ChatPageClient() {
   const handleMessageSent = () => {
     // Refetch messages after streaming completes
     utils.chat.getMessages.invalidate({ sessionId: activeSessionId! })
+    // Refetch sessions to get updated title
+    utils.chat.listSessions.invalidate()
   }
 
   const sessionToDelete = sessions?.find((s) => s.id === deletingSessionId)
