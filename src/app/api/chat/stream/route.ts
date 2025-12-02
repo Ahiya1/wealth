@@ -185,7 +185,7 @@ export async function POST(req: NextRequest) {
 
         // Stream from Claude API with tools
         const claudeStream = await claude.messages.stream({
-          model: 'claude-sonnet-4-5-20250514',
+          model: 'claude-sonnet-4-5-20250929',
           max_tokens: 4096,
           temperature: 0.3,
           system: systemPrompt,
@@ -272,7 +272,7 @@ export async function POST(req: NextRequest) {
 
               // Resume streaming with tool results
               const resumeStream = await claude.messages.stream({
-                model: 'claude-sonnet-4-5-20250514',
+                model: 'claude-sonnet-4-5-20250929',
                 max_tokens: 4096,
                 temperature: 0.3,
                 system: systemPrompt,

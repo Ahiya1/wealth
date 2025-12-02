@@ -128,7 +128,7 @@ Rules:
 
   try {
     const message = await claude.messages.create({
-      model: 'claude-sonnet-4-5-20250514',
+      model: 'claude-sonnet-4-5-20250929',
       max_tokens: 8192, // Larger for long statements
       temperature: 0.1, // Low temperature for accuracy
       messages: [
