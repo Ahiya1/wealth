@@ -75,12 +75,12 @@ export function ChatPageClient() {
     }
   }, [sessions, activeSessionId])
 
-  // Update local messages when query messages change
+  // Update local messages when query messages change (but not during streaming)
   useEffect(() => {
-    if (messages) {
+    if (messages && !streamingMessageId) {
       setLocalMessages(messages as ChatMessage[])
     }
-  }, [messages])
+  }, [messages, streamingMessageId])
 
   const handleNewChat = async () => {
     createSession.mutate()
@@ -124,12 +124,13 @@ export function ChatPageClient() {
 
   const handleStreamingUpdate = (text: string) => {
     setLocalMessages((prev) => {
-      const updated = [...prev]
-      const lastMessage = updated[updated.length - 1]
-      if (lastMessage && lastMessage.id === streamingMessageId) {
-        lastMessage.content += text
-      }
-      return updated
+      return prev.map((msg, index) => {
+        // Update the last message if it matches the streaming ID
+        if (index === prev.length - 1 && msg.id === streamingMessageId) {
+          return { ...msg, content: msg.content + text }
+        }
+        return msg
+      })
     })
   }
 
