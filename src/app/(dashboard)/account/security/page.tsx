@@ -16,7 +16,7 @@ export default function SecurityPage() {
 
         <div>
           <h1 className="text-3xl font-serif font-bold text-warm-gray-900 dark:text-warm-gray-50">Security</h1>
-          <p className="text-warm-gray-600 dark:text-warm-gray-400 mt-2 leading-relaxed">
+          <p className="text-muted-foreground mt-2 leading-relaxed">
             Manage your account security and authentication settings
           </p>
         </div>

@@ -66,7 +66,7 @@ export function SessionListItem({
             'text-sm font-medium truncate mb-0.5',
             isActive
               ? 'text-sage-900 dark:text-sage-100'
-              : 'text-warm-gray-900 dark:text-warm-gray-100'
+              : 'text-foreground'
           )}
         >
           {session.title}

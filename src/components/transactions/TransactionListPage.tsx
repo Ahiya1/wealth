@@ -131,7 +131,7 @@ export function TransactionListPageClient() {
           </ExportButton>
 
           {transactionCount === 0 && (
-            <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400">
+            <p className="text-sm text-muted-foreground">
               No transactions to export
             </p>
           )}

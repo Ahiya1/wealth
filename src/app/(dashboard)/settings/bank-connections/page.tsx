@@ -91,7 +91,7 @@ export default function BankConnectionsPage() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-serif font-bold text-warm-gray-900">Bank Connections</h1>
-            <p className="text-warm-gray-600 dark:text-warm-gray-400 mt-2 leading-relaxed">
+            <p className="text-muted-foreground mt-2 leading-relaxed">
               Connect your Israeli bank accounts for automatic transaction sync
             </p>
           </div>
@@ -124,7 +124,7 @@ export default function BankConnectionsPage() {
                 <h3 className="text-lg font-serif font-semibold text-warm-gray-900 mb-2">
                   No bank connections
                 </h3>
-                <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   Connect your Israeli bank account to automatically import transactions
                 </p>
                 <Button onClick={() => setIsWizardOpen(true)}>

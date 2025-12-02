@@ -26,10 +26,10 @@ export function EmptyState({
       <div className="rounded-full bg-sage-50 dark:bg-sage-900 p-6 mb-4">
         <Icon className="h-12 w-12 text-sage-500 dark:text-sage-400" />
       </div>
-      <h3 className="text-lg font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100 mb-2">
+      <h3 className="text-lg font-serif font-semibold text-foreground mb-2">
         {title}
       </h3>
-      <p className="text-warm-gray-600 dark:text-warm-gray-400 max-w-sm mb-6">{description}</p>
+      <p className="text-muted-foreground max-w-sm mb-6">{description}</p>
       {action}
     </motion.div>
   )

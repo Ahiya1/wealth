@@ -53,7 +53,7 @@ export function ProgressRing({
 
       {/* Percentage text */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-2xl font-bold text-warm-gray-900 dark:text-warm-gray-100 tabular-nums">
+        <span className="text-2xl font-bold text-foreground tabular-nums">
           {Math.round(percentage)}%
         </span>
       </div>

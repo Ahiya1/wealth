@@ -81,7 +81,7 @@ export function BottomNavigation({
                   'hover:bg-sage-50 dark:hover:bg-sage-900/30',
                   active
                     ? 'text-sage-600 dark:text-sage-400'
-                    : 'text-warm-gray-600 dark:text-warm-gray-400'
+                    : 'text-muted-foreground'
                 )}
                 aria-label={item.label}
                 aria-current={active ? 'page' : undefined}
@@ -108,7 +108,7 @@ export function BottomNavigation({
               'hover:bg-sage-50 dark:hover:bg-sage-900/30',
               isMoreActive || moreSheetOpen
                 ? 'text-sage-600 dark:text-sage-400'
-                : 'text-warm-gray-600 dark:text-warm-gray-400'
+                : 'text-muted-foreground'
             )}
             aria-label="More navigation options"
             aria-expanded={moreSheetOpen}

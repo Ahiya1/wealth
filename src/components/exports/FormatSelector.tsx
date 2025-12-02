@@ -70,7 +70,7 @@ export function FormatSelector({ value, onChange, disabled }: FormatSelectorProp
               <FormatIcon className="mr-3 h-4 w-4" />
               <div>
                 <div className="font-medium">{format.label}</div>
-                <div className="text-xs text-warm-gray-600 dark:text-warm-gray-400">
+                <div className="text-xs text-muted-foreground">
                   {format.description}
                 </div>
               </div>

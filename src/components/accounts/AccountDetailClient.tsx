@@ -78,7 +78,7 @@ export function AccountDetailClient({ account }: AccountDetailClientProps) {
                   isDebt
                     ? 'text-coral dark:text-coral-400'
                     : Number(account.balance) >= 0
-                    ? 'text-warm-gray-900 dark:text-warm-gray-100'
+                    ? 'text-foreground'
                     : 'text-warm-gray-700 dark:text-warm-gray-300'
                 }`}
               >

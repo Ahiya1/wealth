@@ -23,7 +23,7 @@ export default async function HomePage() {
             <div className="flex flex-col items-center text-center space-y-8 max-w-4xl mx-auto">
               {/* Headline */}
               <div className="space-y-4">
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-warm-gray-900 dark:text-warm-gray-100 leading-tight">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-foreground leading-tight">
                   Mindful Money
                   <span className="block text-sage-700 dark:text-sage-400 mt-2">Management</span>
                 </h1>
@@ -61,10 +61,10 @@ export default async function HomePage() {
         <section id="features" className="py-16 md:py-24 bg-white dark:bg-warm-gray-900">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12 md:mb-16">
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-warm-gray-900 dark:text-warm-gray-100 mb-4">
+              <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
                 Everything You Need to Manage Money Mindfully
               </h2>
-              <p className="text-lg text-warm-gray-600 dark:text-warm-gray-400 max-w-2xl mx-auto">
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 Unified dashboard for all your accounts, transactions, budgets, and financial goals.
               </p>
             </div>
@@ -76,10 +76,10 @@ export default async function HomePage() {
                   <div className="mx-auto w-12 h-12 rounded-full bg-sage-50 dark:bg-sage-900/30 flex items-center justify-center">
                     <Bot className="h-6 w-6 text-sage-600 dark:text-sage-400" />
                   </div>
-                  <h3 className="text-xl font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
+                  <h3 className="text-xl font-serif font-semibold text-foreground">
                     AI Assistant
                   </h3>
-                  <p className="text-warm-gray-600 dark:text-warm-gray-400 leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed">
                     Chat naturally about your finances. Import bank statements, categorize transactions, and get insights automatically.
                   </p>
                 </CardContent>
@@ -91,10 +91,10 @@ export default async function HomePage() {
                   <div className="mx-auto w-12 h-12 rounded-full bg-sage-50 dark:bg-sage-900/30 flex items-center justify-center">
                     <Heart className="h-6 w-6 text-sage-600 dark:text-sage-400" />
                   </div>
-                  <h3 className="text-xl font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
+                  <h3 className="text-xl font-serif font-semibold text-foreground">
                     Accounts
                   </h3>
-                  <p className="text-warm-gray-600 dark:text-warm-gray-400 leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed">
                     Track checking, savings, credit cards, and investments in one place.
                   </p>
                 </CardContent>
@@ -106,10 +106,10 @@ export default async function HomePage() {
                   <div className="mx-auto w-12 h-12 rounded-full bg-sage-50 dark:bg-sage-900/30 flex items-center justify-center">
                     <TrendingUp className="h-6 w-6 text-sage-600 dark:text-sage-400" />
                   </div>
-                  <h3 className="text-xl font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
+                  <h3 className="text-xl font-serif font-semibold text-foreground">
                     Transactions
                   </h3>
-                  <p className="text-warm-gray-600 dark:text-warm-gray-400 leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed">
                     Log every transaction, categorize spending, and see where your money goes.
                   </p>
                 </CardContent>
@@ -121,10 +121,10 @@ export default async function HomePage() {
                   <div className="mx-auto w-12 h-12 rounded-full bg-sage-50 dark:bg-sage-900/30 flex items-center justify-center">
                     <Target className="h-6 w-6 text-sage-600 dark:text-sage-400" />
                   </div>
-                  <h3 className="text-xl font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
+                  <h3 className="text-xl font-serif font-semibold text-foreground">
                     Budgets
                   </h3>
-                  <p className="text-warm-gray-600 dark:text-warm-gray-400 leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed">
                     Set monthly category budgets, track progress, and stay aligned with your goals.
                   </p>
                 </CardContent>
@@ -136,10 +136,10 @@ export default async function HomePage() {
                   <div className="mx-auto w-12 h-12 rounded-full bg-sage-50 dark:bg-sage-900/30 flex items-center justify-center">
                     <Sparkles className="h-6 w-6 text-sage-600 dark:text-sage-400" />
                   </div>
-                  <h3 className="text-xl font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
+                  <h3 className="text-xl font-serif font-semibold text-foreground">
                     Goals & Analytics
                   </h3>
-                  <p className="text-warm-gray-600 dark:text-warm-gray-400 leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed">
                     Create savings goals and visualize spending patterns with charts and insights.
                   </p>
                 </CardContent>

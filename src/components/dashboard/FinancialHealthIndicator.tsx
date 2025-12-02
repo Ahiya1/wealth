@@ -41,7 +41,7 @@ export function FinancialHealthIndicator() {
 
   // Determine supportive message and color (sage tones only, no red/green)
   let healthMessage = 'No budgets set'
-  let healthColor = 'text-warm-gray-600 dark:text-warm-gray-400'
+  let healthColor = 'text-muted-foreground'
   let gaugePercentage = 0
 
   if (budgetCount > 0) {
@@ -54,7 +54,7 @@ export function FinancialHealthIndicator() {
       healthColor = 'text-sage-500 dark:text-sage-400'
     } else {
       healthMessage = 'Needs attention'
-      healthColor = 'text-warm-gray-600 dark:text-warm-gray-400'
+      healthColor = 'text-muted-foreground'
     }
   }
 
@@ -70,7 +70,7 @@ export function FinancialHealthIndicator() {
       <CardContent>
         {budgetCount === 0 ? (
           <div className="text-center py-4">
-            <p className="text-warm-gray-600 dark:text-warm-gray-400 mb-3 leading-relaxed">
+            <p className="text-muted-foreground mb-3 leading-relaxed">
               Set budgets to track your financial health
             </p>
             <Button asChild variant="outline" size="sm">
@@ -109,7 +109,7 @@ export function FinancialHealthIndicator() {
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl font-bold text-warm-gray-900 dark:text-warm-gray-100 font-sans tabular-nums">
+                <span className="text-2xl font-bold text-foreground font-sans tabular-nums">
                   {onTrack}/{budgetCount}
                 </span>
               </div>
@@ -120,7 +120,7 @@ export function FinancialHealthIndicator() {
               <p className={`text-lg font-semibold ${healthColor} leading-relaxed`}>
                 {healthMessage}
               </p>
-              <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mt-1 leading-relaxed">
+              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
                 {onTrack} of {budgetCount} budgets on track
               </p>
               {(warning > 0 || over > 0) && (

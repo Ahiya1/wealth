@@ -19,7 +19,7 @@ export function ImportPromptStep({ shouldImport: initialShouldImport, onComplete
         <CheckCircle className="h-12 w-12 text-green-600" />
         <div className="text-center">
           <h3 className="text-xl font-semibold">Connection Successful!</h3>
-          <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             Your bank account has been connected successfully.
           </p>
         </div>
@@ -28,7 +28,7 @@ export function ImportPromptStep({ shouldImport: initialShouldImport, onComplete
       <div className="space-y-4">
         <div>
           <h4 className="font-semibold mb-3">Import transactions?</h4>
-          <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mb-4">
+          <p className="text-sm text-muted-foreground mb-4">
             Would you like to import your recent transactions now? We&apos;ll import the last 30 days of
             completed transactions.
           </p>
@@ -47,7 +47,7 @@ export function ImportPromptStep({ shouldImport: initialShouldImport, onComplete
                 <Download className="h-5 w-5 text-sage-600" />
                 <div>
                   <div className="font-semibold">Yes, import now</div>
-                  <div className="text-sm text-warm-gray-600 dark:text-warm-gray-400">
+                  <div className="text-sm text-muted-foreground">
                     Import last 30 days of transactions
                   </div>
                 </div>
@@ -65,7 +65,7 @@ export function ImportPromptStep({ shouldImport: initialShouldImport, onComplete
             >
               <div>
                 <div className="font-semibold">Skip for now</div>
-                <div className="text-sm text-warm-gray-600 dark:text-warm-gray-400">
+                <div className="text-sm text-muted-foreground">
                   You can sync later from the settings page
                 </div>
               </div>

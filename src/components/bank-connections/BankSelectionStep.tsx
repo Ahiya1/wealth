@@ -31,7 +31,7 @@ export function BankSelectionStep({
       <div className="space-y-4">
         <div>
           <Label className="text-base font-semibold">Select your bank</Label>
-          <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Choose the bank or credit card you want to connect
           </p>
         </div>
@@ -52,7 +52,7 @@ export function BankSelectionStep({
               </div>
               <div>
                 <div className="font-semibold">First International Bank (FIBI)</div>
-                <div className="text-sm text-warm-gray-600 dark:text-warm-gray-400">
+                <div className="text-sm text-muted-foreground">
                   Bank Otsar Ha-Hayal
                 </div>
               </div>
@@ -74,7 +74,7 @@ export function BankSelectionStep({
               </div>
               <div>
                 <div className="font-semibold">Visa CAL Credit Card</div>
-                <div className="text-sm text-warm-gray-600 dark:text-warm-gray-400">
+                <div className="text-sm text-muted-foreground">
                   CAL credit card services
                 </div>
               </div>
@@ -87,7 +87,7 @@ export function BankSelectionStep({
         <div className="space-y-4">
           <div>
             <Label className="text-base font-semibold">Account type</Label>
-            <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               Select the type of account
             </p>
           </div>
@@ -104,7 +104,7 @@ export function BankSelectionStep({
                 }`}
               >
                 <div className="font-semibold">Checking Account</div>
-                <div className="text-sm text-warm-gray-600 dark:text-warm-gray-400">
+                <div className="text-sm text-muted-foreground">
                   Your primary bank account
                 </div>
               </button>
@@ -120,7 +120,7 @@ export function BankSelectionStep({
               }`}
             >
               <div className="font-semibold">Credit Card</div>
-              <div className="text-sm text-warm-gray-600 dark:text-warm-gray-400">
+              <div className="text-sm text-muted-foreground">
                 Credit card transactions
               </div>
             </button>

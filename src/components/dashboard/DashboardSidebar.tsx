@@ -118,9 +118,9 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
         aria-label="Toggle menu"
       >
         {mobileMenuOpen ? (
-          <X className="h-6 w-6 text-warm-gray-900 dark:text-warm-gray-100" />
+          <X className="h-6 w-6 text-foreground" />
         ) : (
-          <Menu className="h-6 w-6 text-warm-gray-900 dark:text-warm-gray-100" />
+          <Menu className="h-6 w-6 text-foreground" />
         )}
       </button>
 
@@ -144,7 +144,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
       {/* Logo/Brand */}
       <div className="p-6 border-b border-warm-gray-200 dark:border-warm-gray-700">
         <h1 className="text-2xl font-bold text-sage-600 dark:text-sage-400">Wealth</h1>
-        <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mt-1">
+        <p className="text-sm text-muted-foreground mt-1">
           Mindful Money Management
         </p>
       </div>
@@ -156,7 +156,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
             <Info className="h-3 w-3" />
             Demo Mode
           </p>
-          <p className="mt-1 text-xs text-warm-gray-600 dark:text-warm-gray-400">
+          <p className="mt-1 text-xs text-muted-foreground">
             Showing sample data
           </p>
         </div>
@@ -197,10 +197,10 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                 {userData?.email?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
               </div>
               <div className="flex-1 text-left min-w-0">
-                <p className="font-medium text-sm truncate text-warm-gray-900 dark:text-warm-gray-100">
+                <p className="font-medium text-sm truncate text-foreground">
                   {userData?.name || 'User'}
                 </p>
-                <p className="text-xs text-warm-gray-600 dark:text-warm-gray-400 truncate">
+                <p className="text-xs text-muted-foreground truncate">
                   {userData?.email || user.email}
                 </p>
               </div>

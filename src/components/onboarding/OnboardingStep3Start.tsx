@@ -33,7 +33,7 @@ export function OnboardingStep3Start({ onNext, onBack }: OnboardingStepProps) {
           Recommended Next Steps
         </h2>
 
-        <p className="text-center text-warm-gray-600 dark:text-warm-gray-400 max-w-md mx-auto">
+        <p className="text-center text-muted-foreground max-w-md mx-auto">
           Here&apos;s how to get started with tracking your finances
         </p>
 
@@ -48,10 +48,10 @@ export function OnboardingStep3Start({ onNext, onBack }: OnboardingStepProps) {
                 <div className="flex items-start gap-3">
                   <Icon className="h-5 w-5 text-sage-600 dark:text-sage-400 mt-0.5" />
                   <div className="flex-1">
-                    <h3 className="font-semibold text-sm text-warm-gray-900 dark:text-warm-gray-100">
+                    <h3 className="font-semibold text-sm text-foreground">
                       {action.title}
                     </h3>
-                    <p className="text-xs text-warm-gray-600 dark:text-warm-gray-400 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {action.description}
                     </p>
                     <p className="text-xs text-sage-600 dark:text-sage-400 mt-2 font-medium">

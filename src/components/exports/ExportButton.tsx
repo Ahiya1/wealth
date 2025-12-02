@@ -66,7 +66,7 @@ export function ExportButton({
       {children || defaultLabel}
 
       {recordCount !== undefined && recordCount > 0 && (
-        <span className="ml-2 text-xs text-warm-gray-600 dark:text-warm-gray-400">
+        <span className="ml-2 text-xs text-muted-foreground">
           ({recordCount.toLocaleString()})
         </span>
       )}

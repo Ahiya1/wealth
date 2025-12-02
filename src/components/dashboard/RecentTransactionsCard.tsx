@@ -77,7 +77,7 @@ export function RecentTransactionsCard() {
             return (
               <div key={txn.id} className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-warm-gray-900 dark:text-warm-gray-100 truncate">{txn.payee}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{txn.payee}</p>
                   <p className="text-xs text-warm-gray-500 dark:text-warm-gray-400">
                     {format(new Date(txn.date), 'MMM d, yyyy')} · {txn.category.name}
                   </p>

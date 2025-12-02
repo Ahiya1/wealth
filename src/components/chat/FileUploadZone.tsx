@@ -116,7 +116,7 @@ export function FileUploadZone({
         ) : (
           <Upload className="w-12 h-12 mx-auto mb-4 text-warm-gray-400" />
         )}
-        <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mb-2">
+        <p className="text-sm text-muted-foreground mb-2">
           {isProcessing
             ? 'Processing file...'
             : 'Drag and drop a bank statement, or click to browse'

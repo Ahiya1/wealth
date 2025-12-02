@@ -32,10 +32,10 @@ export default async function DashboardPage() {
 
         {/* 2. GREETING BELOW - Smaller, secondary */}
         <div>
-          <h2 className="text-2xl font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
+          <h2 className="text-2xl font-serif font-semibold text-foreground">
             {greeting}, {userName}!
           </h2>
-          <p className="text-warm-gray-600 dark:text-warm-gray-400 mt-1 leading-relaxed">
+          <p className="text-muted-foreground mt-1 leading-relaxed">
             Here&apos;s your financial overview
           </p>
         </div>

@@ -44,15 +44,15 @@ export default function SettingsPage() {
         <Breadcrumb pathname="/settings" />
 
         <div>
-          <h1 className="text-3xl font-serif font-bold text-warm-gray-900 dark:text-warm-gray-100">Settings</h1>
-          <p className="mt-2 text-warm-gray-600 dark:text-warm-gray-400 leading-relaxed">
+          <h1 className="text-3xl font-serif font-bold text-foreground">Settings</h1>
+          <p className="mt-2 text-muted-foreground leading-relaxed">
             Configure application settings and preferences
           </p>
         </div>
 
         {/* Settings Sections */}
         <div className="space-y-4">
-          <h2 className="text-lg font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
+          <h2 className="text-lg font-serif font-semibold text-foreground">
             Application Settings
           </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -68,10 +68,10 @@ export default function SettingsPage() {
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
+                  <h3 className="font-serif font-semibold text-foreground">
                     {section.title}
                   </h3>
-                  <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mt-1 leading-relaxed">
+                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
                     {section.description}
                   </p>
                 </div>
@@ -84,7 +84,7 @@ export default function SettingsPage() {
 
         {/* Help & Support */}
         <div className="space-y-4 pt-6 border-t border-warm-gray-200 dark:border-warm-gray-700">
-          <h2 className="text-lg font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
+          <h2 className="text-lg font-serif font-semibold text-foreground">
             Help & Support
           </h2>
         <Button

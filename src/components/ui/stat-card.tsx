@@ -38,13 +38,13 @@ export const StatCard = memo(function StatCard({
         )}
       >
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-warm-gray-600 dark:text-warm-gray-400">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
             {title}
           </CardTitle>
           <Icon className="h-5 w-5 text-sage-500 dark:text-sage-400" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold font-sans tabular-nums text-warm-gray-900 dark:text-warm-gray-100">
+          <div className="text-2xl font-bold font-sans tabular-nums text-foreground">
             {value}
           </div>
 
@@ -58,7 +58,7 @@ export const StatCard = memo(function StatCard({
               <span
                 className={cn(
                   trend.direction === 'up' && 'text-sage-600 dark:text-sage-400',
-                  trend.direction === 'down' && 'text-warm-gray-600 dark:text-warm-gray-400',
+                  trend.direction === 'down' && 'text-muted-foreground',
                   trend.direction === 'neutral' && 'text-warm-gray-500 dark:text-warm-gray-400'
                 )}
               >

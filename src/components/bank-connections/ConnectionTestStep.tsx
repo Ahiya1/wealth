@@ -154,12 +154,12 @@ export function ConnectionTestStep({
         <div className="text-center">
           <h3 className="text-lg font-semibold">{getStatusMessage()}</h3>
           {testStatus === 'testing' && (
-            <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               This may take up to 60 seconds. Please wait...
             </p>
           )}
           {testStatus === 'success' && accountNumber && (
-            <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               Account ending in {accountNumber.slice(-4)}
             </p>
           )}

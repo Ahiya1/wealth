@@ -42,7 +42,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
         {isUser ? (
           <User className="h-4 w-4 text-sage-600 dark:text-sage-400" />
         ) : (
-          <Bot className="h-4 w-4 text-warm-gray-600 dark:text-warm-gray-400" />
+          <Bot className="h-4 w-4 text-muted-foreground" />
         )}
       </div>
 

@@ -88,7 +88,7 @@ export function CredentialsStep({ initialData, onNext, onBack }: CredentialsStep
             placeholder="1234"
             {...register('accountIdentifier')}
           />
-          <p className="text-xs text-warm-gray-600 dark:text-warm-gray-400">
+          <p className="text-xs text-muted-foreground">
             This helps identify your account in the app
           </p>
           {errors.accountIdentifier && (

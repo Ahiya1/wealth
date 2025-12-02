@@ -13,7 +13,7 @@ export function Breadcrumb({ pathname }: BreadcrumbProps) {
   if (segments.length === 0) return null
 
   return (
-    <nav className="flex items-center gap-2 text-sm text-warm-gray-600 dark:text-warm-gray-400 mb-4">
+    <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
       {segments.map((segment, index) => {
         const href = '/' + segments.slice(0, index + 1).join('/')
         const label = segment
@@ -26,7 +26,7 @@ export function Breadcrumb({ pathname }: BreadcrumbProps) {
           <div key={href} className="flex items-center gap-2">
             {index > 0 && <ChevronRight className="h-4 w-4" />}
             {isLast ? (
-              <span className="font-medium text-warm-gray-900 dark:text-warm-gray-100">{label}</span>
+              <span className="font-medium text-foreground">{label}</span>
             ) : (
               <Link
                 href={href}

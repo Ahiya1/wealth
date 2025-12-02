@@ -43,8 +43,8 @@ export default function AccountOverviewPage() {
         <Breadcrumb pathname="/account" />
 
         <div>
-          <h1 className="text-3xl font-serif font-bold text-warm-gray-900 dark:text-warm-gray-100">Account</h1>
-          <p className="text-warm-gray-600 dark:text-warm-gray-400 mt-2 leading-relaxed">
+          <h1 className="text-3xl font-serif font-bold text-foreground">Account</h1>
+          <p className="text-muted-foreground mt-2 leading-relaxed">
             Manage your personal information and account settings
           </p>
         </div>
@@ -61,11 +61,11 @@ export default function AccountOverviewPage() {
               {userData?.email?.[0]?.toUpperCase() || 'U'}
             </div>
             <div>
-              <p className="font-semibold text-lg text-warm-gray-900 dark:text-warm-gray-100">
+              <p className="font-semibold text-lg text-foreground">
                 {userData?.name || 'User'}
               </p>
-              <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400">{userData?.email}</p>
-              <p className="text-xs text-warm-gray-500 dark:text-warm-gray-500 mt-1">
+              <p className="text-sm text-muted-foreground">{userData?.email}</p>
+              <p className="text-xs text-muted-foreground mt-1">
                 Tier: <span className="font-medium">{userData?.subscriptionTier || 'FREE'}</span>
               </p>
             </div>
@@ -75,7 +75,7 @@ export default function AccountOverviewPage() {
 
         {/* Account Sections */}
         <div className="space-y-4">
-          <h2 className="text-lg font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
+          <h2 className="text-lg font-serif font-semibold text-foreground">
             Account Settings
           </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -91,14 +91,14 @@ export default function AccountOverviewPage() {
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
+                  <h3 className="font-serif font-semibold text-foreground">
                     {section.title}
                   </h3>
-                  <p className="text-sm text-warm-gray-600 dark:text-warm-gray-400 mt-1 leading-relaxed">
+                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
                     {section.description}
                   </p>
                 </div>
-                <ChevronRight className="h-5 w-5 text-warm-gray-400 mt-1" />
+                <ChevronRight className="h-5 w-5 text-muted-foreground mt-1" />
               </Link>
             )
           })}

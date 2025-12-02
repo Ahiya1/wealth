@@ -38,7 +38,7 @@ export function ChatSidebar({
       {/* Header */}
       <div className="p-4 sm:p-6 border-b border-warm-gray-200 dark:border-warm-gray-700">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-serif font-semibold text-warm-gray-900 dark:text-warm-gray-100">
+          <h2 className="text-lg font-serif font-semibold text-foreground">
             Chat Sessions
           </h2>
         </div>
