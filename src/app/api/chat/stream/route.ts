@@ -88,14 +88,23 @@ Now help the user manage their finances!`
 // ============================================================================
 
 export async function POST(req: NextRequest) {
-  // 1. Authenticate
+  // 1. Authenticate via Supabase, then get Prisma user
   const supabase = createClient()
   const {
-    data: { user },
+    data: { user: supabaseUser },
   } = await supabase.auth.getUser()
 
-  if (!user) {
+  if (!supabaseUser) {
     return new Response('Unauthorized', { status: 401 })
+  }
+
+  // Get Prisma user (ChatSession.userId references Prisma User.id, not Supabase Auth ID)
+  const user = await prisma.user.findUnique({
+    where: { supabaseAuthId: supabaseUser.id },
+  })
+
+  if (!user) {
+    return new Response('User not found', { status: 401 })
   }
 
   // 2. Check feature flag
