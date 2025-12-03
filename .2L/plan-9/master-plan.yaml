@@ -1,0 +1,58 @@
+plan_id: plan-9
+created_at: 2025-12-03T20:05:00+02:00
+status: PLANNED
+total_iterations: 1
+
+strategy: |
+  Single-iteration bug fix focusing on the critical streaming issue.
+
+  Root Cause: The streaming route doesn't handle `input_json_delta` events from Claude's API.
+  Tool inputs are captured as empty {} because the code only reads from `content_block_start`
+  but Claude delivers inputs incrementally via delta events.
+
+  Fix Approach:
+  1. Accumulate JSON fragments from input_json_delta events
+  2. Parse complete JSON on content_block_stop
+  3. Add error recovery for resume stream
+  4. Add tool call deduplication for safety
+
+  All changes localized to /src/app/api/chat/stream/route.ts primarily.
+
+iterations:
+  - iteration_id: 1
+    global_iteration: 25
+    name: "AI Chat Tool Streaming Fix"
+    vision: "Fix the critical bug causing empty responses after tool invocation"
+    scope: |
+      ## Critical Fixes (P0)
+
+      ### Builder 1: Fix Tool Input Accumulation
+      - Handle `input_json_delta` events in streaming loop
+      - Accumulate JSON fragments per tool call
+      - Parse complete JSON on `content_block_stop`
+      - File: /src/app/api/chat/stream/route.ts
+
+      ### Builder 2: Add Error Recovery & Deduplication
+      - Wrap resume stream in try-catch with retry logic
+      - Add tool call ID tracking to prevent re-execution
+      - Improve error messages for failed streams
+      - File: /src/app/api/chat/stream/route.ts
+
+      ## Should-Have (P1)
+
+      ### Builder 3: Rate Limiter Cleanup & Logging
+      - Add cleanup interval for rateLimitStore Map
+      - Add comprehensive error logging
+      - Add tool execution timing logs
+      - File: /src/app/api/chat/stream/route.ts
+
+      ## Validation
+      - Manual testing with real ANTHROPIC_API_KEY
+      - Test "Analyze my spending" → select time range → verify response appears
+      - Test all 11 tools for visible responses
+      - Verify no empty message boxes
+
+    status: PENDING
+    dependencies: []
+    builder_count: 3
+    estimated_hours: 4

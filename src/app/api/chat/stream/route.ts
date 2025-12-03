@@ -52,6 +52,26 @@ function checkRateLimit(userId: string, limit: number, windowMs: number): boolea
   return true
 }
 
+// Cleanup expired rate limit entries every 5 minutes to prevent memory leaks
+const RATE_LIMIT_CLEANUP_INTERVAL_MS = 5 * 60 * 1000
+
+setInterval(() => {
+  const now = Date.now()
+  let cleanedCount = 0
+
+  for (const [userId, entry] of rateLimitStore) {
+    // Add 1 minute grace period after reset time
+    if (now > entry.resetAt + 60000) {
+      rateLimitStore.delete(userId)
+      cleanedCount++
+    }
+  }
+
+  if (cleanedCount > 0) {
+    console.log('[Chat] Rate limiter cleanup:', cleanedCount, 'entries removed')
+  }
+}, RATE_LIMIT_CLEANUP_INTERVAL_MS)
+
 // ============================================================================
 // SYSTEM PROMPT BUILDER
 // ============================================================================
@@ -184,6 +204,7 @@ export async function POST(req: NextRequest) {
         const systemPrompt = await buildSystemPrompt(user.id)
 
         // Stream from Claude API with tools
+        console.log(`[Chat] Starting stream for session ${sessionId}`)
         const claudeStream = await claude.messages.stream({
           model: 'claude-sonnet-4-5-20250929',
           max_tokens: 4096,
@@ -195,10 +216,12 @@ export async function POST(req: NextRequest) {
 
         let fullContent = ''
         const toolCalls: Array<{ id: string; name: string; input: any }> = []
+        let currentToolIndex = -1
+        const toolInputJsonFragments: string[] = []
 
         // Process streaming events
         for await (const event of claudeStream) {
-          // Handle text deltas
+          // Handle text deltas and input JSON deltas
           if (event.type === 'content_block_delta') {
             if (event.delta.type === 'text_delta') {
               const text = event.delta.text
@@ -207,25 +230,66 @@ export async function POST(req: NextRequest) {
               // Send text chunk as SSE event
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`))
             }
+
+            // Accumulate tool input JSON fragments
+            if (event.delta.type === 'input_json_delta') {
+              if (currentToolIndex >= 0) {
+                toolInputJsonFragments[currentToolIndex] += event.delta.partial_json
+              }
+            }
           }
 
           // Handle tool use blocks
           if (event.type === 'content_block_start') {
             if (event.content_block.type === 'tool_use') {
+              currentToolIndex++
+              toolInputJsonFragments[currentToolIndex] = ''
               toolCalls.push({
                 id: event.content_block.id,
                 name: event.content_block.name,
-                input: event.content_block.input,
+                input: {},  // Will be populated from input_json_delta events
               })
+            }
+          }
+
+          // Handle content block stop - parse accumulated JSON
+          if (event.type === 'content_block_stop') {
+            const jsonFragment = toolInputJsonFragments[currentToolIndex]
+            const currentToolCall = toolCalls[currentToolIndex]
+            if (currentToolIndex >= 0 && jsonFragment && currentToolCall) {
+              try {
+                const parsedInput = JSON.parse(jsonFragment)
+                currentToolCall.input = parsedInput
+              } catch (parseError) {
+                console.error('[Chat] Failed to parse tool input JSON:', parseError)
+                console.error('[Chat] Raw fragments:', jsonFragment)
+                // Keep input as {} - tool will handle gracefully
+              }
             }
           }
 
           // Handle message completion (not stream stop yet)
           if (event.type === 'message_delta') {
             if (event.delta.stop_reason === 'tool_use') {
+              // Deduplicate tool calls by ID to prevent re-execution
+              const seenToolIds = new Set<string>()
+              const uniqueToolCalls = toolCalls.filter((tc) => {
+                if (seenToolIds.has(tc.id)) {
+                  console.warn('[Chat] Skipping duplicate tool call:', tc.id, tc.name)
+                  return false
+                }
+                seenToolIds.add(tc.id)
+                return true
+              })
+
               // Claude wants to use tools - execute them
+              console.log(`[Chat] Executing ${uniqueToolCalls.length} tool(s) for session ${sessionId}`)
+
               const toolResults = await Promise.all(
-                toolCalls.map(async (toolCall) => {
+                uniqueToolCalls.map(async (toolCall) => {
+                  console.log('[Chat] Executing tool:', toolCall.name, 'with input:', JSON.stringify(toolCall.input))
+                  const toolStartTime = Date.now()
+
                   try {
                     const result = await executeToolCall(
                       toolCall.name,
@@ -234,13 +298,17 @@ export async function POST(req: NextRequest) {
                       prisma
                     )
 
+                    const toolDuration = Date.now() - toolStartTime
+                    console.log(`[Chat] Tool ${toolCall.name} completed in ${toolDuration}ms`)
+
                     return {
                       type: 'tool_result' as const,
                       tool_use_id: toolCall.id,
                       content: JSON.stringify(result),
                     }
                   } catch (error) {
-                    console.error('Tool execution error:', error)
+                    const toolDuration = Date.now() - toolStartTime
+                    console.error(`[Chat] Tool ${toolCall.name} failed in ${toolDuration}ms:`, error)
                     return {
                       type: 'tool_result' as const,
                       tool_use_id: toolCall.id,
@@ -248,16 +316,16 @@ export async function POST(req: NextRequest) {
                       content:
                         error instanceof Error
                           ? error.message
-                          : 'Tool execution failed',
+                          : 'Unable to complete this action. Please try again.',
                     }
                   }
                 })
               )
 
-              // Continue conversation with tool results
+              // Continue conversation with tool results (use uniqueToolCalls for consistency)
               claudeMessages.push({
                 role: 'assistant' as const,
-                content: toolCalls.map((tc) => ({
+                content: uniqueToolCalls.map((tc) => ({
                   type: 'tool_use' as const,
                   id: tc.id,
                   name: tc.name,
@@ -270,70 +338,139 @@ export async function POST(req: NextRequest) {
                 content: toolResults as any, // Tool results content type
               })
 
-              // Resume streaming with tool results
-              const resumeStream = await claude.messages.stream({
-                model: 'claude-sonnet-4-5-20250929',
-                max_tokens: 4096,
-                temperature: 0.3,
-                system: systemPrompt,
-                messages: claudeMessages,
-                tools: getToolDefinitions(),
-              })
+              // Resume streaming with tool results - with retry logic
+              console.log(`[Chat] Resuming stream with ${toolResults.length} tool result(s) for session ${sessionId}`)
 
-              // Continue processing resume stream
-              for await (const resumeEvent of resumeStream) {
-                if (resumeEvent.type === 'content_block_delta') {
-                  if (resumeEvent.delta.type === 'text_delta') {
-                    const text = resumeEvent.delta.text
-                    fullContent += text
-                    controller.enqueue(
-                      encoder.encode(`data: ${JSON.stringify({ text })}\n\n`)
-                    )
-                  }
-                }
+              let resumeAttempt = 0
+              const maxResumeAttempts = 2
 
-                if (resumeEvent.type === 'message_stop') {
-                  // Save assistant message with tool results
-                  await prisma.chatMessage.create({
-                    data: {
-                      sessionId,
-                      role: 'assistant',
-                      content: fullContent,
-                      toolCalls: toolCalls,
-                    },
+              while (resumeAttempt <= maxResumeAttempts) {
+                try {
+                  const resumeStream = await claude.messages.stream({
+                    model: 'claude-sonnet-4-5-20250929',
+                    max_tokens: 4096,
+                    temperature: 0.3,
+                    system: systemPrompt,
+                    messages: claudeMessages,
+                    tools: getToolDefinitions(),
                   })
 
-                  // Auto-generate session title after first exchange
-                  const messageCount = await prisma.chatMessage.count({
-                    where: { sessionId }
-                  })
+                  // State for resume stream nested tool calls
+                  let resumeToolIndex = -1
+                  const resumeToolInputJsons: string[] = []
+                  const resumeToolCalls: Array<{ id: string; name: string; input: any }> = []
 
-                  if (messageCount === 2) {
-                    // Get first user message
-                    const firstMessage = await prisma.chatMessage.findFirst({
-                      where: { sessionId, role: 'user' },
-                      orderBy: { createdAt: 'asc' },
-                    })
+                  // Continue processing resume stream
+                  for await (const resumeEvent of resumeStream) {
+                    // Handle text deltas and input JSON deltas
+                    if (resumeEvent.type === 'content_block_delta') {
+                      if (resumeEvent.delta.type === 'text_delta') {
+                        const text = resumeEvent.delta.text
+                        fullContent += text
+                        controller.enqueue(
+                          encoder.encode(`data: ${JSON.stringify({ text })}\n\n`)
+                        )
+                      }
 
-                    if (firstMessage) {
-                      const title = generateTitleFromMessage(firstMessage.content)
+                      // Handle nested tool input deltas
+                      if (resumeEvent.delta.type === 'input_json_delta') {
+                        if (resumeToolIndex >= 0) {
+                          resumeToolInputJsons[resumeToolIndex] += resumeEvent.delta.partial_json
+                        }
+                      }
+                    }
+
+                    // Handle nested tool block start
+                    if (resumeEvent.type === 'content_block_start') {
+                      if (resumeEvent.content_block.type === 'tool_use') {
+                        resumeToolIndex++
+                        resumeToolInputJsons[resumeToolIndex] = ''
+                        resumeToolCalls.push({
+                          id: resumeEvent.content_block.id,
+                          name: resumeEvent.content_block.name,
+                          input: {},
+                        })
+                      }
+                    }
+
+                    // Finalize nested tool inputs
+                    if (resumeEvent.type === 'content_block_stop') {
+                      const resumeJsonFragment = resumeToolInputJsons[resumeToolIndex]
+                      const resumeCurrentToolCall = resumeToolCalls[resumeToolIndex]
+                      if (resumeToolIndex >= 0 && resumeJsonFragment && resumeCurrentToolCall) {
+                        try {
+                          resumeCurrentToolCall.input = JSON.parse(resumeJsonFragment)
+                        } catch (e) {
+                          console.error('[Chat] Failed to parse resume tool input:', e)
+                        }
+                      }
+                    }
+
+                    if (resumeEvent.type === 'message_stop') {
+                      // Save assistant message with tool results (use uniqueToolCalls)
+                      await prisma.chatMessage.create({
+                        data: {
+                          sessionId,
+                          role: 'assistant',
+                          content: fullContent,
+                          toolCalls: uniqueToolCalls,
+                        },
+                      })
+
+                      // Auto-generate session title after first exchange
+                      const messageCount = await prisma.chatMessage.count({
+                        where: { sessionId }
+                      })
+
+                      if (messageCount === 2) {
+                        // Get first user message
+                        const firstMessage = await prisma.chatMessage.findFirst({
+                          where: { sessionId, role: 'user' },
+                          orderBy: { createdAt: 'asc' },
+                        })
+
+                        if (firstMessage) {
+                          const title = generateTitleFromMessage(firstMessage.content)
+                          await prisma.chatSession.update({
+                            where: { id: sessionId },
+                            data: { title },
+                          })
+                        }
+                      }
+
+                      // Update session timestamp
                       await prisma.chatSession.update({
                         where: { id: sessionId },
-                        data: { title },
+                        data: { updatedAt: new Date() },
                       })
+
+                      // Send completion event
+                      console.log(`[Chat] Stream completed for session ${sessionId}`)
+                      controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+                      controller.close()
+                      return
                     }
                   }
 
-                  // Update session timestamp
-                  await prisma.chatSession.update({
-                    where: { id: sessionId },
-                    data: { updatedAt: new Date() },
-                  })
+                  // If we get here without returning, stream completed successfully
+                  break
 
-                  // Send completion event
-                  controller.enqueue(encoder.encode('data: [DONE]\n\n'))
-                  controller.close()
-                  return
+                } catch (resumeError) {
+                  resumeAttempt++
+                  console.error(`[Chat] Resume stream attempt ${resumeAttempt} failed:`, resumeError)
+
+                  if (resumeAttempt > maxResumeAttempts) {
+                    // All retries exhausted - send user-friendly error
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                      error: 'I was unable to process your request. Please try again.'
+                    })}\n\n`))
+                    controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+                    controller.close()
+                    return
+                  }
+
+                  // Exponential backoff: 1s, 2s
+                  await new Promise(resolve => setTimeout(resolve, 1000 * resumeAttempt))
                 }
               }
             }
@@ -378,12 +515,13 @@ export async function POST(req: NextRequest) {
             })
 
             // Send completion event
+            console.log(`[Chat] Stream completed for session ${sessionId}`)
             controller.enqueue(encoder.encode('data: [DONE]\n\n'))
             controller.close()
           }
         }
       } catch (error) {
-        console.error('Stream error:', error)
+        console.error('[Chat] Stream error:', error)
 
         // Send error event to client
         const errorMessage =
